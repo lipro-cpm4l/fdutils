@@ -779,8 +779,8 @@
  SS DD sect=18 cyl=35 ssize=256
 
 # TO7 (Thomson), sides 1 and 2
-"TO7-1"
+"TO7-1":
  SS DD sect=16 ssize=256
 
-"TO7-2"
+"TO7-2":
  SS DD sect=16 ssize=256 swapsides
