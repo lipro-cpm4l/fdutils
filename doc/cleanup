@@ -1,0 +1,5 @@
+#!/bin/sh
+
+rm -f fdutils.aux fdutils.cp fdutils.cps fdutils.dvi fdutils.fn fdutils.ky
+rm -f fdutils.log fdutils.pg fdutils.ps fdutils.toc fdutils.tp fdutils.vr
+rm -f fdutils.info*

@@ -1,0 +1,35 @@
+@node Compile-time configuration, Acronyms, Commands, Top
+@chapter Compile-time configuration via GNU autoconf
+@cindex configure options
+@cindex compile-time configuration
+
+Before it can be compiled, fdutils must be configured using the GNU
+autoconf script @code{./configure}.  In most circumstances, running
+@code{./configure} without any parameters is enough. However, you may
+customize fdutils using various options to @code{./configure}. The
+following options are supported:
+@table @code
+
+@item --prefix @var{directory}
+Prefix used for any directories used by fdutils.  By default, this is
+@file{/usr/local}.  Fdutils is installed in @file{$prefix/lib}, looks for
+its system wide configuration file in @file{$prefix/etc}.  Man pages are
+installed in @file{$prefix/man}, info pages in @file{$prefix/info} etc.
+
+@item --sysconfdir @var{directory}
+Directory containing the system-wide configuration files such as
+@file{mediaprm} and @file{driveprm}.  By default, this is derived from
+@code{prefix} (see above).  N.B. For backward compatibility reasons, the
+old-style floppy parameter file @file{fdprm} is always in @file{/etc},
+regardless of the setting for @code{sysconfdir}
+
+@item --enable-fdmount-floppy-only
+Allows usage of the @code{fdmount} program only to members of the group
+@code{floppy}
+
+@end table
+
+In addition to the above-listed options, the other standard GNU autoconf
+options apply.  Type @code{./configure --help} to get a complete list of
+these.
+

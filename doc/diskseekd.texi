@@ -1,0 +1,47 @@
+@node diskseekd, fdmount, diskd, Commands
+@section diskseekd
+@pindex diskseekd
+@cindex dust (shaking it off from a drive)
+@cindex shaking off dust from a drive
+
+Several people have noticed that Linux has a bad tendency of killing
+floppy drives. These failures remained completely mysterious, until
+somebody noticed that they were due to huge layers of dust accumulating
+in the floppy drives. This cannot happen under Messy Dos, because this
+excuse for an operating system is so unstable that it crashes roughly
+every 20 minutes (actually less if you are running Windows).  When
+rebooting, the BIOS seeks the drive, and by doing this, it shakes the
+dust out of the drive mechanism. @code{diskseekd} simulates this effect
+by seeking the drive periodically.  If it is called as @code{diskseek},
+the drive is seeked only once.
+
+@subsection Options
+
+The syntax for @code{diskseekd} is as follows:
+@example
+@code{diskseekd} [@code{-d} @var{drive}] [@code{-i} @var{interval}] [@code{-p} @var{pidfile}]
+@end example
+
+@table @code
+@item -d @var{drive}
+Selects the drive to seek.  By default, drive 0 (@file{/dev/fd0}) is seeked.
+
+@item -i @var{interval}
+Selects the cleaning interval, in seconds.  If the interval is 0, a
+single seek is done. This is useful when calling diskseek from a
+crontab.  The default is 1000 seconds (about 16 minutes) for
+@code{diskseekd} and 0 for @code{diskseek}.
+
+@item -p @var{pidfile}
+Stores the process id of the diskseekd daemon into @var{pidfile} instead
+of the default @file{/var/run/diskseekd.pid}.
+@end table
+
+@subsection Bugs
+
+@enumerate
+@item
+Other aspects of Messy Dos' flakiness are not simulated.
+@item
+This section lacks a few smileys.
+@end enumerate
