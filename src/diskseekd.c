@@ -14,6 +14,7 @@
 #include <linux/major.h>
 #include "enh_options.h"
 #include <sys/signal.h>
+#include <errno.h>
 
 int eioctl(int fd, int command,void * param, char *emsg)
 {
@@ -33,7 +34,7 @@ int eioctl(int fd, int command,void * param, char *emsg)
 void dummy(int dummy)
 {}
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int mask=0;
 	int fd=-2;
@@ -159,4 +160,5 @@ void main(int argc, char **argv)
 			exit(1);
 		}
 	}
+    return 0;
 }

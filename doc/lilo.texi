@@ -1,0 +1,205 @@
+@node Boottime configuration, Floppy ioctls, Autodetection, Top
+@chapter Configuring the floppy driver via lilo or insmod
+
+The floppy driver is configured using the @code{floppy=} options in
+lilo. These options can be typed at the boot prompt, or entered in the
+lilo configuration file.
+
+Example: If your kernel is called @code{linux-2.0}, type the following
+line at the lilo boot prompt (if you have a thinkpad):
+@example
+linux-2.0 floppy=thinkpad
+@end example
+You may also enter the following line in @file{/etc/lilo.conf}, in the description
+of @code{linux-2.0}:
+@example
+append = "floppy=thinkpad"
+@end example
+
+Several floppy related options may be given, example:
+@example
+linux-2.0 floppy=daring floppy=two_fdc
+append = "floppy=daring floppy=two_fdc"
+@end example
+
+If you give options both in the lilo config file and on the boot
+prompt, the option strings of both places are concatenated, the boot
+prompt options coming last. That's why there are also options to
+restore the default behaviour.
+
+
+If you use the floppy driver as a module, use the following syntax:
+@code{insmod floppy 'floppy="@var{options}"'}. (This line may be
+unreadable in the info version of this document. If so, please refer to
+the printed version).
+
+Example:
+@example
+insmod floppy 'floppy="daring two_fdc"'
+@end example
+
+Note that in this case @code{floppy=} should only be typed out once,
+and not once for each option. You need at least modules-1.3.57 for this
+method.  However, the older environment variable based syntax is still
+available: 
+@table @asis
+@item Bourne (sh, bash, ksh, zsh) syntax:
+@code{floppy="daring two_fdc" insmod floppy}
+@item C-shell (csh, tcsh) syntax:
+@code{setenv floppy "daring two_fdc" ; insmod floppy}
+@end table
+
+Some versions of insmod are buggy in one way or another. If you have
+any problems (options not being passed correctly, segfaults during
+insmod), first check whether there is a more recent version. If there
+isn't, use the old method using environment variables.  Problems with
+@code{insmod} happen mostly for options involving both a number and a
+string, such as @code{floppy=0,4,cmos}.  Options only involving strings,
+such as @code{floppy=daring} are not affected.
+
+The floppy related options include:
+
+@table @code
+@item  floppy=daring
+Tells the floppy driver that you have a well behaved floppy controller.
+This allows more efficient and smoother operation, but may fail on
+certain controllers.
+
+@item floppy=0,daring
+Tells the floppy driver that your floppy controller should be used
+with caution.
+
+@item floppy=one_fdc
+Tells the floppy driver that you have only floppy controller (default)
+
+@item floppy=two_fdc
+@item floppy=@var{address},two_fdc
+Tells the floppy driver that you have two floppy controllers. The second
+floppy controller is assumed to be at @var{address}. If @var{address} is
+not given, 0x370 is assumed. two_fdc is implied if you use the cmos
+option with a drive of id 4 to 7.
+
+@item floppy=thinkpad
+Tells the floppy driver that you have a Thinkpad. Thinkpads use an
+inverted convention for the disk change line.
+
+@item floppy=0,thinkpad
+Tells the floppy driver that you don't have a Thinkpad.
+
+
+@item floppy=omnibook
+@itemx floppy=nodma
+
+Tells the floppy driver not to use Dma for data transfers.  This is
+needed for instance on some HP Omnibooks, which don't have a workable
+DMA channel for the floppy driver. This option is also useful if you
+frequently get "Unable to allocate DMA memory" messages.  Indeed, dma
+memory needs to be continuous in physical memory, and is thus harder to
+find, whereas non-dma buffers may be allocated in virtual memory.
+However, I advise against this if you have an FDC without a FIFO (8272A
+or 82072). 82072A and later are OK. You also need at least a 486 to use
+nodma.  If you use nodma mode, I suggest you also set the FIFO threshold
+to 10 or lower, in order to limit the number of data transfer
+interrupts.
+
+@item floppy=dma
+Tells the floppy driver that a workable DMA channel is available
+(the default).
+
+@item floppy=nofifo
+Disables the FIFO entirely. This is needed if you get "Bus master
+arbitration error" messages from your ethernet card (or from other
+devices) while accessing the floppy.
+
+@item floppy=fifo
+Enables the FIFO (default)
+
+@item floppy=@var{threshold},fifo_depth
+Sets the FIFO threshold. This is mostly relevant in DMA mode. If this is
+higher, the floppy driver tolerates more interrupt latency, but it
+triggers more interrupts (i.e. it imposes more load on the rest of the
+system). If this is lower, the interrupt latency should be lower too
+(faster processor). The benefit of a lower threshold is less interrupts.
+
+To tune the fifo threshold, switch on over/underrun messages using
+@code{floppycontrol --messages}. Then access a floppy disk. If you get a
+huge amount of @code{Over/Underrun - retrying} messages, then the fifo
+threshold is too low. Try with a higher value, until you only get an
+occasional Over/Underrun.  It is a good idea to compile the floppy
+driver as a module when doing this tuning. Indeed, it allows to try
+different fifo values without rebooting the machine for each test. Note
+that you need to do @code{floppycontrol --messages} every time you
+re-insert the module.
+
+Usually, tuning the fifo threshold should not be needed, as the default
+(0xa) is reasonable.
+
+@item floppy=@var{drive},@var{type},cmos
+Sets the cmos type of @var{drive} to @var{type}. Additionnaly, this
+drive is allowed in the bitmask. This is useful if you have more than
+two floppy drives (only two can be described in the physical cmos), or
+if your BIOS uses non-standard CMOS types. The CMOS types are:
+@table @code
+@item 0
+unknown or not installed
+@item 1
+5 1/4 DD
+@item 2
+5 1/4 HD
+@item 3
+3 1/2 DD
+@item 4
+3 1/2 HD
+@item 5
+3 1/2 ED
+@item 6
+3 1/2 ED
+@end table
+
+Note that there are two valid types for ED drives. This is because 5 was
+initially chosen to represent floppy tapes, and 6 for ED drives.  AMI
+ignored this, and used 5 for ED drives. That's why the floppy driver
+handles both) Setting the CMOS to 0 for the first two drives (default)
+makes the floppy driver read the physical cmos for those drives.
+
+@item floppy=unexpected_interrupts
+Print a warning message when an unexpected interrupt is received 
+(default behaviour)
+
+@item floppy=no_unexpected_interrupts
+@itemx floppy=L40SX
+Don't print a message when an unexpected interrupt is received. This is
+needed on IBM L40SX laptops in certain video modes. (There seems to be
+an interaction between video and floppy. The unexpected interrupts only
+affect performance, and can safely be ignored.)
+
+@item floppy=broken_dcl
+Don't use the disk change line, but assume that the disk was changed
+whenever the device node is reopened. Needed on some boxes where the
+disk change line is broken or unsupported.  This should be regarded as a
+stopgap measure, indeed it makes floppy operation less efficient due to
+unneeded cache flushings, and slightly more unreliable. Please verify
+your cable, connection and jumper settings if you have any DCL problems.
+However, some older drives, and also some Laptops are known not to have
+a DCL.
+
+@item floppy=debug
+
+Print debugging messages
+
+@item floppy=messages
+
+Print informational messages for some operations (disk change
+notifications, warnings about over and underruns, and about
+autodetection)
+
+@item floppy=silent_dcl_clear
+
+Uses a less noisy way to clear the disk change line (which doesn't
+involve seeks). Implied by daring.
+
+
+(There are other options as well, but they are considered obsolete, and
+thus they are not documented here)
+
+@end table

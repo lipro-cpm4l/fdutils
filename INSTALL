@@ -3,9 +3,10 @@ Installation:
 
  1. First untar the package.
 
- 2. Compile the utilities:
-      cd src
-      make
+ 2. Run ./configure
+
+ 3. Compile the utilities:
+     make
 
  3. Run the MAKEFLOPPIES script to create the device files:
       cd /dev
@@ -15,7 +16,7 @@ Installation:
  I you have any questions, feel free to ask!
 
  5. You might also want to get a recent version of mtools (later than
-2.5.4)
+3.0)
 
    A. Knaff
-  ( Alain.Knaff@inrialpes.fr )
+  ( Alain.Knaff@poboxes.com )

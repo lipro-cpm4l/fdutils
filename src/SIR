@@ -1,0 +1,5 @@
+* BUG: chunksize setting ignored
+* ENHANCE: use smaller chunksizes spontaneously (ok) maxchunksize
+* ENHANCE: print elapsed time for read.
+* ENHANCE: optionnally limit to one sequence (with biggest sector last)
+* ENHANCE: accept geometry in one string

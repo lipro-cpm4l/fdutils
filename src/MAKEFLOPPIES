@@ -97,6 +97,7 @@ cmosid ()
 
 # main()
 
+PERMISSION=666
 while [ $# -ge 1 -o -n "${REMAINDER}" ]; do
 	if [ -n "$REMAINDER" ]; then
 		## Continue processing options stuck together
@@ -144,6 +145,9 @@ while [ $# -ge 1 -o -n "${REMAINDER}" ]; do
 
 	[vV])	VERBOSE=yes ;;
 
+	## Allow access only for group floppy
+	[gG])	PERMISSION=660 ;;
+
 	*)	echo "$0: unrecognized argument \"$ARG\"." >&2
 		USAGE=yes
 		;;
@@ -159,6 +163,7 @@ if [ -n "$USAGE" ]; then
 	-d	Name devices for drive type
 	-m	Name devices for media type
 	-u	Use the same letter (u) for all 3 1/2 devices
+	-g	Allow access only for group floppy
 	-v	Verbose
 ' >&2
 	exit 1
@@ -209,7 +214,7 @@ for DRIVE in $DRIVES; do
 	if [ -z "$DRYRUN" ]; then
 		mknod "$FILE" b "$MAJOR" "$BASENUMBER"
 		chown root.floppy "$FILE"
-		chmod 666 "$FILE"
+		chmod ${PERMISSION} "$FILE"
 	fi
 	if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
 		echo mknod "$FILE" b "$MAJOR" "$BASENUMBER"
@@ -233,7 +238,7 @@ for DRIVE in $DRIVES; do
 			if [ -z "$DRYRUN" ]; then
 				mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"
 				chown root.floppy "${FILE}${NAME}"
-				chmod 666 "${FILE}${NAME}"
+				chmod ${PERMISSION} "${FILE}${NAME}"
 			fi
 			if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
 				echo mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"

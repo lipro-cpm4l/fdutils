@@ -145,7 +145,8 @@ void main(int argc, char **argv)
   struct floppy_raw_cmd *results=0;
   long long *times=0;
   long long *timesb4=0;
-  
+  int fm_mode = 0;
+  char *eptr;
   char buffer[ 512 * 2 * 24 ];
 
   raw_cmd.length= 512 * 2 * 24;
@@ -157,8 +158,19 @@ void main(int argc, char **argv)
 
   drive="/dev/fd0";
 
-  if (( s=getenv("length") ) || (s = getenv("LENGTH")) )
-    raw_cmd.length= strtoul( s,0,0);
+  if (( s=getenv("length") ) || (s = getenv("LENGTH")) ) {
+	  raw_cmd.length= strtoul( s,& eptr, 0);
+	  switch(*eptr) {
+		  case 'b':
+			  raw_cmd.length  *= 512;
+			  break;
+		  case 'k':
+		  case 'K':
+			  raw_cmd.length  *= 1024;
+			  break;
+	  }
+  }
+
   
   if ((s = getenv("rate") ) || (s = getenv("RATE")) )
     raw_cmd.rate = strtoul( s,0,0);
@@ -182,12 +194,21 @@ void main(int argc, char **argv)
 	if ( !cmd || r_flags == 0 )
 	  r_flags |= flags;
 	if ( raw_cmd.cmd_count == 0 )
-	raw_cmd.cmd[raw_cmd.cmd_count++] = cmd;
-      continue;
+	  raw_cmd.cmd[raw_cmd.cmd_count++] = cmd;
+	continue;
       }
 
       if ( strncmp( "length=", *argv, 7 ) == 0 ){
-	raw_cmd.length= strtoul( (*argv)+7,0,0);
+	raw_cmd.length= strtoul( (*argv)+7,&eptr, 0);
+	switch(*eptr) {
+		case 'b':
+			raw_cmd.length  *= 512;
+			break;
+		case 'k':
+		case 'K':
+			raw_cmd.length  *= 1024;
+			break;
+	}
 	continue;
       }
       
@@ -226,6 +247,12 @@ void main(int argc, char **argv)
 	continue;
       }
 
+      if ( strcmp( "fm", *argv) == 0){
+	fm_mode = 1;
+	continue;
+      }
+
+
       if ( strcmp( "short", *argv) == 0){
 	do_short = 1;
 	continue;
@@ -252,6 +279,9 @@ void main(int argc, char **argv)
       
       raw_cmd.cmd[raw_cmd.cmd_count++] = cmd;
     }
+
+    if(fm_mode)
+      raw_cmd.cmd[0] &= ~0x40;
     
     if ( r_flags & FD_RAW_WRITE ){
       size = 0;
@@ -285,7 +315,6 @@ void main(int argc, char **argv)
 	  exit(1);
 	}
       }
-      *drive = '\0';
     }
 
     if (do_buffer){

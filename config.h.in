@@ -1,0 +1,16 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+/* Define as __inline if that's what the C compiler calls it.  */
+#undef inline
+
+/* Define this if you fdmount to be usable only by the 'floppy' group */
+#undef FLOPPY_ONLY
+
+/* Define if you have the <linux/ext_fs.h> header file.  */
+#undef HAVE_LINUX_EXT_FS_H
+
+/* Define if you have the <linux/xia_fs> header file.  */
+#undef HAVE_LINUX_XIA_FS

@@ -1,3 +1,4 @@
+#include "../config.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,10 +15,21 @@
 #include <linux/fd.h>
 #include <linux/fs.h>
 #include <linux/minix_fs.h>
+
+#ifdef HAVE_LINUX_EXT_FS_H
 #include <linux/ext_fs.h>
+#endif
+
 #include <linux/ext2_fs.h>
+
+#ifdef HAVE_LINUX_XIA_FS_H
 #include <linux/xia_fs.h>
+#endif
+
 #include <syslog.h>
+#include <sys/types.h>
+#include <grp.h>
+
 
 #define USE_2M
 #include "msdos_fs.h"
@@ -438,6 +450,7 @@ int id_fstype(byte *super, fmt_descr *fmt) {
 	    return T_EXT2;
 	}
 
+#ifdef EXT_SUPER_MAGIC
     /* look for ext filesystem */
 
     if (ext->s_magic==EXT_SUPER_MAGIC)
@@ -445,7 +458,9 @@ int id_fstype(byte *super, fmt_descr *fmt) {
 	    fmt->totsect=ext->s_nzones * (2<<ext->s_log_zone_size);
 	    return T_EXT;
 	}
+#endif
 
+#ifdef _XIAFS_SUPER_MAGIC
     /* look for xia filesystem */
 
     if (xia->s_magic==_XIAFS_SUPER_MAGIC)
@@ -453,7 +468,7 @@ int id_fstype(byte *super, fmt_descr *fmt) {
 	    fmt->totsect=xia->s_nzones * xia->s_zone_size/512;
 	    return T_XIA;
 	}
-
+#endif
     /* add more format types here ... */
 
     /* look for MS-DOG filesystem 
@@ -1037,6 +1052,10 @@ int main(int argc, char **argv)
 	opt_noexec=0,opt_nodev=0,opt_nosuid=0;
     int mountflags=0;
     char *opt_pidfile="/var/run/fdmount.pid"; 
+#if FLOPPY_ONLY
+    gid_t groups[NGROUPS_MAX];
+    int not_allowed = 1, ngroups;
+#endif                             
 
     static struct option longopt[] = {
 	{ "silent",	0, &opt_silent,	1 },
@@ -1067,6 +1086,19 @@ int main(int argc, char **argv)
     opt_daemon=(strcmp(progname,"fdmountd")==0);
     opt_list  =(strcmp(progname,"fdlist")==0);
 
+#if FLOPPY_ONLY
+    if ((ngroups = getgroups (NGROUPS_MAX, groups)) != -1) {
+    	int     i;
+    	struct group *gr;
+
+        for (i = 0; not_allowed && i < ngroups; i++)
+            if ((gr = getgrgid (groups[i])))
+            	not_allowed = strcmp (gr -> gr_name, "floppy");
+    }
+    if (not_allowed)
+        die("Must be member of group floppy");
+#endif
+                                                                                                                                                                                                                                                                                                                                                                   
     if (geteuid()!=0) 
 	die("Must run with EUID=root");
     ruid = getuid();

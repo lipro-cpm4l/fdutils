@@ -22,8 +22,8 @@ Done:
 	940710 AK Fixed support for 300Kbps 3.5" DD disks without 2m
 
 Todo:
--	Allow reversing track order, or perhaps have option to try as many
-	tracks as happen to work (as in 2m).  Currently, if too many tracks
+-	Allow reversing cylinder order, or perhaps have option to try as many
+	cylinders as happen to work (as in 2m).  Currently, if too many cylinders
 	are attempted it won't fail until the very end
  */
 
@@ -39,101 +39,43 @@ Todo:
 #include <sys/stat.h>
 #include <linux/fs.h>
 #include <linux/major.h>
+#include <errno.h>
 #include "enh_options.h"
+#include "mediaprm.h"
+#include "fdutils.h"
+#include "oldfdprm.h"
+#include "superformat.h"
 
-#define SET_SOFTGAP 0x1
-#define SET_ENDTRACK 0x2
-#define SET_CHUNKSIZE 0x4
-#define SET_SECTORS 0x8
-#define SET_INTERLEAVE 0x10
-#define SET_FMTGAP 0x20
-#define SET_RATE 0x40
-#define SET_SIZECODE 0x80
-#define SET_TRACKS 0x100
-#define SET_STRETCH 0x200
-#define SET_FINALGAP 0x400
-#define SET_DOSDRIVE 0x800
-#define SET_2M 0x1000
-#define SET_VERBOSITY 0x2000
-#define SET_MARGIN 0x4000
-
-#define MAX_SIZECODE 8
-
-#define DO_DEBUG 1
-#define ALSKEW 4
-
-int margin=36;
 int fm_mode=0;
-#define MAX_SECTORS 50
-/* int skew; */
-
-struct fparm {
-	unsigned char track,head,sect,size;
-};
-
-struct fparm2 {
-	unsigned char sect, size, offset;
-};
-
-#define NO_DENSITY -1
-#define DOUBLE_DENSITY 0
-#define HIGH_DENSITY 1
-#define EXTRA_DENSITY 2
 
 struct defaults {
 	char density;
 	struct {
 		int sect;
 		int rate;
-	} fmt[3];
+	} fmt[6];
 } drive_defaults[] = {
-{ 0, { {0, 0}, {0, 0} }},
-{ DOUBLE_DENSITY, { {9, 2}, {0, 0}, {0, 0} } },
-{ HIGH_DENSITY, { {9, 1}, {15, 0}, {0, 0} } },
-{ DOUBLE_DENSITY, { {9, 2}, {0, 0}, {0, 0} } },
-{ HIGH_DENSITY, { {9, 2}, {18, 0}, {0, 0} } },
-{ EXTRA_DENSITY, { {9, 2}, {18, 0}, {36, 0x43} } },
-{ EXTRA_DENSITY, { {9, 2}, {18, 0}, {36, 0x43} } } };
+{ DENS_UNKNOWN, { {0, 0}, {0, 0} }},
+{ DENS_DD, { {0, 0}, { 0, 0}, {9, 2}, { 0, 0}, {0, 0}, {0, 0} } },
+{ DENS_HD, { {0, 0}, { 0, 0}, {9, 1}, { 0, 0}, {15, 0}, {0, 0} } },
+{ DENS_DD, { {0, 0}, { 0, 0}, {9, 2}, { 0, 0}, {0, 0}, {0, 0} } },
+{ DENS_HD, { {0, 0}, { 0, 0}, {9, 2}, { 0, 0}, {18, 0}, {0, 0} } },
+{ DENS_ED, { {0, 0}, { 0, 0}, {9, 2}, { 0, 0}, {18, 0}, {36, 0x43} } },
+{ DENS_ED, { {0, 0}, { 0, 0}, {9, 2}, { 0, 0}, {18, 0}, {36, 0x43} } } };
 int header_size=62;
 int index_size=146; 
 
-struct params {
-	char *name; /* the name of the drive */
-	int fd; /* the open file descriptor */
-	int drive; /* the drive number */
-	int sizecode;
-	int rate;
-	int gap;
-	unsigned int fmt_gap;
-	int use_2mf;
-	struct fparm2 *sequence;
-	int last_sect[MAX_SIZECODE];
-	int nssect; /* number of small sectors */
-	int dsect; /* number of data sectors */
-	int need_init; /* does this track need initialization ? */
-	int raw_capacity; /* raw capacity of one track inbytes */
-	struct floppy_drive_params drvprm;
-	int chunksize; /* used for re-aligning skew */
-	int track_end; /* "" */
-	int flags;
-	int finalgap;
-	int multi; /* multiple formats */
-	int min;
-	int max;
-};
 
 char floppy_buffer[24 * 512];
-char verbosity = 3;
+int verbosity = 3;
 static char noverify = 0;
 static char dosverify = 0;
 static char verify_later = 0;
 short stretch;
-int tracks, heads, sectors;
-int begin_track, end_track;
-int head_skew=1024, track_skew=1536, absolute_skew=0;
-char use_2m=0;
-#define MAX_TRACKS 85
-#define MAX_HEADS 2
+int cylinders, heads, sectors;
+int begin_cylinder, end_cylinder;
+int head_skew=1024, cylinder_skew=1536, absolute_skew=0;
+int use_2m=0;
 int lskews[MAX_TRACKS][MAX_HEADS] = {{0}};
 int findex[MAX_TRACKS][MAX_HEADS] = {{0}};
 int mask= 0;
@@ -182,7 +124,7 @@ int send_cmd(int fd,struct floppy_raw_cmd *raw_cmd, char *message)
 			goto repeat;
 		}
 		perror(message);
-#ifdef 0
+#if 0
 		printf("the final skew is %d\n", skew );
 #endif
 		exit(1);
@@ -218,7 +160,7 @@ int send_cmd(int fd,struct floppy_raw_cmd *raw_cmd, char *message)
 				if ( (code & ( 1 << i )) && error_msg[i])
 					fprintf(stderr,"%s\n", error_msg[i]);
 			}
-			printf("track=%d head=%d sector=%d size=%d\n",
+			printf("cylinder=%d head=%d sector=%d size=%d\n",
 			       raw_cmd->reply[3],
 			       raw_cmd->reply[4],
 			       raw_cmd->reply[5],
@@ -239,139 +181,36 @@ int send_cmd(int fd,struct floppy_raw_cmd *raw_cmd, char *message)
 	return 0;
 }
 
-int floppy_read(struct params *fd, void *data, int track, int head, int sectors)
+int floppy_read(struct params *fd, void *data, int cylinder, int head, int sectors)
 {
-	int n;
-	if (lseek(fd->fd, (track * heads + head) * sectors * 512,
+	int n,m;
+	if (lseek(fd->fd, (cylinder * heads + head) * sectors * 512,
 		  SEEK_SET) < 0) {
 		perror("lseek");
 		return -1;
 	}
-	n=read(fd->fd, data, sectors * 512);
-	if ( n < 0 )
-		perror("read");
-	if ( n == sectors * 512)
-		return n;
-	else
-		return -1;
-}
-
-void calc_multi_skew(struct params *f, int track, int head, int skew,
-		    int *lskew, int *index)
-{
-	int j;
-
-	for (j=0; ; ++j) {
-		if (j == f[0].dsect ) {
-			j = 0;
-			skew -= f[0].raw_capacity;
+	m = sectors * 512;
+	while(m>0) {
+		/* read until we have read everything we should */
+		n=read(fd->fd, data, m);
+		if ( n < 0 ) {
+			perror("read");
+			return -1;
 		}
-		
-		if ( f[j].min * f[j].chunksize >= f[j].max )
-			continue;
-		
-		if (skew < f[j].min * f[j].chunksize){
-			skew = f[j].min * f[j].chunksize;
-			break;
+		if(n== 0) {
+			fprintf(stderr, "Error, %d bytes remaining\n", m);
+			return -1;
 		}
-		skew = skew + f[j].chunksize - 1;
-		skew -= skew % f[j].chunksize;
-		if (skew <= f[j].max){
-			if (f[j].flags & ALSKEW )
-				continue;
-			else
-				break;
-		}
-	}
-	f += j;
-	if (verbosity == 9)
-		printf("format #%d\n", j);
-	*index=j;
-	if (f->multi && (skew < f->min * f->chunksize || skew >= f->max) ){
-		printf("%d %d %d\n",f->min * f->chunksize, skew, f->max);
-		exit(1);
-	}
-	*lskew = skew / f->chunksize;
-	*lskew = (*lskew + f->nssect - f->min) % f->nssect;
-	if (f->multi && (skew < f->min * f->chunksize ||
-			 skew >= f->max) ){
-		printf("%d %d %d\n",
-		       f->min * f->chunksize, skew, f->max);
-		exit(1);
-	}
-}
-
-void calc_mono_ski(struct params *f,
-		  int track, int head, int skew, int *lskew)
-{
-	int i, track_end, curoffset, maxoffset, aligned;
-
-	track_end = (f->raw_capacity- header_size- index_size- 1) /f->chunksize;
-	*lskew = (skew + f->chunksize - 1) / f->chunksize;
-
-	i=aligned=maxoffset=0;
-	while(1){
-		if ( i == f->dsect ){
-			if ( aligned ||  ! (f->flags & ALSKEW) )
-				return;
-			*lskew += f->nssect - maxoffset;
-			i=0;
-		}
-		curoffset = (f->sequence[i].offset + *lskew) % f->nssect;
-		if(curoffset > track_end){
-			*lskew = f->nssect - f->sequence[i].offset;
-			maxoffset=0;
-			aligned = 0;
-			i=0;
-		}
-		if (curoffset == 0 )
-			aligned=1;
-		if( curoffset > maxoffset)
-			maxoffset = curoffset;
-		i++;
-	}
-}
-
-/* calc_skews. Fill skew table for use in formatting */
-int calc_skews(struct params *fd0, struct params *fd)
-{	
-	int track, head;
-	struct params *f = NULL;
-	int skew, next_track_skew;
-
-	/* Amount to advance skew considering head skew already added in */
-	next_track_skew = track_skew - head_skew;
-	skew = absolute_skew;
-
-	for (track=begin_track; track <= end_track; ++track) {
-		for (head=0; head < heads; ++head) {
-			if (!head && !track && use_2m)
-				f = fd0;
-			else
-				f = fd;
-			skew = skew % f->raw_capacity;			
-			if ( f->multi){
-				calc_multi_skew(f, track, head, skew,
-						&lskews[track][head],
-						&findex[track][head]);
-				f += findex[track][head];
-			} else {
-				calc_mono_ski(f, track, head, skew,
-					      &lskews[track][head]);
-				findex[track][head]=0;
-			}
-			skew = (lskews[track][head] + f->track_end) * 
-				f->chunksize + head_skew;
-		}
-		skew += next_track_skew;
+		m -= n;
 	}
 	return 0;
-} /* End calc_skews */
+}
+
 
 /* format_track. Does the formatting proper */
-int format_track(struct params *fd, int track, int head)
+int format_track(struct params *fd, int cylinder, int head)
 {
-	struct fparm *data;
+	format_map_t *data;
 	struct floppy_raw_cmd raw_cmd;
 	int offset;
 	int i;
@@ -380,33 +219,29 @@ int format_track(struct params *fd, int track, int head)
 	int skew;
 	int retries;
 	
-	data = (struct fparm *) floppy_buffer;
+	data = (format_map_t *) floppy_buffer;
 
 	/* place "fill" sectors */
 	for (i=0; i<fd->nssect*2+1; ++i){
-		data[i].sect = 128+i;
+		data[i].sector = 128+i;
 		data[i].size = /*fd->sizecode*/7;
-		data[i].track = track;
+		data[i].cylinder = cylinder;
 		data[i].head = head;
 	}
 
-	fd += findex[track][head];
-	skew = (fd->min + lskews[track][head]) * fd->chunksize;
-	if (fd->multi && (skew < fd->min * fd->chunksize ||
-			 skew >= fd->max) ){
-		printf("%d %d %d\n",
-		       fd->min * fd->chunksize, skew, fd->max);
-		exit(1);
-	}
+	fd += findex[cylinder][head];
+	skew = fd->min + lskews[cylinder][head] * fd->chunksize;
+	assert(skew >= fd->min);
+	assert(skew < fd->max);
 
 	/* place data sectors */
 	nssect = 0;
 	for (i=0; i<fd->dsect; ++i){
-		offset = fd->sequence[i].offset + lskews[track][head];
+		offset = fd->sequence[i].offset + lskews[cylinder][head];
 		offset = offset % fd->nssect;
-		data[offset].sect = fd->sequence[i].sect;
+		data[offset].sector = fd->sequence[i].sect;
 		data[offset].size = fd->sequence[i].size;
-		data[offset].track = track;
+		data[offset].cylinder = cylinder;
 		data[offset].head = head;
 		if ( offset >= nssect )
 			nssect = offset+1;
@@ -423,13 +258,13 @@ int format_track(struct params *fd, int track, int head)
 		printf("chunksize=%d\n", fd->chunksize);
 		printf("sectors=%d\n", nssect);
 		for (i=0; i<nssect; ++i)
-			printf("%2d/%d, ", data[i].sect, data[i].size);
+			printf("%2d/%d, ", data[i].sector, data[i].size);
 		printf("\n");
 	}
 
 	/* prepare command */
 	raw_cmd.data = floppy_buffer;
-	raw_cmd.length = nssect * sizeof(struct fparm);
+	raw_cmd.length = nssect * sizeof(format_map_t);
 	raw_cmd.cmd_count = 6;
 	raw_cmd.cmd[0] = FD_FORMAT & ~fm_mode;
 	raw_cmd.cmd[1] = head << 2 | ( fd->drive & 3);
@@ -439,7 +274,7 @@ int format_track(struct params *fd, int track, int head)
 	raw_cmd.cmd[5] = 0;
 	raw_cmd.flags = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_SPIN | 
 		FD_RAW_NEED_SEEK | FD_RAW_NEED_DISK;
-	raw_cmd.track = track << stretch;
+	raw_cmd.track = cylinder << stretch;
 	raw_cmd.rate = fd->rate & 0x43;
 
 	/* first pass */
@@ -465,7 +300,7 @@ int format_track(struct params *fd, int track, int head)
 		raw_cmd.cmd_count = 9;
 		raw_cmd.cmd[0] = FD_WRITE & ~fm_mode;	
 		raw_cmd.cmd[1] = head << 2 | ( fd->drive & 3);
-		raw_cmd.cmd[2] = track;
+		raw_cmd.cmd[2] = cylinder;
 		raw_cmd.cmd[3] = head;
 		raw_cmd.cmd[4] = cur_sector;
 		raw_cmd.cmd[5] = i;
@@ -492,8 +327,6 @@ int format_track(struct params *fd, int track, int head)
 			if ( !retries && (raw_cmd.reply[1] & ST1_ND) ){
 				cur_sector = raw_cmd.reply[5];
 				retries++;
-				printf("twaddle!\n");
-				ioctl(fd->fd, FDTWADDLE);
 				goto retry;
 			}
 			return -1;
@@ -502,389 +335,9 @@ int format_track(struct params *fd, int track, int head)
 	return 0;
 }
 
-#define SSIZE(j) ( ( 128 << (j) ) + header_size + soft_gap )
-#define FSIZE(j) ( ( 128 << (j) ) + header_size + final_gap )
-int compute_chunk_size(int chunksize,
-			int sizecode,
-			int *chunks_in_sect,
-			int soft_gap,
-			int final_gap,
-			int tailsize,
-			int use_multiformat,
-			struct params *fd)
-{
-	int cur_sector;
-	int j;
-	int minsize=0;
-
-	fd->nssect = 0;
-	cur_sector = 1;
-	for(j= sizecode; j>=0; j--){
-		chunks_in_sect[j] = (SSIZE(j)-1) / chunksize + 1;
-		fd->nssect +=chunks_in_sect[j] * (fd->last_sect[j] -cur_sector);
-		if ( fd->last_sect[j] != cur_sector)
-			minsize = j;
-		cur_sector = fd->last_sect[j];
-	}
-
-	/* account for last sector */
-	fd->nssect -= chunks_in_sect[minsize];
-	chunks_in_sect[MAX_SIZECODE] = (FSIZE(minsize)-1)/chunksize+1;
-	fd->nssect += chunks_in_sect[MAX_SIZECODE];
-
-	if ( use_multiformat){
-		if (tailsize == minsize)
-			return (fd->nssect - chunks_in_sect[MAX_SIZECODE])*
-				chunksize + FSIZE(tailsize);
-		else
-			return (fd->nssect - chunks_in_sect[tailsize])*
-				chunksize + SSIZE(tailsize);
-	} else
-		return fd->nssect * chunksize;
-}
-
-void compute_sector_sequence(int sectors,
-				int chunksize,
-				int *sizecode,
-				int interleave,
-				int soft_gap,
-				int final_gap,
-				int mask,
-				int use_2m,
-				int tailsect,
-				struct params *fd)
-{
-	int remaining;
-	int cur_sector;
-	int nr_sectors;
-	int chunks_in_sect[MAX_SIZECODE + 1];
-	int i,j;
-	int multisize; /* several sizes on same tracks */
-	int tot_size;
-	int min_tot_size = 0;
-	int t_chunksize;
-	int ceiling;
-	int tailsize = 2;	/* size of last sector before index mark */
-	int use_multiformat;
-	int max_offset;
-
- repeat:
-	multisize=0;
-	fd->need_init = 1;
-
-	/* parameter checking */
-
-	/* distribution of sector sizes */
-	for(i=0; i< MAX_SIZECODE; ++i)
-		fd->last_sect[i] = 0;
-	remaining = sectors;
-	cur_sector = 1;
-
-	use_multiformat = 1;
-	i = tailsect;
-	for (j=*sizecode; j>=0; --j) {
-		nr_sectors = remaining << 2 >> j;
-		remaining -= nr_sectors << j >> 2;
-		cur_sector += nr_sectors;
-		fd->last_sect[j] = cur_sector;
-		if (nr_sectors > 1)
-			use_multiformat = 0;
-		if (nr_sectors == 1 && --i == 0)
-			tailsize = j;
-		if (remaining)
-			multisize = 1;
-		else if (nr_sectors) {
-			if (tailsect==0 || use_multiformat==0)
-				tailsize = j;
-		}
-	}
-
-	fd->dsect = cur_sector-1; /* number of data sectors */
-	if (remaining) {
-		fprintf(stderr,"Internal error: remaining not 0\n");
-#ifdef 0
-		printf("the final skew is %d\n", skew );
-#endif
-		exit(1);
-	}
-
-	/* default gap */
-	if (! (mask & SET_FMTGAP)) {
-		soft_gap = (fd->raw_capacity-sectors*512-margin)/fd->dsect -
-			header_size;
-		if (soft_gap > 255)
-			soft_gap = 255;
-	repeat_2:
-		if (soft_gap < 1 &&
-			!(mask & SET_SIZECODE) &&
-			(sectors >= (1 << ( (*sizecode)-1))) &&
-			fd->last_sect[*sizecode] > 2 &&
-			(sectors % ( 1 << ( (*sizecode)-1)) == 0 ||
-			use_2m || !(mask & SET_2M))) {
-			(*sizecode)++;
-			goto repeat;
-		}
-		if (soft_gap < -4)
-			soft_gap = -4;
-	}
 
 
-	if ( ! (mask & SET_FINALGAP ))
-		final_gap = soft_gap;
-
- repeat_3:
-	/* default chunksize */
-	if ( ! ( mask & SET_CHUNKSIZE )){
-		/* get a default chunksize */
-		if (! *sizecode || 
-		    (!multisize && soft_gap > 0 && soft_gap <= 256)){
-			chunksize = SSIZE(*sizecode);
-		} else if ( !multisize ) {
-			chunksize = 0;
-			ceiling = SSIZE(*sizecode)/( 129 + header_size);
-			for(i= 1; i <= ceiling; i++ ){
-				t_chunksize = (SSIZE(*sizecode) - 1) / i +1;
-
-				/* bad chunk sizes */
-				if (((t_chunksize-header_size-1) & 511) > 255 &&
-					t_chunksize > 768 + header_size)
-					continue;
-
-				j = (SSIZE(*sizecode) - 1)/t_chunksize + 1;
-				tot_size = j * t_chunksize;
-				if ( !chunksize || tot_size < min_tot_size ){
-					min_tot_size = tot_size;
-					chunksize = t_chunksize;
-				}
-				if ( tot_size == SSIZE(*sizecode) )
-					break;
-			}
-		} else {
-			chunksize = 0;
-			for (t_chunksize= SSIZE((*sizecode)-1);
-				t_chunksize>128+header_size;
-				t_chunksize--) {
-				for(j=0; j < MAX_SIZECODE; j++ ){
-					if(t_chunksize<(128<<j)+header_size+1){
-						t_chunksize=(128<<(j-1)) +
-							256 + header_size;
-						break;
-					}
-					if ( t_chunksize <= ( 128 << j ) +
-					    256 + header_size )
-						break;
-				}
-				tot_size=compute_chunk_size(t_chunksize,
-							    *sizecode,
-							    chunks_in_sect,
-							    soft_gap,final_gap,
-							    tailsize,
-							    use_multiformat,
-							    fd);
-
-				if ( !chunksize || tot_size <= min_tot_size ){
-#if 0
-					if (verbosity >= 6)
-						printf("%d chasing %d\n",
-						       t_chunksize, chunksize);
-#endif
-					min_tot_size = tot_size;
-					chunksize = t_chunksize;
-				}
-			}
-		}
-	}
-
-	tot_size=compute_chunk_size(chunksize, *sizecode, chunks_in_sect,
-					soft_gap, final_gap, tailsize,
-					use_multiformat, fd);
-
-	if (fd->raw_capacity - tot_size < margin) {
-		if (! (mask & SET_FINALGAP) &&
-			  (final_gap > soft_gap || final_gap > 1)) {
-			  final_gap-=(margin+1-fd->raw_capacity+tot_size)/2;
-			if (final_gap < 1 && soft_gap > 1)
-				final_gap = 1;
-			goto repeat_3;
-		}
-
-		if (! (mask & SET_FMTGAP) &&
-			  soft_gap > - 4) {
-			  soft_gap -= (margin-fd->raw_capacity+tot_size) /
-			  fd->dsect/2+1;
-			if ( soft_gap < final_gap )
-				final_gap = soft_gap;
-			goto repeat_2;
-		}
-
-		if (!(mask & SET_SIZECODE) &&
-			  (sectors >= (1 << ( (*sizecode)-1))) &&
-			  fd->last_sect[*sizecode] > 2) {
-			++(*sizecode);
-			goto repeat;
-		}
-	}
-
-	if (tot_size > fd->raw_capacity) {
-		fprintf(stderr,"Too many sectors for this disk\n");
-		exit(1);
-	}
-
-	/* convert chunksize to sizecode/fmt_gap pair */
-	for (j=0; j < MAX_SIZECODE; ++j) {
-		if (chunksize < (128 << j) + header_size + 1) {
-			fprintf(stderr,"Bad chunksize %d\n", chunksize);
-#ifdef 0
-			printf("the final skew is %d\n", skew );
-#endif
-			exit(1);
-		}
-		if (chunksize <= (128 << j) + 256 + header_size) {
-			fd->sizecode = j;
-			fd->fmt_gap = chunksize - (128 << j) - header_size;
-			break;
-		}
-	}
-	if ( j == MAX_SIZECODE ){
-		fprintf(stderr,"Chunksize %d too big\n", chunksize );
-#ifdef 0
-		printf("the final skew is %d\n", skew );
-#endif
-		exit(1);
-	}
-
-	/* default interleave */
-	if ( ! (mask & SET_INTERLEAVE) ){
-		if ( soft_gap < 32 )
-			interleave = 2;
-		else
-			interleave = 1;
-	}
-
-	/* sector sequence, using interleave */
-	fd->sequence =(struct fparm2 *) calloc(fd->dsect,sizeof(struct fparm2));
-	if ( fd->sequence == 0 ){
-		fprintf(stderr,"Out of memory\n");
-#ifdef 0
-		printf("the final skew is %d\n", skew );
-#endif
-		exit(1);
-	}
-	for(i=0; i< fd->dsect; i++)
-		fd->sequence[i].sect=0;
-	cur_sector = fd->dsect-1;
-	if (!use_multiformat)
-		tailsect=fd->dsect-1;
-	i = tailsect;
-	while(1){
-		if ( i == 0 )
-			i = fd->dsect;
-		if ( cur_sector < 0)
-			cur_sector += fd->dsect;
-		while(fd->sequence[cur_sector].sect ){
-			cur_sector--;
-			if ( cur_sector < 0 )
-				cur_sector += fd->dsect;
-		}
-		fd->sequence[cur_sector].sect = i;
-		j = (*sizecode);
-		while( fd->last_sect[j] <= i )
-			j--;
-		fd->sequence[cur_sector].size = j;
-		cur_sector -= interleave;
-
-		i--;
-		if ( (i-tailsect) % fd->dsect == 0 )
-			break;
-	}
-
-	/* now compute the placement in terms of small sectors */
-	cur_sector = 0;
-	max_offset = 0;
-	for(i=0; i< fd->dsect; i++){
-		fd->sequence[i].offset = cur_sector;
-		if ( cur_sector > max_offset )
-			max_offset = cur_sector;
-		if ( fd->sequence[i].sect == 1 )
-			fd->min = fd->sequence[i].offset;
-		if ( fd->sequence[i].sect == fd->dsect)
-			cur_sector += chunks_in_sect[MAX_SIZECODE];
-		else
-			cur_sector += chunks_in_sect[ fd->sequence[i].size ];
-		if (fd->sequence[i].sect == fd->dsect)
-			fd->track_end = cur_sector;
-	}
-#if 0
-	fd->max = fd->min + chunks_in_sect[tailsize]-2;
-#else
-	fd->max = fd->raw_capacity + (fd->min - max_offset) * chunksize -
-		header_size - index_size - 1 ;
-#endif
-	if (verbosity == 9){
-		printf("chunksize=%d\n", chunksize);
-		printf("%d raw bytes per track\n", tot_size );
-		printf("%d final gap\n",
-			fd->raw_capacity - tot_size );
-	}
-	fd->chunksize = chunksize;
-
-	if ( !multisize && (*sizecode) == fd->sizecode )
-		fd->need_init = 0;
-	if ( use_multiformat )
-		fd->multi = multisize;
-	else
-		fd->multi = 0;
-}
-
-
-void compute_track0_sequence(struct params *fd)
-{
-	int i;
-	int sectors;
-
-	sectors= fd->nssect = fd->dsect;
-
-	fd->track_end = 0;
-	fd->chunksize = 0x6c + 574;
-
-	fd->need_init = 0;
-	fd->sequence =(struct fparm2 *) calloc(fd->dsect,sizeof(struct fparm2));
-	if ( fd->sequence == 0 ){
-		fprintf(stderr,"Out of memory\n");
-#ifdef 0
-		printf("the final skew is %d\n", skew );
-#endif
-		exit(1);
-	}
-
-	fd->sizecode = 2;
-	if ( fd->rate & 0x40 )
-		fd->fmt_gap = 0x54;
-	else
-		fd->fmt_gap = 0x6c;
-	fd->min = 0;
-
-	for(i=0; i<sectors; i++){
-		fd->sequence[i].sect = i+1;
-		fd->sequence[i].size = 2;
-		fd->sequence[i].offset = i;
-	}
-}
-
-int compar(const void *a, const void *b)
-{
-	const struct params *ap, *bp;
-
-	ap = (const struct params *)a;
-	bp = (const struct params *)b;
-	if (ap->min < bp->min)
-		return -1;
-	if (ap->min == bp->min)
-		return 0;
-	return 1;
-}
-
-void print_formatting(int track, int head)
+void print_formatting(int cylinder, int head)
 {
 	switch(verbosity) {
 		case 0:
@@ -904,24 +357,24 @@ void print_formatting(int track, int head)
 			break;
 		case 3:
 		case 4:
-			printf("\rFormatting track %2d, head %d ",
-				track, head);
+			printf("\rFormatting cylinder %2d, head %d ",
+				cylinder, head);
 			fflush(stdout);
 			break;
 		default:
-			printf("formatting track %d, head %d\n",
-				track, head);
+			printf("formatting cylinder %d, head %d\n",
+				cylinder, head);
 			break;
 	}
 }
 
-void print_verifying(int track, int head)
+void print_verifying(int cylinder, int head)
 {
 	if (verbosity >= 5) {
-		printf("verifying track %d head %d\n",
-			track, head);
+		printf("verifying cylinder %d head %d\n",
+			cylinder, head);
 	} else if (verbosity >= 3) {
-		printf("\r Verifying track %2d, head %d ", track, head);
+		printf("\r Verifying cylinder %2d, head %d ", cylinder, head);
 		fflush(stdout);
 	} else if (verbosity == 2) {
 		if (!verify_later && !dosverify) {
@@ -939,22 +392,38 @@ void print_verifying(int track, int head)
 	}
 }
 
+
+void old_parameters()
+{
+
+
+
+}
+
+#define DRIVE_DEFAULTS (drive_defaults[drivedesc.type.cmos])
+
 void main(int argc, char **argv)
 {
+	int nseqs; /* number of sequences used */
 	char env_buffer[10];
 	struct floppy_struct parameters;
 	struct params fd[MAX_SECTORS], fd0;
-	struct stat buf;
 	int ch,i;
-	short cmos;
-	short density=-1;
+	short density = DENS_UNKNOWN;
+	char drivename[10];
 
-	int track, head, interleave;
-	int soft_gap;
+	int have_geom = 0;
+	int margin=50;
+	int deviation=-3100;
+	int warmup = 40; /* number of warmup rotations for measurement */
+
+	int cylinder, head, interleave;
+	int gap;
 	int final_gap;
 	int chunksize;
 	int sizecode=2;
 	int error;
+	int biggest_last = 0;
 	char command_buffer[80];
 	char twom_buffer[6];
 	char *progname=argv[0];
@@ -963,45 +432,14 @@ void main(int argc, char **argv)
 	int n,rsize;
 	char *verify_buffer = NULL;
 	char dosdrive;
+	drivedesc_t drivedesc;
+	struct floppy_struct geometry;
+	int max_chunksize = 128*128+62+256;
 
 	struct enh_options optable[] = {
-	{ 'd', "drive", 1, EO_TYPE_STRING, O_RDWR, 0,
-		(void *) &fd[0].name,
-		"set the target drive (mandatory parameter)" },
-
 	{ 'D', "dosdrive", 1, EO_TYPE_CHAR, 0, SET_DOSDRIVE,
 		(void *) &dosdrive,
 		"set the dos drive" },
-
-	{ 's', "sectors", 1, EO_TYPE_LONG, 0, SET_SECTORS,
-		(void *) &sectors,
-		"set number of sectors" },
-
-	{ 'H', "heads", 1, EO_TYPE_LONG, 0, 0,
-		(void *) &heads,
-		"set the number of heads" },
-
-	{ 't', "tracks", 1, EO_TYPE_LONG, 0, SET_TRACKS,
-		(void *) &tracks,
-		"set the number of tracks" },
-
-	{ '\0', "fm", 0, EO_TYPE_SHORT, 0x40, 0,
-		(void *) &fm_mode,
-		"chose fm mode" },
-
-
-	{ '\0', "dd", 0, EO_TYPE_SHORT, DOUBLE_DENSITY, 0,
-		(void *) &density,
-		"chose low density" },
-
-
-	{ '\0', "hd", 0, EO_TYPE_SHORT, HIGH_DENSITY, 0,
-		(void *) &density,
-		"chose high density" },
-
-	{ '\0', "ed", 0, EO_TYPE_SHORT, EXTRA_DENSITY, 0,
-		(void *) &density,
-		"chose extra density" },
 
 	{ 'v', "verbosity", 1, EO_TYPE_LONG, 0, 0,
 		(void *) &verbosity,
@@ -1019,20 +457,16 @@ void main(int argc, char **argv)
 		(void *) &verify_later,
 		"verify floppy after all formatting is done" },
 
-	{ 'b', "begin_track", 1, EO_TYPE_LONG, 0, 0,
-		(void *) &begin_track,
-		"set track where to begin formatting" },
+	{ 'b', "begin_cylinder", 1, EO_TYPE_LONG, 0, 0,
+		(void *) &begin_cylinder,
+		"set cylinder where to begin formatting" },
 
-	{ 'e', "end_track", 1, EO_TYPE_LONG, 0, SET_ENDTRACK,
-		(void *) &end_track,
-		"set track where to end formatting" },
-
-	{ 'S', "sizecode", 1, EO_TYPE_LONG, 0, SET_SIZECODE,
-		(void *) &sizecode,
-		"set the size code of the data sectors. The size code describes the size of the sector, according to the formula size=128<<sizecode. Linux only supports sectors of 512 bytes and bigger." },
+	{ 'e', "end_cylinder", 1, EO_TYPE_LONG, 0, SET_ENDTRACK,
+		(void *) &end_cylinder,
+		"set cylinder where to end formatting" },
 
 	{ 'G', "fmt_gap", 1, EO_TYPE_LONG, 0, SET_FMTGAP,
-		(void *) &soft_gap,
+		(void *) &gap,
 		"set the formatting gap" },
 
 	{ 'F', "final_gap", 1, EO_TYPE_LONG, 0, SET_FINALGAP,
@@ -1047,22 +481,13 @@ void main(int argc, char **argv)
 		(void *) &chunksize,
 		"set the size of the \"chunks\" (small auxiliary sectors used for formatting). This size must be in the interval [191,830]" },
 
+	{ '\0', "max-chunksize", 1, EO_TYPE_LONG, 0, 0,
+		(void *) &max_chunksize,
+		"set a maximal size for the \"chunks\" (small auxiliary sectors used for formatting)." },
 
 	{ 'g', "gap", 1, EO_TYPE_LONG, 0, 0,
 		(void *) &fd[0].gap,
 		"set the r/w gap" },
-
-	{ 'r', "rate", 1, EO_TYPE_LONG, 0, SET_RATE,
-		(void *) &fd[0].rate,
-		"set the data transfer rate" },
-
-	{ '2', "2m", 0, EO_TYPE_BYTE, 255, SET_2M,
-		(void *) &use_2m,
-		"format disk readable by the DOS 2m shareware program" },
-
-	{ '1', "no2m", 0, EO_TYPE_BYTE, 0, SET_2M,
-		(void *) &use_2m,
-		"don't use 2m formatting" },
 
 	{'\0', "absolute_skew", 1, EO_TYPE_LONG, 0, 0,
 		(void *) &absolute_skew,
@@ -1072,29 +497,91 @@ void main(int argc, char **argv)
 		(void *) &head_skew,
 		"set the skew to be added when passing to the second head" },
 
-	{'\0', "track_skew", 1, EO_TYPE_LONG, 0, 0,
-		(void *) &track_skew,
+	{'\0', "cylinder_skew", 1, EO_TYPE_LONG, 0, 0,
+		(void *) &cylinder_skew,
 		"set the skew to be added when passing to another cylinder" },
 
-	{'\0', "stretch", 1, EO_TYPE_LONG, 0, SET_STRETCH,
-		(void *) &stretch,
-		"set the stretch factor (how spaced the tracks are from each other)" },
 	{'\0', "aligned_skew", 0, EO_TYPE_BITMASK_LONG, ALSKEW, 0,
 		(void *) &fd[0].flags,
 		"select sector aligned skewing" },
+
+	{'w', "warmup", 1, EO_TYPE_LONG, 0, 0,
+		 (void *) &warmup,
+		 "number of warmup rotations for before measurement of raw drive capacity"},
+
+
+	{ 'd', "drive", 1, EO_TYPE_STRING, O_RDWR, 0,
+		(void *) &fd[0].name,
+		"set the target drive (obsolete.  Specify drive without -d instead)" },
+	{'\0', "deviation", 1, EO_TYPE_LONG, 0, SET_DEVIATION,
+		 (void *) &deviation,
+		 "selects the deviation (in ppm) from the standard rotation speed (obsolete. Use " DRIVEPRMFILE " instead"},
 	{'m', "margin", 1, EO_TYPE_LONG, 0, SET_MARGIN,
 		 (void *) &margin,
-		 "selects the margin to be left at the end of the physical track", },
+		 "selects the margin to be left at the end of the physical cylinder (obsolete. Use " DRIVEPRMFILE " instead)" },
+	{ 's', "sectors", 1, EO_TYPE_LONG, 0, SET_SECTORS,
+		(void *) &sectors,
+		"set number of sectors (obsolete. Use a media description instead)" },
+
+	{ 'H', "heads", 1, EO_TYPE_LONG, 0, SET_HEADS,
+		(void *) &heads,
+		"set the number of heads (obsolete. Use a media description instead)" },
+
+	{ 't', "cylinders", 1, EO_TYPE_LONG, 0, SET_CYLINDERS,
+		(void *) &cylinders,
+		"set the number of cylinders (obsolete. Use a media description instead)" },
+
+	{'\0', "stretch", 1, EO_TYPE_LONG, 0, SET_STRETCH,
+		(void *) &stretch,
+		"set the stretch factor (how spaced the cylinders are from each other) (obsolete. Use a media description instead)" },
+
+	{ 'r', "rate", 1, EO_TYPE_LONG, 0, SET_RATE,
+		(void *) &fd[0].rate,
+		"set the data transfer rate (obsolete. Use a media description instead)" },
+
+	{ '2', "2m", 0, EO_TYPE_LONG, 255, SET_2M,
+		(void *) &use_2m,
+		"format disk readable by the DOS 2m shareware program (obsolete. Use a media description instead)" },
+
+	{ '1', "no2m", 0, EO_TYPE_LONG, 0, SET_2M,
+		(void *) &use_2m,
+		"don't use 2m formatting (obsolete.  Use a media description instead)" },
+
+	{ '\0', "fm", 0, EO_TYPE_SHORT, 0x40, 0,
+		(void *) &fm_mode,
+		"chose fm mode (obsolete.  Use a media description instead)" },
+
+
+	{ '\0', "dd", 0, EO_TYPE_SHORT, DENS_DD, 0,
+		(void *) &density,
+		"chose low density (obsolete.  Use a media description instead)" },
+
+	{ '\0', "hd", 0, EO_TYPE_SHORT, DENS_HD, 0,
+		(void *) &density,
+		"chose high density (obsolete.  Use a media description instead)" },
+
+	{ '\0', "ed", 0, EO_TYPE_SHORT, DENS_ED, 0,
+		(void *) &density,
+		"chose extra density (obsolete.  Use a media description instead)" },
+
+	{ 'S', "sizecode", 1, EO_TYPE_LONG, 0, SET_SIZECODE,
+		(void *) &sizecode,
+		"set the size code of the data sectors. The size code describes the size of the sector, according to the formula size=128<<sizecode. Linux only supports sectors of 512 bytes and bigger. (obsolete.  Use a media description instead)" },
+
+	{ '\0', "biggest-last", 0, EO_TYPE_SHORT, 1, 0,
+		(void *) &biggest_last,
+		"for MSS formats, make sure that the biggest sector is the last on the track.  This makes superformat more reliable if your drive is slightly out of spec" },
+
 	{ '\0', 0 }
 	};
 
 	/* default values */
-	tracks = 80; heads = 2; sectors = 18;
+	cylinders = 80; heads = 2; sectors = 18;
 	fd[0].fd = -1; fd[0].rate = 0; fd[0].flags = 0;
-	fd[0].gap = 0x1c;
+	fd[0].gap = 0x1b;
 	dosdrive='\0';
 	fd[0].name = 0;
-	soft_gap=0;
+	gap=0;
 	sizecode = 2;
 
 	while( (ch=getopt_enh(argc, argv, optable,
@@ -1112,99 +599,181 @@ void main(int argc, char **argv)
 		exit(1);
 	}
 
-	if ( soft_gap < -60 ){
-		fprintf(stderr,"Soft gap too small: %d\n", soft_gap);
+	if ( gap < 0 ){
+		fprintf(stderr,"Fmt gap too small: %d\n", gap);
 		print_usage(progname,optable, "");
 		exit(1);
 	}
 
-	if (sectors <= 0 || tracks <= 0 || heads <= 0) {
+	if (sectors <= 0 || cylinders <= 0 || heads <= 0) {
 		fprintf(stderr,"bad geometry s=%d h=%d t=%d\n",
-			sectors, heads, tracks);
+			sectors, heads, cylinders);
 		print_usage(progname,optable, "");
 		exit(1);
 	}
 
 	argc -= optind;
 	argv += optind;
-	if ( argc > 1){
+	if(argc) {
+		fd[0].name = argv[0];
+		argc--;
+		argv++;
+	}
+
+	if (! fd[0].name){
+		fprintf(stderr,"Which drive?\n");
 		print_usage(progname,optable, "");
 		exit(1);
 	}
-	if(argc)
-		fd[0].name = argv[0];
 
-	if (! fd[0].name){
-	  fprintf(stderr,"Which drive?\n");
-	  print_usage(progname,optable, "");
-	  exit(1);
-	}
-			
-	fd[0].fd = open(fd[0].name, O_RDWR | O_NDELAY | O_EXCL);
-
-	/* we open the disk wronly/rdwr in order to check write protect */
-	if (fd[0].fd < 0) {
-		perror("open");
-		exit(1);
-	}
-	ioctl(fd[0].fd, FDRESET, FD_RESET_IF_RAWCMD);
-	if (fstat (fd[0].fd, &buf) < 0) {
-		perror("fstat");
-		exit(1);
-	}
-	if (MAJOR(buf.st_rdev) != FLOPPY_MAJOR) {
-		fprintf(stderr,"%s is not a floppy drive\n", fd[0].name);
-		exit(1);
-	}
-	fd[0].drive = MINOR( buf.st_rdev );
-	fd[0].drive = (fd[0].drive & 3) + ((fd[0].drive & 0x80) >> 5);
-
-	if (ioctl(fd[0].fd, FDGETDRVPRM, & fd[0].drvprm ) < 0 ){
-		perror("get drive characteristics");
-		exit(1);
-	}
-	cmos = fd[0].drvprm.cmos;
-	if (cmos < 1 || cmos > 6)
-		cmos = 4;
-
-	/* density */
-	if ( (mask & SET_SECTORS ) && density == NO_DENSITY ){
-		if ( sectors < 15 )
-			density = DOUBLE_DENSITY;
-		else if ( sectors < 25 )
-			density = HIGH_DENSITY;
-		else
-			density = EXTRA_DENSITY;
-	}
-	if (density == NO_DENSITY) {
-		density = drive_defaults[cmos].density;
-		if ( mask & SET_RATE ){
-			for (i=0; i< density; ++i) {
-				if(fd[0].rate == drive_defaults[cmos].fmt[i].rate)
-					density=i;
-			}
-		}
-	} else {
-		if (drive_defaults[cmos].fmt[density].sect == 0) {
-			fprintf(stderr,
-				"Density %d not supported drive type %d\n",
-				density, cmos);
+	while(1) {
+		fd[0].fd = open(fd[0].name, O_RDWR | O_NDELAY | O_EXCL);
+		
+		/* we open the disk wronly/rdwr in order to check write 
+		 * protect */
+		if (fd[0].fd < 0) {
+			perror("open");
 			exit(1);
 		}
+
+		if(parse_driveprm(fd[0].fd, &drivedesc))
+			exit(1);
+		
+		fd[0].drive = drivedesc.drivenum;
+		fd[0].drvprm = drivedesc.drvprm;
+
+		if(MINOR(drivedesc.buf.st_rdev) & 0x7c) {
+			if(fd[0].name == drivename) {
+				fprintf(stderr,
+					"%s has bad minor/major numbers\n",
+					fd[0].name);
+				exit(1);
+			}
+			/* this is not a generic format device. Close it,
+			 * and open the proper device instead */
+			if(argc == 0)
+				ioctl(fd[0].fd, FDGETPRM, &geometry);
+			have_geom = 1;
+			close(fd[0].fd);
+			sprintf(drivename,"/dev/fd%d", fd[0].drive);
+			fd[0].name = drivename;
+			continue;
+		}
+		break;
 	}
 
-	/* rate */
-	if (! ( mask & SET_RATE))
-		fd[0].rate = drive_defaults[cmos].fmt[density].rate;
 
-	/* number of sectors */
-	if (! (mask & SET_SECTORS))
-		sectors =drive_defaults[cmos].fmt[density].sect;
+
+
+	if(have_geom  ||
+	   !parse_mediaprm(argc, argv, &drivedesc, &geometry) ||
+	   !parse_fdprm(argc-2, argv+2, &geometry)) {
+		if(argc > 0)
+			have_geom = 1;
+	} else {
+		fprintf(stderr,"Syntax error in format description\n");
+		exit(1);
+	}
+
+
+	if(have_geom) {
+		if(mask & (SET_SECTORS | SET_CYLINDERS | 
+			   SET_HEADS | SET_SIZECODE | SET_2M | SET_RATE)) {
+			fprintf(stderr,
+				"Cannot mix old style and new style geometry spec\n");
+			exit(1);
+		}
+
+		sectors = geometry.sect;
+		cylinders = geometry.track;
+		heads = geometry.head;
+
+		fd[0].rate = geometry.rate & 0x43;
+		sizecode = (((geometry.rate & 0x38) >> 3) + 2) % 8;
+		use_2m = (geometry.rate >> 2) & 1;
+		switch(fd[0].rate) {
+			case 0x43:
+				density = DENS_ED;
+				break;
+			case 0x2:
+			case 0x1:
+				density = DENS_DD;
+				break;
+			case 0:
+				density = DENS_HD;
+				break;
+		}
+		stretch = geometry.stretch & 1;
+		
+		mask |= SET_SECTORS | SET_CYLINDERS | 
+			SET_SIZECODE | SET_2M | SET_RATE;
+	} else {
+		/* density */
+		if ( (mask & SET_SECTORS ) && density == DENS_UNKNOWN){
+			if ( sectors < 15 )
+				density = DENS_DD;
+			else if ( sectors < 25 )
+				density = DENS_HD;
+			else
+				density = DENS_ED;
+		}
+		if (density == DENS_UNKNOWN) {
+			density = DRIVE_DEFAULTS.density;
+			if ( mask & SET_RATE ){
+				for (i=0; i< density; ++i) {
+					if(fd[0].rate == 
+					   DRIVE_DEFAULTS.fmt[i].rate)
+						density=i;
+				}
+			}
+		} else {
+			if (DRIVE_DEFAULTS.fmt[density].sect == 0) {
+				fprintf(stderr,
+					"Density %d not supported drive type %d\n",
+					density, drivedesc.type.cmos);
+				exit(1);
+			}
+		}
+
+		/* rate */
+		if (! ( mask & SET_RATE))
+			fd[0].rate = DRIVE_DEFAULTS.fmt[density].rate;
+		
+		/* number of sectors */
+		if (! (mask & SET_SECTORS))
+			sectors =DRIVE_DEFAULTS.fmt[density].sect;
+		if (! (mask & SET_CYLINDERS)) {
+			if (fd[0].drvprm.tracks >= 80)
+				cylinders = 80;
+			else
+				cylinders = 40;
+		}
+
+		if ( ! ( mask & SET_STRETCH )){
+			if ( cylinders + cylinders < fd[0].drvprm.tracks)
+				stretch = 1;
+			else
+				stretch = 0;
+		}
+	}
+		
+	if (cylinders > fd[0].drvprm.tracks) {
+		fprintf(stderr,"too many cylinder for this drive\n");
+		print_usage(progname,optable,"");
+		exit(1);
+	}
+
+	if (! (mask & SET_ENDTRACK ) || end_cylinder > cylinders)
+		end_cylinder = cylinders;
+	if(begin_cylinder >= end_cylinder) {
+		fprintf(stderr,"begin cylinder >= end cylinder\n");
+		exit(1);
+	}
 
 	fd0 = fd[0];
  repeat:
-	/* capacity */
-	if (sectors >= 12 && fd[0].rate == 2)
+	/* capacity */	
+	if (!have_geom && sectors >= 12 && fd[0].rate == 2)
 		fd[0].rate = 1;
 	switch(fd[0].rate & 0x3) {
 	case 0:
@@ -1224,12 +793,53 @@ void main(int argc, char **argv)
 		header_size = 81;		
 	else
 		header_size = 62;
-	if ( ! (mask & SET_MARGIN)) {
-		if (fd[0].rate & 0x40)
-			margin = 72;		
-		else
-			margin = 45; /*36;*/
-	}		
+
+	if(! (mask & (SET_DEVIATION | SET_MARGIN)) &&
+	   (drivedesc.mask & (1 << FE__DEVIATION))) {	       
+		deviation = drivedesc.type.deviation;
+		mask |= SET_DEVIATION;
+	}
+
+	if(mask & SET_DEVIATION) {
+		mask &= ~SET_MARGIN;
+		fd[0].raw_capacity +=  fd[0].raw_capacity * deviation / 1000000;
+	} else if (mask & SET_MARGIN) {
+		fd[0].raw_capacity -= margin;
+	} else  {
+		int old_capacity = fd[0].raw_capacity;
+
+		printf("old capacity=%d\n", old_capacity);
+
+		if(verbosity) {
+			fprintf(stderr,"Measuring drive %d's raw capacity\n",
+				fd[0].drive);
+		}
+		/* neither a deviation nor a margin have been given */
+		fd[0].raw_capacity = measure_raw_capacity(fd[0].fd,
+							  fd[0].drive,
+							  fd[0].rate,
+							  begin_cylinder,
+							  warmup,
+							  verbosity) / 16;
+		if(verbosity) {
+			fprintf(stderr,
+				"In order to avoid this time consuming "
+				"measurement in the future, add the following "
+				"line to " DRIVEPRMFILE
+				" :\ndrive%d: deviation=%d\n",
+				fd[0].drive, 
+				(fd[0].raw_capacity-old_capacity)*1000000/
+				old_capacity);
+			fprintf(stderr,
+				"CAUTION: this line is drive and controller"
+				"specific. Remove it before installing a new"
+				"drive %d or floppy controller\n\n", 
+				fd[0].drive);
+		}
+	}
+
+	/* FIXME.  Why is this needed? */
+	fd[0].raw_capacity -= 30;
 
 	fd0.raw_capacity = fd[0].raw_capacity ;
 
@@ -1237,27 +847,11 @@ void main(int argc, char **argv)
 		printf("rate=%d density=%d sectors=%d capacity=%d\n",
 			fd[0].rate, density, sectors, fd[0].raw_capacity);
 
-	fd0.multi=0;
-	fd[0].multi = 1;
-
-	compute_sector_sequence(sectors, chunksize, &sizecode,
-				interleave, soft_gap, final_gap, mask,
-				use_2m, 1, fd);
-
-	if (fd->multi) {
-		if (fd[0].dsect > MAX_SECTORS) {
-			fprintf(stderr,"Internal error, too many data sectors for multiformat\n");
-			exit(1);
-		}
-		for (i=2; i <= fd[0].dsect; ++i) {
-			fd[i-1] = fd[0];
-			compute_sector_sequence(sectors, chunksize, &sizecode,
-						interleave, soft_gap,
-						final_gap, mask | SET_SIZECODE,
-						use_2m, i, fd+(i-1));
-		}
-		qsort( fd, fd[0].dsect, sizeof(struct params), compar);
-	}
+	fd->chunksize = chunksize;
+	fd->max_chunksize = max_chunksize;
+	fd->preset_interleave = interleave;
+	nseqs = compute_all_sequences(fd, sectors * 512, sizecode,
+				      gap, mask, biggest_last);
 
 	/* print all the stuff out */
 	if (verbosity == 9) {
@@ -1280,7 +874,7 @@ void main(int argc, char **argv)
 		}
 	}
 	if (use_2m) {
-		fd0.dsect = drive_defaults[cmos].fmt[density].sect;
+		fd0.dsect = DRIVE_DEFAULTS.fmt[density].sect;
 		compute_track0_sequence(&fd0);
 
 		if (verbosity == 9){
@@ -1297,34 +891,10 @@ void main(int argc, char **argv)
 		}
 	}
 
-	if (! (mask & SET_TRACKS)) {
-		if (fd[0].drvprm.tracks >= 80)
-			tracks = 80;
-		else
-			tracks = 40;
-	}
-
-	if (tracks > fd[0].drvprm.tracks) {
-		fprintf(stderr,"too many track for this drive\n");
-		print_usage(progname,optable,"");
-		exit(1);
-	}
-
-	if ( ! ( mask & SET_STRETCH )){
-		if ( tracks + tracks < fd[0].drvprm.tracks )
-			stretch = 1;
-		else
-			stretch = 0;
-
-	}
-
-	if (! (mask & SET_ENDTRACK ) || end_track > tracks)
-		end_track = tracks;
-
 	parameters.sect = sectors;
 	parameters.head = heads;
-	parameters.track = tracks;
-	parameters.size = tracks * heads * sectors;
+	parameters.track = cylinders;
+	parameters.size = cylinders * heads * sectors;
 	parameters.stretch = stretch;
 	parameters.gap = fd[0].gap;
 	if ( !use_2m)
@@ -1343,7 +913,7 @@ void main(int argc, char **argv)
 		exit(1);
 	}
 
-	calc_skews(&fd0, fd);
+	calc_skews(&fd0, fd, nseqs);
 
 	if (!verify_later && !dosverify) {
 		ioctl(fd[0].fd, FDFLUSH );
@@ -1356,50 +926,43 @@ void main(int argc, char **argv)
 
 	retries=0;
 	/*ioctl(fd[0].fd, FDRESET, FD_RESET_IF_RAWCMD);*/
-	for (track=begin_track; track<end_track;) {
+	for (cylinder=begin_cylinder; cylinder<end_cylinder;) {
 		error=0;
 		if ( retries >= 2)
 			exit(1);
 #if 0
-		if(seek_floppy( fd, track << stretch))
+		if(seek_floppy( fd, cylinder << stretch))
 			exit(1);
 #endif
 		for (head=0; head<heads; ++head) {
-			print_formatting(track, head);
-			if (!track && !head && use_2m){
+			print_formatting(cylinder, head);
+			if (!cylinder && !head && use_2m){
 				/* 2m-style 1st track */
-				if (format_track(&fd0, track, head) &&
-					format_track(&fd0, track, head))
+				if (format_track(&fd0, cylinder, head) &&
+					format_track(&fd0, cylinder, head))
 					exit(1);
 
 			} else {
 				/* Everything else */
-				if (format_track(fd, track, head) &&
-					format_track(fd, track, head))
+				if (format_track(fd, cylinder, head) &&
+					format_track(fd, cylinder, head))
 					exit(1);
 			}
 		}
 		retries++;
 		if (!verify_later && !noverify && !dosverify) {
 			for (head=0; head<heads; ++head) {
-				print_verifying(track, head);
-				if (!track && !head && use_2m)
+				print_verifying(cylinder, head);
+				if (!cylinder && !head && use_2m)
 					n = floppy_read(&fd0,
 							(void *)verify_buffer,
-							track, head, fd0.dsect);
+							cylinder, head, fd0.dsect);
 				else
 					n = floppy_read(fd,
 							(void *)verify_buffer,
-							track, head, sectors);
+							cylinder, head, sectors);
 				if (n < 0) {
-					perror("read");
 					error=1;
-					fprintf(stderr, "remaining %d\n", n);
-					continue;
-				}
-				if (n == 0) {
-					error = 1;
-					fprintf(stderr,"End of file\n");
 					continue;
 				}
 			}
@@ -1409,7 +972,7 @@ void main(int argc, char **argv)
 			continue;
 		}
 		retries = 0;
-		++track;
+		++cylinder;
 	}
 
 	ioctl(fd[0].fd, FDFLUSH );
@@ -1429,7 +992,7 @@ void main(int argc, char **argv)
 			"mformat -s%d -t%d -h%d -S%d -M512 %s %c:",
 			sectors,
 			/*use_2m ? sectors : sectors >> (sizecode - 2), */
-			tracks, heads, sizecode, twom_buffer, dosdrive);
+			cylinders, heads, sizecode, twom_buffer, dosdrive);
 		if (verbosity >= 3) {
 			printf("\n%s\n", command_buffer);
 		}
@@ -1463,16 +1026,17 @@ void main(int argc, char **argv)
 			printf("out of memory error\n");
 			exit(1);
 		}
-		lseek(fd[0].fd, 512 * begin_track * heads, SEEK_SET );
-		for (track=begin_track; track<end_track; ++track)
+		lseek(fd[0].fd, 512 * begin_cylinder * heads, SEEK_SET );
+		for (cylinder=begin_cylinder; cylinder<end_cylinder; ++cylinder)
 			for (head=0; head<heads; ++head) {
-				print_verifying(track, head);
+				print_verifying(cylinder, head);
 				rsize = 512 * sectors;
 				while(rsize){
 					n = read(fd[0].fd,verify_buffer,rsize);
 					if ( n < 0){
 						perror("read");
-						fprintf(stderr, "remaining %d\n", n);
+						fprintf(stderr, 
+							"remaining %d\n", n);
 						exit(1);
 					}
 					if ( n == 0 ){

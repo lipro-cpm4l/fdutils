@@ -169,9 +169,13 @@ struct enh_options optable[] = {
 	  (void *) &dpr.spindown_offset,
 	  "set spindown offset (decides in which position the disk stops)" },
 
+{'\0', "cylinders", 1, EO_TYPE_BYTE | EO_TYPE_DELAYED, 0, SET_DPR,
+	 (void *) &dpr.tracks,
+	 "set maximal number of cylinders" },
+
 {'\0', "tracks", 1, EO_TYPE_BYTE | EO_TYPE_DELAYED, 0, SET_DPR,
 	 (void *) &dpr.tracks,
-	 "set maximal number of tracks" },
+	 "obsolete (same as --cylinders)" },
 
 {'\0', "timeout", 1, EO_TYPE_LONG | EO_TYPE_DELAYED, 0, SET_DPR,
 	 (void *) &dpr.timeout,
@@ -389,9 +393,9 @@ void main( int argc, char **argv)
 		printf("select=		%ld\n", drivstat.select_date);
 		printf("first_read=	%ld\n", drivstat.first_read_date);
 		printf("probed_fmt=    	%d\n", drivstat.probed_format);
-		printf("track=		%d\n", drivstat.track);
+		printf("cylinder=      	%d\n", drivstat.track);
 		printf("maxblock=      	%d\n", drivstat.maxblock);
-		printf("maxtrack=      	%d\n", drivstat.maxtrack);
+		printf("maxcylinder=	%d\n", drivstat.maxtrack);
 		printf("generation=    	%d\n", drivstat.generation);
 		printf("keep data=	%d\n", drivstat.keep_data);
 		printf("refs=		%d\n", drivstat.fd_ref);
