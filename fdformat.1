@@ -1,0 +1,58 @@
++.\" May be distributed under the GNU General Public License
++.TH FDFORMAT 1 "20 June 1996" "Linux 0.99" "Linux Programmer's Manual"
++.SH NAME
++fdformat \- Low-level formats a floppy disk
++.SH SYNOPSIS
++.B fdformat
++.B "[ \-n ]"
++device
++.SH DESCRIPTION
++.B fdformat
++does a low level format on a floppy disk.
++.I device
++is usually one of the following (for floppy devices, the major = 2, and the
++minor is shown for informational purposes only):
++.sp
++.nf
++.RS
++/dev/fd0u360 
++/dev/fd0u1200
++/dev/fd0u360 
++/dev/fd0u360 
++/dev/fd0u720 
++/dev/fd0u720 
++/dev/fd0u360 
++/dev/fd0u720 
++/dev/fd0u1440
++
++/dev/fd1d360
++/dev/fd1h1200
++/dev/fd1D360
++/dev/fd1H360
++/dev/fd1D720
++/dev/fd1H720
++/dev/fd1h360
++/dev/fd1h720
++/dev/fd1H1440
++.RE fi
++
++The generic floppy devices, /dev/fd0 and /dev/fd1, will fail to work with
++.B fdformat
++when a non-standard format is being used, or if the format has not been
++autodetected earlier.  In this case, use
++.BR setfdprm (8)
++to load the disk parameters.
++
++.SH OPTIONS
++.TP
++.B \-n
++No verify.  This option will disable the verification that is performed
++after the format.
++.SH "SEE ALSO"
++.BR fd (4),
++.BR setfdprm (8),
++.BR superformat (1)
++.SH AUTHOR
++Werner Almesberger (almesber@nessie.cs.id.ethz.ch) wrote the original C
++program. Michael Meskes (meskes@informatik.rwth-aachen.de) wrote the
++replacement shell script.

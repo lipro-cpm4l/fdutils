@@ -78,9 +78,8 @@ of tracks according to the boot sector of the disk. Mtools 2.5 and up
 are ok. This doesn't obviously work with disks containing something
 else than a MSDOS filesystem.
 
- After recompiling your kernel and rebooting, you can use a few more
-minor device numbers for disks with the new formats.  The minor device
-number for the floppy devices is calculated as follows:
+ The minor device number for the floppy devices is calculated as
+follows:
     minor_device = format_nr * 4 + 128 * fdc_nr + unit_nr 
  (fdc_nr identifies the floppy disk controller, and unit_nr identifies
 which drive on the floppy disk controller to be used)
@@ -124,6 +123,10 @@ in the table in floppy.c. Valid numbers and formats are:
 		 29	   1840kB, 3.5"  HD drive
 		 30	    800kB, 3.5"  DD drive
 		 31	   1600kB, 3.5"  HD drive
+
+ This table lists first the format_nr (0-31) used to compute the minor
+number, then the capacity of the format (360kb - 3200kb), and then the
+type of the drive in which this format is used.
 
  The formats 0..8 are the standard PC formats, 9 is apparently needed
 for certain weird CompaQ computers. The remaining formats are extended

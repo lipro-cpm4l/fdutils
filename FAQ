@@ -1,4 +1,4 @@
- FLOPPY FREQUENTLY ASKED QUESTIONS (Last updated on 29 April 1996)
+ FLOPPY FREQUENTLY ASKED QUESTIONS (Last updated on 22 May 1996)
  =================================================================
 
  This FAQ is regularly updated in the directory
@@ -391,10 +391,13 @@ following formula gives the minor number: minor = fdc * 128 + geometry
 
 19. Is it possible to boot off these special format disks?
 
- Yes. There is a lilo patch which allows to boot off these disks at
-ftp.imag.fr:pub/Linux/ZLIBC/floppy/misc/lilo18dev.diff.gz It allows to
-boot from ED disks and from disks with more sectors than usual (up to
-21 on a HD disk). However, 2m and Xdf disks are still unbootable.
+ Yes. Upgrade to lilo 18, and put the following line into your
+/etc/lilo.defines before compiling it:
+-DXL_SECS=44
+ This enables Lilo to boot from disks with up to 44 sectors (i.e. more
+than you'll ever see :-) ) It allows to boot from ED disks and from
+disks with more sectors than usual (up to 21 on a HD disk, 42 on an ED
+disk). However, 2m and Xdf disks cannot be booted using this method.
 
 
 20. I get "Unable to allocate DMA memory" messages when trying to use

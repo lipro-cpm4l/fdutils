@@ -58,7 +58,7 @@ Many options have a long and a short form.
 Print the help.
 .TP
 .BI "\-d" " drive" "  \-\-drive" " drive"
-Selects the drive to format.  The default is drive 0
+Selects the drive to format.
 .RI ( /dev/fd0 ).
 .TP
 .BI "\-D" " drive" "  \-\-dosdrive" " dos\-drive"
@@ -228,7 +228,7 @@ track 2 head 0: 3,4,5,6,1,2,	(skew=4)
 .SH EXAMPLES
 Assume that drive 0 is a 3\(12 and drive 1 a 5\(14.
 .TP
-.B superformat
+.B superformat \-d /dev/fd0
 Format 1440K disk in drive 0.
 .TP
 .B superformat \-d /dev/fd1
@@ -237,13 +237,13 @@ Format a 1200K disk in drive 1.
 .B superformat \-d /dev/fd1 -s 18
 Format a 1440K disk in drive 1.
 .TP
-.B superformat \-\-dd
+.B superformat \-d /dev/fd0 \-\-dd
 Format a 720K disk in drive 0.
 .TP
-.B superformat \-s21 \-t83
+.B superformat \-d /dev/fd0 \-s21 \-t83
 Format a 1743K disk in drive 0 (83 tracks times 21 sectors).
 .TP
-.B superformat \-s24 \-t83
+.B superformat \-d /dev/fd0 \-s24 \-t83
 Format a 1992K disk in drive 0 (83 tracks times 24 "sectors").
 There won't be 24 physical 512-byte sectors on the disk, but rather
 one 8192-byte sector and a 4096-byte sector.
@@ -252,7 +252,7 @@ will figure
 out that this is the only format which fits, with that many "sectors".
 24 sectors is the absolute maximum, and might not work everywhere.
 .TP
-.B superformat \-s23 \-\-2m
+.B superformat \-d /dev/fd0 \-s23 \-\-2m
 Format a 1840K disk in drive 0. It will have 5 2048-byte sectors,
 one 1024-byte sector, and one 512-byte sector per track.
 .PP

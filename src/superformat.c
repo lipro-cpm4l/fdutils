@@ -241,19 +241,27 @@ int send_cmd(int fd,struct floppy_raw_cmd *raw_cmd, char *message)
 
 int floppy_read(struct params *fd, void *data, int track, int head, int sectors)
 {
-	int n;
+	int n,m;
 	if (lseek(fd->fd, (track * heads + head) * sectors * 512,
 		  SEEK_SET) < 0) {
 		perror("lseek");
 		return -1;
 	}
-	n=read(fd->fd, data, sectors * 512);
-	if ( n < 0 )
-		perror("read");
-	if ( n == sectors * 512)
-		return n;
-	else
-		return -1;
+	m = sectors * 512;
+	while(m>0) {
+		/* read until we have read everything we should */
+		n=read(fd->fd, data, m);
+		if ( n < 0 ) {
+			perror("read");
+			return -1;
+		}
+		if(n== 0) {
+			fprintf(stderr, "Error, %d bytes remaining\n", m);
+			return -1;
+		}
+		m -= n;
+	}
+	return 0;
 }
 
 void calc_multi_skew(struct params *f, int track, int head, int skew,
@@ -1392,14 +1400,7 @@ void main(int argc, char **argv)
 							(void *)verify_buffer,
 							track, head, sectors);
 				if (n < 0) {
-					perror("read");
 					error=1;
-					fprintf(stderr, "remaining %d\n", n);
-					continue;
-				}
-				if (n == 0) {
-					error = 1;
-					fprintf(stderr,"End of file\n");
 					continue;
 				}
 			}

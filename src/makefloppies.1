@@ -14,6 +14,7 @@ MAKEFLOPPIES \- Creates the default floppy device nodes.
 .RB "[\|" \-l "\|]"
 .RB "[\|" \-v "\|]"
 .RB "[\|" \-n "\|]"
+.RB "[\|" \-g "\|]"
 .RB "[\|" drives "\|]"
 .ad b
 .hy 1
@@ -62,6 +63,10 @@ Verbose
 .TP
 .B \-n
 Dry run. (just report what would be done, do not do anything)
+
+.TP
+.B \-g
+Group. Allow read/write access to floppy devices only for group `floppy'
 
 .SH BUGS
 The Makefloppies script does not work on redefined default formats,

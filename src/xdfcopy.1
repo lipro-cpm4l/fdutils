@@ -1,4 +1,4 @@
-.TH XDFCOPY 1 "11nov1995" "fdutils" "fdutils"
+.TH XDFCOPY 1 "23jun1995" "fdutils" "fdutils"
 .de BP
 .sp
 .ti \-.2i
@@ -13,6 +13,11 @@ xdfcopy \- Program to copy and format Xdf disks in Linux
 .RB "[\|" \-D \c
 .I dos\-drive\c
 \&\|]
+.RB "[\|" \-0 "\|]"
+.RB "[\|" \-1 "\|]"
+.RB "[\|" \-2 "\|]"
+.RB "[\|" \-3 "\|]"
+.RB "[\|" \-4 "\|]"
 .RB "[\|" \-d "\|]"
 .RB "[\|" \-n "\|]"
 .RB "[\|" \-h \c
@@ -21,6 +26,9 @@ xdfcopy \- Program to copy and format Xdf disks in Linux
 .RB "[\|" \-t \c
 .I track_skew\c
 \&\|]
+.RB "[\|" \-T \c
+.I end_cylinder\c
+\&\|]
 .RI "[\|" source "\|]"
 .I target
 .ad b
@@ -28,12 +36,13 @@ xdfcopy \- Program to copy and format Xdf disks in Linux
 .SH DESCRIPTION
 
 Xdfcopy is a utility to copy and format Xdf disks. Xdf is a format
-used by OS/2 which can hold 1756k of data. Its advantage over 2m
-formats is that it's access is faster.
+used by OS/2 which can hold 1840k of data (on a 3 1/2 high density
+disk). Its advantage over 2m formats is that it's access is faster:
+38k/s. Because of this fast speed, I extended the Xdf standard to
+higher capacities (1992k) with a transfer rate of 45k/s. I called the
+new formats XXDF.
 
-This program only works with kernels newer than 1.3.40. (If there's
-sufficient interest, I'll include a program working with older kernels
-in the next release)
+This program works best with kernels stricly newer than 2.0.0.
 
 If both source and target are given, xdfcopy copies the disk image
 from file to floppy disk or vice-versa. When copying to a floppy disk,
@@ -46,6 +55,30 @@ target must be a floppy drive.
 
 .SH OPTIONS
 
+.SS Selecting a format
+
+.TP
+.B "\-0"
+Formats a 5 1/4 XDF disk (1520k, 45.6 KB/s).
+
+.TP
+.B "\-1"
+Formats a 3 1/2 high density XDF disk (1840 KB, 38.3 KB/s).
+
+.TP
+.B "\-2"
+Formats a 3 1/2 extra density XDF disk (3680 KB, 102 KB/s)
+
+.TP
+.B "\-3"
+Formats a 3 1/2 high density XXDF disk (1920 KB, 45 KB/s)
+
+.TP
+.B "\-4"
+Formats a 3 1/2 extra density XXDF disk (3840 KB, 90 KB/s) 
+
+.SS Misc options
+
 .TP
 .BI "\-D" "dosdrive"
 Describes the DOS drive letter for mformat. If this option is given,
@@ -54,40 +87,40 @@ low-level format is complete. In order for this to work, the drive has
 to be configured to accept the 23x2x80 geometry in your /etc/mtools or
 your ~/.mtoolsrc file. Moreover, this only works with a version of
 mtools that is more recent than 2.5.4.
- Example of working mtoolsrc lines:
+ Example of a working mtoolsrc line:
   A /dev/fd0  0  0 0  0
-  A /dev/fd0 12 80 2 23
-
-The former is preferable, as it matches any format. The latter
-matches
-.B only
-23 sector formats (such as Xdf and certain 2m formats).
 
  Examples of a non-working mtoolsrc line:
   A /dev/fd0 12 80 2 18
 
-
 .TP
 .B \-n
 Don't format the disk before copying the disk image to the disk.
-
 
 .SH OPTIONS FOR POWER USERS
 
 .TP
 .BI "\-t" "track skew"
 Uses a different track skew than the default (14). For more details on
-skews, see the superformat manpage.
+skews, see the superformat manpage. In this version, this parameter is
+ignored.
 
 .TP
 .BI "\-h" "head skew"
-Uses a different head skew than the default (0)
+Uses a different head skew than the default (0) In this version, this
+parameter is ignored
 
 .TP
 .B \-d
 Debugging. For each read or write operation, the time it took to
 complete the operation is printed (in milliseconds). This can be used
 to optimize the skews.
+
+.TP
+.BI "\-T" "end_cylinders"
+Tells how many cylinders to format.  With the XXDF formats, it is
+actually possible to format up to 83 cylinders, yielding a format of
+up to 1992k on a 3 1/2 high density disk.
 
 .SH FILES
 /dev/fd* - Floppy devices

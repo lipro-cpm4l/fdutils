@@ -285,7 +285,6 @@ void main(int argc, char **argv)
 	  exit(1);
 	}
       }
-      *drive = '\0';
     }
 
     if (do_buffer){

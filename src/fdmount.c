@@ -18,6 +18,8 @@
 #include <linux/ext2_fs.h>
 #include <linux/xia_fs.h>
 #include <syslog.h>
+#include <sys/types.h>
+#include <grp.h>
 
 #define USE_2M
 #include "msdos_fs.h"
@@ -1037,6 +1039,10 @@ int main(int argc, char **argv)
 	opt_noexec=0,opt_nodev=0,opt_nosuid=0;
     int mountflags=0;
     char *opt_pidfile="/var/run/fdmount.pid"; 
+#if FLOPPY_ONLY
+    gid_t groups[NGROUPS_MAX];
+    int not_allowed = 1, ngroups;
+#endif                             
 
     static struct option longopt[] = {
 	{ "silent",	0, &opt_silent,	1 },
@@ -1067,6 +1073,19 @@ int main(int argc, char **argv)
     opt_daemon=(strcmp(progname,"fdmountd")==0);
     opt_list  =(strcmp(progname,"fdlist")==0);
 
+#if FLOPPY_ONLY
+    if ((ngroups = getgroups (NGROUPS_MAX, groups)) != -1) {
+    	int     i;
+    	struct group *gr;
+
+        for (i = 0; not_allowed && i < ngroups; i++)
+            if ((gr = getgrgid (groups[i])))
+            	not_allowed = strcmp (gr -> gr_name, "floppy");
+    }
+    if (not_allowed)
+        die("Must be member of group floppy");
+#endif
+                                                                                                                                                                                                                                                                                                                                                                   
     if (geteuid()!=0) 
 	die("Must run with EUID=root");
     ruid = getuid();

@@ -4,13 +4,18 @@
 # when the disk should be cleaned by hand. In that case it's a replacement
 # for diskseek. If you don't want to have this feature, don't define it.
 #
-DEFINES=-DPIDFILE=\"/var/run/diskseekd.pid\"
+PID=-DPIDFILE=\"/var/run/diskseekd.pid\"
+#
+# If you don't like everyone accessing fdmount define this
+#
+FLOP=-DFLOPPY_ONLY
+DEFINES=$(PID) $(FLOP)
 
 CC=gcc
 OBJECTS=enh_options.o floppycontrol.o superformat.o
 SOURCES=enh_options.c floppycontrol.o superformat.c
 MANPAGES1=diskd.1 diskseekd.1 fdrawcmd.1 floppycontrol.1 getfdprm.1  \
-makefloppies.1 superformat.1 xdfcopy.1 fdmount.1
+makefloppies.1 superformat.1 xdfcopy.1 fdmount.1 fdformat.1
 MANPAGES4=fd.4
 MANPAGES8=setfdprm.8
 CFLAGS=-O4 -fno-strength-reduce -Wall $(DEFINES)
@@ -89,22 +94,25 @@ install.bin: all
 	install -c -s -m $(PERM) -o $(UID) -g $(GID) superformat $(BIN)
 	install -c -s -m $(PERM) -o $(UID) -g $(GID) xdfcopy $(BIN)
 	install -c -s -m $(SPERM) -o $(UID) -g $(GID) fdmount $(BIN)
-	install -c -s -m $(SPERM) -o $(UID) -g $(GID) fdmount $(BIN)/fdumount
+#	install -c -s -m $(SPERM) -o $(UID) -g $(GID) fdmount $(BIN)/fdumount
+	install -c -s -m $(SPERM) -o $(UID) -g $(GID) fdformat.sh $(BIN)/fdformat
 	( cd $(BIN); \
-	ln -sf xdfcopy $(BIN)/xdfformat; \
-	ln -sf fdmount $(BIN)/fdumount; \
-	ln -sf fdmount $(BIN)/fdlist; \
-	ln -sf fdmount $(BIN)/fdmountd )
+	ln -sf xdfcopy xdfformat; \
+	ln -sf fdmount fdumount; \
+	ln -sf fdmount fdlist; \
+	ln -sf fdmount fdmountd )
+
+MANFLAGS=-c -m $(MANPERM) -o $(UID) -g $(GID)
 
 install.man:
-	install -c -m $(MANPERM) -o $(UID) -g $(GID) $(MANPAGES1) $(MANDIR1)
-	install -c -m $(MANPERM) -o $(UID) -g $(GID) $(MANPAGES4) $(MANDIR4)
-	install -c -m $(MANPERM) -o $(UID) -g $(GID) $(MANPAGES8) $(MANDIR8)
+	for i in $(MANPAGES1); do install $(MANFLAGS) $$i $(MANDIR1); done
+	for i in $(MANPAGES4); do install $(MANFLAGS) $$i $(MANDIR4); done
+	for i in $(MANPAGES8); do install $(MANFLAGS) $$i $(MANDIR8); done
 	( cd $(MANDIR1); \
-	ln -sf fdmount.1 $(MANDIR1)/fdumount.1; \
-	ln -sf fdmount.1 $(MANDIR1)/fdlist.1; \
-	ln -sf fdmount.1 $(MANDIR1)/fdmountd.1; \
-	ln -sf xdfcopy.1 $(MANDIR1)/xdfformat.1 )
+	ln -sf fdmount.1 fdumount.1; \
+	ln -sf fdmount.1 fdlist.1; \
+	ln -sf fdmount.1 fdmountd.1; \
+	ln -sf xdfcopy.1 xdfformat.1 )
 
 install.zman:
 	for i in $(MANPAGES1); do gzip < $$i >_; install -c -m $(MANPERM) -o $(UID) -g $(GID) _ $(MANDIR1).Z/$$i; done
