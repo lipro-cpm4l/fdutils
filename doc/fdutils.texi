@@ -11,9 +11,9 @@
 @c MANtitle fdutils 1 "1Jul1999" fdutils
 @c MANskip
 
-@set EDITION 5.3
-@set VERSION 5.3
-@set UPDATED Jul 1999
+@set EDITION 5.4
+@set VERSION 5.4
+@set UPDATED Jun 2000
 
 @iftex
 @finalout
@@ -30,7 +30,7 @@ END-INFO-DIR-ENTRY
 
 @ifinfo
 Fdutils
-Copyright (C) 1993-1999 Alain Knaff
+Copyright (C) 1993-2000 Alain Knaff
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice

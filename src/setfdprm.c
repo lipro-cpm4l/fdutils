@@ -30,7 +30,7 @@ struct enh_options optable[] = {
 	{ '\0', 0 }
 };
 
-void main(int argc,char **argv)
+int main(int argc,char **argv)
 {
 	int cmd,fd,c;
 	char *name;

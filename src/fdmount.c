@@ -1,4 +1,5 @@
 #include "../config.h"
+#include <asm/types.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -9,12 +10,13 @@
 #include <stdarg.h>
 #include <mntent.h>
 #include <getopt.h>
+#include <limits.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
 #include <linux/fd.h>
-#include <linux/fs.h>
 #include <linux/minix_fs.h>
+
 
 #ifdef HAVE_LINUX_EXT_FS_H
 #include <linux/ext_fs.h>
@@ -86,7 +88,7 @@ typedef struct {
 } fmt_descr;
    
 int locked=0;
-char curdev[40] = "";
+char curdev[100] = "";
 char *progname = NULL;
 int opt_silent=0;
 int use_syslog = 0;
@@ -99,10 +101,10 @@ enum { T_NULL, T_MINIX, T_DOS, T_VFAT, T_EXT2, T_EXT, T_XIA };
 char *fsnames[7] = {"???","minix", "msdos", "vfat", "ext2","ext","xia"};
 
 void die(const char *text,...) {
-    char buff[80];
+    char buff[140];
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vsnprintf(buff,139,text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
@@ -112,10 +114,10 @@ void die(const char *text,...) {
 }
 
 void msg(char *text,...) {
-    char buff[80];
+    char buff[140];
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vsnprintf(buff,139,text,p);
     va_end(p);
     if(!opt_silent) {
 	if(use_syslog)
@@ -126,10 +128,10 @@ void msg(char *text,...) {
 }
 
 void errmsg(char *text,...) {
-    char buff[80];
+    char buff[140];
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vsnprintf(buff,139,text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
@@ -180,15 +182,17 @@ canonicalize (const char *path)
     if (path == NULL)
 	return NULL;
 
-#if 0  
-    if (streq (path, "none"))
+#if 0
+    if (!strcmp (path, "none"))
 	{
-	    strcpy (canonical, path);
+	    strncpy (canonical, path, sizeof(canonical)-1);
+	    canonical[sizeof(canonical)-1] = '\0';
 	    return canonical;
 	}
     if (strchr (path, ':') != NULL)
 	{
-	    strcpy(canonical, path);
+	    strncpy(canonical, path, sizeof(canonical)-1);
+	    canonical[sizeof(canonical)-1] = '\0';
 	    return canonical;
 	}
 #endif
@@ -607,7 +611,8 @@ int chk_mountpoint(char *dir,int is_default) {
 }
 
 #define ADD_OPT(format,parameter) \
-sprintf(options+strlen(options), "," format, parameter)
+snprintf(options+strlen(options), MAX_OPT - strlen(options)-1, \
+		"," format, parameter)
 
 #define MAX_OPT 1024
 char dos_options[MAX_OPT];
@@ -627,8 +632,9 @@ int do_mount(char *devname,char *_mountpoint,
     char super[2048];
     char *mountpoint;
    
-    strcpy(curdev,devname);
-   
+    strncpy(curdev,devname, sizeof(curdev));
+    curdev[sizeof(curdev)-1]='\0';
+
     if (access(devname,R_OK)!=0)
 	die("no access to %s",devname);
    
@@ -814,7 +820,9 @@ int do_umount(const char *devname,int force) {
     struct stat st;
 
     lock_read_mtab();
-    strcpy(curdev,devname);
+    strncpy(curdev,devname, sizeof(curdev));
+    curdev[sizeof(curdev)-1]='\0';
+
 
     mnt=get_mounted(devname);
     if (!mnt) {
@@ -913,7 +921,9 @@ int daemon_mode(char *devname,char *mountpoint,int mountflags,
     struct floppy_drive_struct state;
     mnt_node *mnt;
 
-    strcpy(curdev,devname);
+    strncpy(curdev,devname, sizeof(curdev));
+    curdev[sizeof(curdev)-1]='\0';
+
     fd=open(devname,O_RDONLY|O_NDELAY);
     if (fd<0) {
 	errmsg("error opening device: %s",strerror(errno));
@@ -938,7 +948,7 @@ int daemon_mode(char *devname,char *mountpoint,int mountflags,
 			msg("ioctl(FDPOLLDRVSTAT) failed: %s",strerror(errno));
 			return -1;
 		}
-		printf("flags=%02x\n", state.flags);
+		printf("flags=%02lx\n", state.flags);
 		disk_in=!(state.flags & (FD_VERIFY | FD_DISK_NEWCHANGE));
 		if (disk_in && !prev_disk_in && !first) {
 			msg("disk inserted");
@@ -1116,7 +1126,8 @@ int main(int argc, char **argv)
     if (not_allowed)
         die("Must be member of group floppy");
 #endif
-                                                                                                                                                                                                                                                                                                                                                                   
+
+
     if (geteuid()!=0) 
 	die("Must run with EUID=root");
     ruid = getuid();

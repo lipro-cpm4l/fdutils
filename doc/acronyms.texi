@@ -62,7 +62,7 @@ Self explanatory
 
 @item MSS (Mixed size sectors)
 Mixed sector size formats are formats which use sectors of several
-different sizes on a single track. @xref{Mixed size sectors} for
+different sizes on a single track. @xref{Mixed size sectors}, for
 details.
 
 @item 2M (2 Megabytes)
@@ -70,7 +70,7 @@ details.
 principle is the same as MSS: mix sectors of several sizes on a same
 track, in order to minimize both slack space and header overhead.  2M is
 different from MSS in that it uses a normal 18 sector format on its
-first track. @xref{2M} for details.
+first track. @xref{2M}, for details.
 
 @item rpm (Rotations per minute)
 All 3 1/2 drives and 5 1/4 DD drives run at 300 rotations per minute,
@@ -88,12 +88,12 @@ disks have 96 tpi.  3 1/2 disks use 135.5 tpi.
 @item XDF (eXtended Density Format)
 XDF is a disk format used for the OS/2 distribution disks.  Its
 operating systems are similar to 2M and MSS disk, but it is faster due
-to a more creative arrangement of sectors. @xref{XDF} for details.
+to a more creative arrangement of sectors. @xref{XDF}, for details.
 
 @item XXDF (eXtended XDF)
 XXDF is an Linux enhancement for XDF. It can store 1992 KB of data on an
 ED disk instead of just 1840 available with the regular XDF
-format. @xref{XXDF} for details.
+format. @xref{XXDF}, for details.
 
 @item MFM (Multi Frequency Modulation)
 MFM is a low level encoding of disk data. It is used for DD, HD and ED

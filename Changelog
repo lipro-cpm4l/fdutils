@@ -1,3 +1,6 @@
+000603	Released 5.4
+000527	Fixed a couple of buffer overrun exploits and other cleanup. Made
+	fdutils compilable with Linux 2.3/2.4 kernels. Documentation fixes
 970104	Fixed a few bugs listed in the Debian buglist posted to
 	linux.debian.bugs.dis
 	1.  Lessen dependancy of superformat on mtools by not failing if

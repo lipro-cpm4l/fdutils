@@ -26,7 +26,7 @@ static void myprintf(char *fmt, int value)
   putchar(' ');
 }
 
-void main(int argc,char **argv)
+int main(int argc,char **argv)
 {
 	int fd;
 	char *name;

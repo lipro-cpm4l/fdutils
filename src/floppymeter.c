@@ -9,7 +9,6 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
 #include <linux/major.h>
 #include <getopt.h>
 #include "enh_options.h"
@@ -71,7 +70,7 @@ int sliding_avg(struct reg *reg, int n)
 	return (n*sum_xy - sum_x * sum_y) / (n*sum_x2 - sum2_x);
 }
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int n;
 	long long shall_cap;
@@ -161,11 +160,11 @@ void main(int argc, char **argv)
 		perror("fstat");
 		exit(1);
 	}
-	if (!S_ISBLK(buf.st_mode) || MAJOR(buf.st_rdev) != FLOPPY_MAJOR) {
+	if (!S_ISBLK(buf.st_mode) || major(buf.st_rdev) != FLOPPY_MAJOR) {
 		fprintf(stderr,"%s is not a floppy drive\n", name);
 		exit(1);
 	}
-	dn = MINOR( buf.st_rdev );
+	dn = minor( buf.st_rdev );
 	dn = (dn & 3) + ((dn & 0x80) >> 5);
 
 	if(ioctl(fd, FDGETDRVPRM, &dpr) < 0) {

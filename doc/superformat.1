@@ -1,4 +1,4 @@
-.TH superformat 1 "02Jul99" fdutils-5.3
+.TH superformat 1 "02jun00" fdutils-5.4
 .SH Name
 superformat - format floppies
 '\" t
@@ -79,7 +79,7 @@ quoting conventions used in info.
 .in +0.3i
 \&\fR\&\f(CWsuperformat [\fR\&\f(CW-D \fIdos-drive\fR\&\f(CW] [\fR\&\f(CW-v \fIverbosity-level\fR\&\f(CW] [\fR\&\f(CW-b \fIbegin-track\fR\&\f(CW]
 [\fR\&\f(CW-e \fIend-track\fR\&\f(CW] [\fR\&\f(CW--superverify] [\fR\&\f(CW--dosverify]
-[\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later]
+[\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later] [\fR\&\f(CW--zero-based]
 [\fR\&\f(CW-G \fIformat-gap\fR\&\f(CW] [\fR\&\f(CW-F \fIfinal-gap\fR\&\f(CW] [\fR\&\f(CW-i \fIinterleave\fR\&\f(CW] [\fR\&\f(CW-c \fIchunksize\fR\&\f(CW]
 [\fR\&\f(CW-g \fIgap\fR\&\f(CW] [\fR\&\f(CW--absolute-skew \fIabsolute-skew\fR\&\f(CW] [\fR\&\f(CW--head-skew \fIhead-skew\fR\&\f(CW]
 [\fR\&\f(CW--track-skew \fItrack-skew\fR\&\f(CW] [\fR\&\f(CW--biggest-last] \fIdrive\fR\&\f(CW [\fImedia-description\fR\&\f(CW]
@@ -91,8 +91,8 @@ quoting conventions used in info.
 \&\fR
 .PP
 \&\fR\&\f(CWsuperformat\fR is used to format disks with a capacity of up to
-1992K HD or 3984K ED.  See section Extended formats for a detailed
-description of these formats. See section Media description for a detailed
+1992K HD or 3984K ED.  See section Extended formats, for a detailed
+description of these formats. See section Media description, for a detailed
 description of the syntax for the media description.  If no media
 description is given, superformat formats a disk in the highest
 available density for that drive, using standard parameters (i.e. no
@@ -115,7 +115,7 @@ drive and the resulting difference in raw capacity.  That's why
 before proceeding with the formatting.  This measurement is rather time
 consuming, and can be avoided by storing the relative deviation of the
 drive capacity into the drive definition file file. See section Drive
-descriptions for more details on this file. The line to be inserted
+descriptions, for more details on this file. The line to be inserted
 into the drive definition file is printed by superformat after
 performing its measurement.  However, this line depends on the drive and
 the controller.  Do not copy it to other computers.  Remove it before
@@ -236,6 +236,14 @@ formatting gaps.
 \&\fR\&\f(CW--biggest-last\fR\ 
 For MSS formats, make sure that the biggest sector is last on the track.
 This makes the format more reliable on drives which are out of spec.
+.TP
+\&\fR\&\f(CW--zero-based\fR\ 
+Formats the disk with sector numbers starting at 0, rather than
+1. Certain CP/M boxes or Music synthesizers use this format. Those disks
+can currently not be read/written to by the standard Linux read/write
+API; you have to use fdrawcmd to access them.  As disk verifying is done
+by this API, verifying is automatically switched off when formatting
+zero-based.
 .PP
 .SH Sector\ skewing\ options
 .PP

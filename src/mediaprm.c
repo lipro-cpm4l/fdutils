@@ -67,7 +67,6 @@ static int mask;
 static keyword_t ids[]= {
 	{ "size", F_SIZE, 0 },
 	{ "sect", F_SECT, 0},
-	{ "vsect", F_VSECT, 0},
 	{ "tracksize", F_VSECT, 0},
 	{ "head", F_HEAD, 0},
 	{ "ss",   F_HEAD, 1},

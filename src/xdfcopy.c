@@ -14,7 +14,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <linux/major.h>
-#include <linux/fs.h>
 #include <sys/time.h>
 #include <errno.h>
 #include "fdutils.h"
@@ -516,10 +515,10 @@ static int get_type(int fd)
    exit(0);
  }
  
- if (!S_ISBLK(statbuf.st_mode) && MAJOR(statbuf.st_rdev) != FLOPPY_MAJOR)
+ if (!S_ISBLK(statbuf.st_mode) && major(statbuf.st_rdev) != FLOPPY_MAJOR)
    return -1;
 
- drive = MINOR( statbuf.st_rdev );
+ drive = minor( statbuf.st_rdev );
  return (drive & 3) + ((drive & 0x80) >> 5);
 }
 
@@ -753,13 +752,13 @@ int main(int argc, char **argv)
     close(sfd);
 
     if(dosdrive && !sourcename && !noformat) {
-	    sprintf(cmdbuffer,"mformat -X -s%d -t%d -h2 %c:",
+	    snprintf(cmdbuffer,79,"mformat -X -s%d -t%d -h2 %c:",
 		    fmt->sect_per_track_any, max_cylinder, dosdrive);
 	    system(cmdbuffer);
 	    setenv("MTOOLS_USE_XDF","0", 1);
-	    sprintf(cmdbuffer,"mformat -t1 -h1 -s8 %c:", dosdrive);
+	    snprintf(cmdbuffer,79,"mformat -t1 -h1 -s8 %c:", dosdrive);
 	    system(cmdbuffer);
-	    sprintf(cmdbuffer,"mcopy - %c:README", dosdrive);
+	    snprintf(cmdbuffer,79,"mcopy - %c:README", dosdrive);
 	    fp = popen(cmdbuffer, "w");
 	    if(fp) {
 		    fwrite(readme, strlen(readme), 1,  fp);

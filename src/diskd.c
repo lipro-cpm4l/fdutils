@@ -10,7 +10,6 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
 #include <linux/major.h>
 #include "enh_options.h"
 
@@ -27,7 +26,7 @@ int eioctl(int fd, int command,void * param, char *emsg)
 }
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int mask=0;
 	int fd=-2;

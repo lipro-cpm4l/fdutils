@@ -26,7 +26,7 @@ static void print_token(char *fmt, int param)
 	char buffer[50];
 	int l;
 
-	sprintf(buffer, fmt, param);
+	snprintf(buffer, 49, fmt, param);
 	l = strlen(buffer);
 
 	if(l + col > 70) {
@@ -54,7 +54,7 @@ static void usage(char *name)
 }
 
 
-void main(int argc,char **argv)
+int main(int argc,char **argv)
 {
 	struct floppy_struct ft;
 	char *name = argv[0];

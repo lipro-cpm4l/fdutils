@@ -255,7 +255,7 @@ struct enh_options optable[] = {
 { '\0', 0 }
 };
 
-void main( int argc, char **argv)
+int main( int argc, char **argv)
 {
 	int ch;
 	int mask=0;       
@@ -400,7 +400,7 @@ void main( int argc, char **argv)
 		printf("keep data=	%d\n", drivstat.keep_data);
 		printf("refs=		%d\n", drivstat.fd_ref);
 		printf("device=		%d\n", drivstat.fd_device);
-		printf("last_checked=  	%d\n", drivstat.last_checked);
+		printf("last_checked=  	%ld\n", drivstat.last_checked);
 	}
 
 

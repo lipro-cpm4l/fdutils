@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <linux/fd.h>
 #include <sys/ioctl.h>
-#include <linux/fs.h>
 #include <linux/major.h>
 #include "parse.h"
 #include "driveprm.h"
@@ -137,12 +136,12 @@ static int getdrivenum(int fd, struct stat *buf)
 	}
 
 	if (!S_ISBLK(buf->st_mode) || 
-	    MAJOR(buf->st_rdev) != FLOPPY_MAJOR) {
+	    major(buf->st_rdev) != FLOPPY_MAJOR) {
 		fprintf(stderr,"Not a floppy drive\n");
 		exit(1);
 	}
 	
-	num = MINOR( buf->st_rdev );
+	num = minor( buf->st_rdev );
 	return (num & 3) + ((num & 0x80) >> 5);
 }
 

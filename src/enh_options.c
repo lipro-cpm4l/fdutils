@@ -384,7 +384,7 @@ void print_help(struct enh_options *eo)
 	char format[20];
 
 	wordlength = get_wordlength(eo);
-	sprintf(format, "--%%-%ds ", wordlength);
+	snprintf(format, 19, "--%%-%ds ", wordlength);
 	htlength=80 - wordlength - 6;
 	for(i=0; i<length; i++){
 		if ( eo[i].shorto )

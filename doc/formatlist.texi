@@ -5,7 +5,7 @@
 @cindex making floppy devices
 
 The floppy device nodes are usually made using the @code{MAKEFLOPPIES}
-shell script (@xref{makefloppies}).
+shell script (@xref{makefloppies}.).
 
 The major device number for the floppy drives is 2.  The minor device
 number contains describes which drive it represents, and may in addition

@@ -37,7 +37,6 @@ Todo:
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
 #include <linux/major.h>
 #include <errno.h>
 #include "enh_options.h"
@@ -296,7 +295,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	for (i=0; i<fd->dsect; ++i){
 		offset = fd->sequence[i].offset + lskews[cylinder][head];
 		offset = offset % fd->nssect;
-		data[offset].sector = fd->sequence[i].sect;
+		data[offset].sector = fd->sequence[i].sect - fd->zeroBased;
 		data[offset].size = fd->sequence[i].size;
 		data[offset].cylinder = cylinder;
 		data[offset].head = head;
@@ -340,7 +339,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	if(send_cmd(fd->fd, & raw_cmd, "format"))
 		return -1;
 
-	cur_sector = 1;
+	cur_sector = 1 - fd->zeroBased;
 	memset(floppy_buffer, 0, sizeof(floppy_buffer));
 	if ( !fd->need_init && fd->sizecode)
 		return 0;
@@ -349,7 +348,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 		printf("initializing...\n");
 
 	for (i=MAX_SIZECODE-1; i>=0; --i) {
-		if ( fd->last_sect[i] <= cur_sector )
+		if ( fd->last_sect[i] <= cur_sector + fd->zeroBased)
 			continue;
 
 		/* second pass */
@@ -361,7 +360,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 		raw_cmd.cmd[3] = head;
 		raw_cmd.cmd[4] = cur_sector;
 		raw_cmd.cmd[5] = i;
-		raw_cmd.cmd[6] = fd->last_sect[i] - 1;
+		raw_cmd.cmd[6] = fd->last_sect[i] - 1 - fd->zeroBased;
 		raw_cmd.cmd[7] = fd->gap;
 		if ( i )
 			raw_cmd.cmd[8] = 0xff;
@@ -374,7 +373,9 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 
 		retries=0;
 	retry:
-		raw_cmd.length = (fd->last_sect[i] - cur_sector) * 128 << i;
+		raw_cmd.length = (fd->last_sect[i] - 
+				  fd->zeroBased - 
+				  cur_sector) * 128 << i;
 		/* debugging */
 		if (verbosity == 9)
 			printf("writing %ld sectors of size %d starting at %d\n",
@@ -488,6 +489,7 @@ int main(int argc, char **argv)
 	char *progname=argv[0];
 
 	short retries;
+	short zeroBased=0;
 	int n,rsize;
 	char *verify_buffer = NULL;
 	char dosdrive;
@@ -636,6 +638,9 @@ int main(int argc, char **argv)
 		"During the verification step, write a pattern of 0x55 to the track, and check whether it can still be read back" },
 
 
+	{ '\0', "zero-based", 0, EO_TYPE_SHORT, 1, 0,
+	  	(void *) &zeroBased,
+	  	"Start numbering sectors from 0 instead of 1 (not readable by normal I/O)" },
 
 	{ '\0', 0 }
 	};
@@ -656,6 +661,11 @@ int main(int argc, char **argv)
 		fprintf(stderr,"unhandled option %d\n", ch);
 		exit(1);
 	}
+
+	fd[0].zeroBased = zeroBased;
+	if(zeroBased)
+		noverify = 1;
+
 
 	/* sanity checking */
 	if (sizecode < 0 || sizecode >= MAX_SIZECODE) {
@@ -707,7 +717,7 @@ int main(int argc, char **argv)
 		fd[0].drive = drivedesc.drivenum;
 		fd[0].drvprm = drivedesc.drvprm;
 
-		if(MINOR(drivedesc.buf.st_rdev) & 0x7c) {
+		if(minor(drivedesc.buf.st_rdev) & 0x7c) {
 			if(fd[0].name == drivename) {
 				fprintf(stderr,
 					"%s has bad minor/major numbers\n",
@@ -720,7 +730,7 @@ int main(int argc, char **argv)
 				ioctl(fd[0].fd, FDGETPRM, &geometry);
 			have_geom = 1;
 			close(fd[0].fd);
-			sprintf(drivename,"/dev/fd%d", fd[0].drive);
+			snprintf(drivename,9,"/dev/fd%d", fd[0].drive);
 			fd[0].name = drivename;
 			continue;
 		}
@@ -1051,10 +1061,10 @@ int main(int argc, char **argv)
 		if (verbosity >= 5)
 			printf("calling mformat\n");
 		if (use_2m)
-			sprintf(twom_buffer, "-2 %2d", fd0.dsect);
+			snprintf(twom_buffer, 5, "-2 %2d", fd0.dsect);
 		else
 			twom_buffer[0]='\0';
-		sprintf(command_buffer,
+		snprintf(command_buffer, 79,
 			"mformat -s%d -t%d -h%d -S%d -M512 %s %c:",
 			sectors,
 			/*use_2m ? sectors : sectors >> (sizecode - 2), */
@@ -1062,9 +1072,9 @@ int main(int argc, char **argv)
 		if (verbosity >= 3) {
 			printf("\n%s\n", command_buffer);
 		}
-		sprintf(env_buffer,"%d", (int)fd0.rate&3);
+		snprintf(env_buffer, 9, "%d", (int)fd0.rate&3);
 		setenv("MTOOLS_RATE_0", env_buffer,1);
-		sprintf(env_buffer,"%d", (int)fd->rate&3);
+		snprintf(env_buffer, 9, "%d", (int)fd->rate&3);
 		setenv("MTOOLS_RATE_ANY", env_buffer,1);
 		if(system(command_buffer)){
 			fprintf(stderr,"\nwarning: mformat error\n");
@@ -1121,7 +1131,7 @@ int main(int argc, char **argv)
 		close(fd[0].fd);
 	}
 	if (dosverify){
-		sprintf(command_buffer,
+		snprintf(command_buffer, 79,
 			"mbadblocks %c:", dosdrive);
 		if (verbosity >= 3) {
 			printf("\n%s\n", command_buffer);

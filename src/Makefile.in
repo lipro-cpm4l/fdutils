@@ -127,7 +127,6 @@ install-bin: all
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppycontrol $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppymeter $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) getfdprm $(bindir)
-	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) MAKEFLOPPIES $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) setfdprm $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) fdrawcmd $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) superformat $(bindir)

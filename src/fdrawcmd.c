@@ -132,7 +132,7 @@ void print_result(struct floppy_raw_cmd *raw_cmd, long long date)
 		fprintf(f,"\n");
 }
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int have_flags=0;
 	int delay=0;

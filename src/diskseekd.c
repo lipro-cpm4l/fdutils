@@ -10,7 +10,6 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
 #include <linux/major.h>
 #include "enh_options.h"
 #include <sys/signal.h>
@@ -118,12 +117,12 @@ int main(int argc, char **argv)
 			perror("fstat");
 			exit(1);
 		}
-		if (MAJOR(buf.st_rdev) != FLOPPY_MAJOR) {
+		if (major(buf.st_rdev) != FLOPPY_MAJOR) {
 			fprintf(stderr,"Not a floppy drive\n");
 			exit(1);
 		}
 
-		drive = MINOR( buf.st_rdev );
+		drive = minor( buf.st_rdev );
 		drive = (drive & 3) + ((drive & 0x80) >> 5);
 
 		/* reset the fdc, if needed */

@@ -592,7 +592,7 @@ damaging your drive by repeatedly reading disks with more than 80
 tracks.
 
 If you trust your users and your disks, you don't need this. With most
-drives you don't need to worry anyways. @xref{More cylinders} for
+drives you don't need to worry anyways. @xref{More cylinders}, for
 details.
 
 @item -i @var{sector-interleave} 

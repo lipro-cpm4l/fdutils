@@ -83,6 +83,7 @@ struct params {
 	int length; /* length of the track */
 	int rotations; /* how many time do we have to go over 0 to read
 			* the track */
+	int zeroBased; /* 1 if sector numbering starts at zero */
 };
 
 

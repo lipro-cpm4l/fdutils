@@ -9,7 +9,6 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
 #include <linux/major.h>
 #include <getopt.h>
 #include "enh_options.h"

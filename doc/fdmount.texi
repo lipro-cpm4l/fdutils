@@ -165,7 +165,7 @@ Note that this mode has some potential drawbacks:
 @item
 Some floppy drives have to move the drive head physically in order to
 reset the disk change signal. It is strongly recommended not to use
-daemon mode with these drives.  @xref{floppycontrol} for details.
+daemon mode with these drives.  @xref{floppycontrol}, for details.
 @item
 If a disk does not contain a filesystem (e.g. a tar archive),
 the mount attempt may slow down initial access.
