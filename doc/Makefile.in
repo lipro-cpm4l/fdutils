@@ -64,8 +64,10 @@ clean:
 	rm -f fdutils.aux fdutils.cp fdutils.cps fdutils.dvi fdutils.fn 
 	rm -f fdutils.log fdutils.pg fdutils.ps fdutils.toc fdutils.tp
 	rm -f fdutils.ky fdutils.vr fdutils.info fdutils.pgs
-	rm -f fdutils.info-1 fdutils.info-2 fdutils.info-3
-
+	rm -f Fdutils.aux Fdutils.cp Fdutils.cps Fdutils.dvi Fdutils.fn
+	rm -f Fdutils.log Fdutils.pg Fdutils.pgs Fdutils.toc Fdutils.tp
+	rm -f Fdutils.ky Fdutils.vr Fdutils.pgs
+	rm -f fdutils.info*
 
 
 %.html: Fdutils.texi
@@ -99,6 +101,9 @@ install-info: info
 
 
 install-man:
+	$(top_srcdir)/mkinstalldirs $(mandir1)
+	$(top_srcdir)/mkinstalldirs $(mandir4)
+	$(top_srcdir)/mkinstalldirs $(mandir8)
 	for i in $(MANPAGES1); do \
 		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
 			$(srcdir)/$$i $(mandir1)/$$i; \

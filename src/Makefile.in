@@ -116,11 +116,13 @@ install: install-bin install-conf
 
 
 install-conf:
+	$(top_srcdir)/mkinstalldirs $(syconfdir)
 	if [ ! -f $(sysconfdir)/mediaprm ] ; then \
 		cp $(srcdir)/mediaprm  $(sysconfdir) ; \
 	fi
 
 install-bin: all
+	$(top_srcdir)/mkinstalldirs $(bindir)
 	$(INSTALL) -c -m $(PERM) -o $(UID) -g $(GID) $(srcdir)/MAKEFLOPPIES $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) diskd $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) diskseekd $(bindir)

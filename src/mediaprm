@@ -769,7 +769,12 @@
 
 # Commodore 1581  (the 3 1/2 drive of the Commodore 128)
 "CBM1581":
- DS DD sect=10 swapsides
+ DS DD sect=10 cyl=80 ssize=512 fmt_gap=35 gap=12 swapsides
+
+# CMD FD2000 disk drive, a third party floppy disk drive for the
+# Commodore line of computers with double of the capacity:
+"CMDFD2M":
+  DS HD sect=10 cyl=81 ssize=1024 fmt_gap=100 gap=12 swapsides
 
 # Color computer, sides 1 and 2
 "COCO1":
@@ -778,9 +783,18 @@
 "COCO2":
  SS DD sect=18 cyl=35 ssize=256
 
+# TRS-8- Color Computer os9 formats (to be confirmed). Needs
+# zero-based floppy patch
+"COCO360":
+ DS DD sect=18 cyl=40 ssize=256 tpi=48 zero-based
+
+"COCO720":
+ DS DD sect=18 cyl=80 ssize=256 tpi=96 zero-based
+
+
 # TO7 (Thomson), sides 1 and 2
-"TO7-1"
+"TO7-1":
  SS DD sect=16 ssize=256
 
-"TO7-2"
+"TO7-2":
  SS DD sect=16 ssize=256 swapsides

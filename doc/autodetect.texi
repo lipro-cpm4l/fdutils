@@ -81,7 +81,7 @@ case the formats with the most sectors should come first}.
 @example
 mknod /dev/fd0cbm1581 b 2 80
 chmod 666 /dev/fd0cbm1581
-setfdprm /dev/fd0cbm1581 DD DS sect=10 cyl=80 swapsides
+setfdprm /dev/fd0cbm1581 DD DS sect=10 cyl=80 ssize=512 fmt_gap=35 gap=12 swapsides
 floppycontrol --autodetect 7,8,4,20,25,28,22,31
 @end example
 

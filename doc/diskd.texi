@@ -5,7 +5,7 @@
 The diskd command has the following syntax:
 
 @example
-@code{diskd} [@code{-d} @var{drive}] [@code{-i} @var{msdosfiles}] [@code{-e} @var{command}]
+@code{diskd} [@code{-d} @var{drive}] [@code{-i} @var{interval}] [@code{-e} @var{command}]
 @end example
 
 Diskd waits for a disk to be inserted into a given @var{drive}, and then

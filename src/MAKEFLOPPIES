@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# MAKEFLOP
+# MAKEFLOPPIES
 #
 # requires: expr
 # Note quirk of expr: if it prints "0", it always

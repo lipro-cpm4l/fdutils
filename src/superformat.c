@@ -21,6 +21,12 @@ Done:
 
 	940710 AK Fixed support for 300Kbps 3.5" DD disks without 2m
 
+	20021102 AK: switched verify_later to be default on. Newer
+	kernels (2.4.x) cannot refrain from reading ahead, even if
+	BLKRA is set to 0, and this will cause failure when verifying
+	during formatting, because read-ahead will attempt to access
+	tracks that are not _yet_ formatted
+
 Todo:
 -	Allow reversing cylinder order, or perhaps have option to try as many
 	cylinders as happen to work (as in 2m).  Currently, if too many cylinders
@@ -73,7 +79,7 @@ int verbosity = 3;
 static char noverify = 0;
 static char noformat = 0;
 static char dosverify = 0;
-static char verify_later = 0;
+static char verify_later = 1;
 short stretch;
 int cylinders, heads, sectors;
 int begin_cylinder, end_cylinder;
@@ -521,12 +527,11 @@ int main(int argc, char **argv)
 		(void *) &noformat,
 		"print deviation, do not format " },
 
-
 	{ 'B', "dosverify", 0, EO_TYPE_BYTE, 1, 0,
 		(void *) &dosverify,
 		"verify disk using mbadblocks" },
 
-	{ 'V', "verify_later", 0, EO_TYPE_BYTE, 1, 0,
+	{ 'V', "verify_later", 1, EO_TYPE_BYTE, 1, 0,
 		(void *) &verify_later,
 		"verify floppy after all formatting is done" },
 

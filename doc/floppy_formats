@@ -57,7 +57,7 @@ Larger sectors:
 	other. This technique allows to do much faster accesses: 550
 	milliseconds per track instead of the 800 microseconds (or
 	more) needed for 2m. If you have any questions, please mail me
-	at Alain@linux.lu
+	at Alain@knaff.lu
 
 80/90/160/180 KB 5.25":
 	Original IBM PC, CP/M, Apple II, TRS-80, etc.  Single density, FM

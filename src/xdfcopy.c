@@ -228,8 +228,8 @@ struct xdf_struct {
 	unsigned char gap_0; /* gap used on track 0 */
 	unsigned char sect_per_track_0;
 
-	/* the following info is used for track 0 */
-	unsigned char gap_1; /* gap used on track 0 */
+	/* the following info is used for track 1 (cyl 0 head 1) */
+	unsigned char gap_1; /* gap used on track 1 */
 	unsigned char sect_per_track_1;
 
 
@@ -255,7 +255,7 @@ struct xdf_struct {
 	},
 	{
 		/* 3 1/2 HD */
-		0x7a, 23, 0,  77, 19, 77, 19,   0, 1, 0, 0, 11,
+		0x7a, 23, 20,  77, 19, 77, 19,   0, 40, 0, 0, 11,
 		{
 			{0, 3,  0},
 			{0, 4,  6},
@@ -287,12 +287,13 @@ struct xdf_struct {
 	/* my own formats */
 	{
 		/* 3 1/2 HD */
-		19, 24, 36,  49, 20, 49, 20,    0, 54, 0, 1, 12,
+		56, 24, 25,  49, 20, 49, 20,   0, 50, 0, 1, 12,
 		{
 			{0, 5,  0},
-			{1, 6, 21},
-			{0, 6, 20},
-			{1, 5,  1}
+			{1, 6, 19},
+			{0, 6, 17},
+			{1, 5,  2},
+			{0, 0,  0}
 		}
 	},
 
@@ -303,7 +304,8 @@ struct xdf_struct {
 			{0, 6,  0},
 			{1, 7, 21},
 			{0, 7, 20},
-			{1, 6,  1}
+			{1, 6,  1},
+			{0, 0,  0}
 		}
 	}
 
@@ -519,7 +521,7 @@ static int get_type(int fd)
    exit(0);
  }
  
- if (!S_ISBLK(statbuf.st_mode) && major(statbuf.st_rdev) != FLOPPY_MAJOR)
+ if (!S_ISBLK(statbuf.st_mode) || major(statbuf.st_rdev) != FLOPPY_MAJOR)
    return -1;
 
  drive = minor( statbuf.st_rdev );
@@ -573,7 +575,7 @@ int main(int argc, char **argv)
     char *sourcename, *targetname;
     struct xdf_struct *fmt;
     FILE *fp;
-    int type = 1;
+    unsigned int type = 1;
     int FatSize = 11;
     int	RootDirSize = 14;
 

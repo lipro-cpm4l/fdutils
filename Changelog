@@ -1,3 +1,14 @@
+040228	Fix format for CBM 1581 ; added definition for CMDFD2M
+030718	Fix xdfcopy to correctly handle existing files
+030531	Fix doc for diskd
+030527	Fix the -3 format (tried it out, and tried to re-read disk)
+030525	Use a more appropriate skew for 3 1/2 XDF disks (20% performance
+	increase)
+021121	Makefile fixes for installation in non-standard root directory
+021102	Added cleanup for uppercase filenames to doc directory
+	Fixed typoes
+	Added media parameters for color computer (to be confirmed)
+	Added stdlib.h include to texi-linearize and skews.c
 020203	Fix fdmount and superformat bugs
 020203	Create /dev/fd0 before testing for existence of /dev/fd0
 011002	Fix floppycontrol.c printf conditional on FD_DISK_CHANGED, so that
