@@ -1,0 +1,605 @@
+@node floppycontrol, floppymeter, fdrawcmd, Commands
+@section floppycontrol
+@pindex floppycontrol
+@cindex configuration of floppy driver
+
+@example
+@code{floppycontrol} [@code{-p}] [@code{--pollstate}] [@code{--printfdstate}]
+[@code{-a} @var{operation-abort-threshold}] [@code{-c} @var{read-track-threshold}]
+[@code{-r} @var{recalibrate-threshold}] [@code{-R} @var{reset-threshold}]
+[@code{-e} @var{reporting-threshold}] [@code{-f}] [@code{-x}] [@code{-d} @var{drive}][@code{-F}] [@code{-T}]
+[@code{-reset} @var{condition}] [@code{--debug}] [@code{--nodebug}] [@code{--messages}]
+[@code{--nomessages}] [@code{--broken_dcl}] [@code{--working_dcl}] [@code{--inverted_dcl}]
+[@code{--no_inverted_dcl}] [@code{--silent_dcl_clear}] [@code{--noisy_dcl_clear}]
+[@code{-c}@var{cmos-type}] [@code{-hlt} @var{hlt}] [@code{-hut} @var{hut}] [@code{-srt} @var{srt}] [@code{-o} @var{spindown}]
+[@code{-u} @var{spinup}] [@code{-s} @var{select-delay}] [@code{-rps} @var{rotations-per-second}]
+[@code{-O} @var{spindown-offset}] [@code{-track} @var{max-tracks}] [@code{-timeout} @var{seconds}]
+[@code{-C} @var{check-interval}] [@code{-n} @var{native-format}]
+[@code{-autodetect} @var{autodetection-sequence}] [@code{-P}] [@code{--clrwerror}]
+[@code{--printwerror}] [@code{-h}]
+@end example
+
+The @code{floppycontrol} program is used to configure the floppy driver.
+
+@menu
+* General options::          General purpose options
+* One time actions::         Perform various actions
+* Printing options::         Print out current configuration
+* Drive type configuration:: Do you have a 3 1/2 double density drive or
+                             a 5 1/4 high density drive?
+* DCL configuration::        Disk change line configuration.
+* Timing parameters::        Change the timings of various operations
+* Debugging::                Switching debugging messages on/off
+* Error handling options::   How should the floppy driver react when
+                             encountering disk errors
+* Write error reporting::    gather statistics about write errors
+* Misc options::             Other configuration options
+@end menu
+
+@node General options, One time actions, floppycontrol, floppycontrol
+@subsection General Options
+
+@table @code
+
+@item -h
+@itemx --help
+Print a help screen.
+
+@item -d @var{drive} 
+@itemx --drive @var{ drive}
+Selects the drive to configure. The default is drive 0
+(@file{/dev/fd0}).
+
+@end table
+
+@node One time actions, Printing options, General options, floppycontrol
+@subsection One time actions
+@cindex ejecting a disk
+@cindex flushing floppy cache
+@cindex resetting controller
+
+The following @code{floppycontrol} options don't set a configuration
+parameter, but perform a one-time action. They are available to anybody
+who has write access to the drive
+
+@table @code
+@item -f  
+@itemx --flush
+Flushes (throws away) the dirty data buffers associated with this drive.
+@item -x  
+@itemx --eject
+Ejects the disk out of the drive (Sparc). The dirty buffers are first
+committed to disk before ejecting it. Fails if the disk is mounted.
+
+@item --reset @var{ condition}
+Resets the FDC under
+@var{condition} . Condition may be one of the following:
+@table @code
+@item 0
+resets the FDC only if a reset is needed anyways,
+@item 1
+resets the FDC
+also if a raw command has been performed since the last reset, and 
+@item 2 
+resets the FDC unconditionally.
+@end table
+
+This command may be needed after some failed raw commands
+(@pxref{fdrawcmd}).
+
+
+@item -F
+@itemx --formatend
+Issues an end format ioctl. This might be needed after exiting a
+@code{fdformat} in an unclean way. @code{superformat} is not subject to
+this.
+
+@end table
+
+@node Printing options, Drive type configuration, One time actions, floppycontrol
+@subsection Printing current settings
+@cindex printing current settings
+@cindex determining drive type
+@cindex detecting a disk change
+
+@table @code
+
+@item -T
+@itemx --type
+Print out the drive name of a floppy device. This is used by the
+@code{MAKEFLOPPIES} script. The drive name is a letter (describing the
+drive type) followed by the capacity of the format in bytes. The letter
+is E for 3.5 ED drives, H for 3.5 HD drives, D for 3.5 DD drives, h for
+5.25 HD drives and d for 5.25 DD drives. The drive type letter
+corresponds to the oldest drive type supporting the format of this
+device node (not necessarily the type of the drive refered by this
+node.)  For the generic format nodes (/dev/fd0 et al.)  the name of
+"native format" of the drive is printed, and for the default formats, if
+a generic format has been redefined, its name becomes @code{(null)}.
+
+@item -p
+@itemx --print
+Prints out the configuration of the drive. The names of the various
+fields are the same as the names of the option to set them, see below.
+
+@item -P
+@itemx --printstate
+Prints out the cached internal state of the driver. The first line lists
+various attributes about the disk:
+@table @code
+@item drive present
+@itemx disk present
+@itemx disk writable
+These are only updated when the drive is accessed.
+@item spinup
+is the time when the motor became switched on for the last time.
+
+@item select
+is the time when the drive became selected for the last time
+
+@item first_read
+is the time when the first read request after the last spin up
+completed.
+
+@item probed_fmt
+is the the index of the autodetected format in the autodetection
+sequence for this drive.
+
+@item cylinder
+is the cylinder where the drive head currently sits.  If this number is negative, it has the following meaning:
+@itemize @bullet
+@item
+-1 means that the driver doesn't know, but the controller does (a seek
+command must be issued).
+@item
+-2 means that the controller doesn't know either, but is sure that it
+not beyond the 80th track.  The drive needs a recalibration.
+@item
+-3 means that the head may be beyond the 80th track.  The drive needs
+two successive recalibrations, because at each recalibration, the
+controller only issues 80 move head commands per recalibration.
+@end itemize
+
+@item maxblock
+is the highest block number that has been read.
+@item maxcylinder
+is a boolean which is set when a sector that is not on cylinder 0/head 0
+has been read.  These are used for smart invalidation of the buffer
+cache on geometry change.  The buffer cache of the drive is only
+invalidated on geometry change when this change actually implies that a
+block that has already been read changes position. This optimization is
+useful for mtools which changes the geometry after reading the boot
+sector.
+
+@item generation
+is roughly the number of disk changes noticed since boot. Disk changes
+are noticed if the disk is actually changed, or if a flush command is
+issued and for both cases if any I/O to/from the disk occurs. (i.e. if
+you insert several disks, but don't do any I/O to them, the generation
+number stays the same.)
+
+@item refs
+is number of open file descriptors for this drive. It is always at
+least one, because floppycontrol's file descriptor is counted too.
+
+@item device
+is format type (as derived from the minor device number) which is
+currently being used.
+
+@item last_checked
+is date (in jiffies) when the drive was last checked for a disk
+change, and a disk was actually in the drive.
+@end table
+
+
+@item --pollstate
+Polls the drive and then prints out the internal state of the
+driver.(@code{--Printstate} only prints out the cached information
+without actually polling the drive for a disk change.)
+
+@item --printfdcstate
+Prints out the state of the controller where the target drive is
+attached to.
+@table @code
+@item spec1
+@itemx spec2
+are the current values of those registers.
+
+@item rate
+is current data transfer rate
+
+@item rawcmd
+is true if a raw command has been executed since the last reset. If this
+is the case, a reset will be triggered when a drive on the same FDC is
+next opened.
+
+@item dor
+is the value of the digital output register. The 4 high bits are a bit
+mask describing which drives are spinning, the 2 low bits describe the
+selected drive, bit 2 is used to reset the FDC, and bit 3 describes
+whether this FDC has hold of the interrupt and the DMA. If you have two
+FDCs, bit 3 is only set on one of them.
+
+@item version
+is the version of the FDC. See @file{linux/include/linux/fdreg.h} for a
+listing of the FDC version numbers.
+
+@item reset
+is true if a reset needs to be issued to the FDC before processing the
+next request.
+
+@item need_configure
+is true if this FDC needs configuration by the @code{FD_CONFIGURE}
+command.
+
+@item has_fifo
+is set if the FDC understands the @code{FD_CONFIGURE} command.
+
+@item perp_mode
+describes the perpendicular mode of this FDC. 0 is non-perpendicular mode,
+2 is HD perpendicular mode, 3 is ED perpendicular mode, and 1 is unknown.
+
+@item address
+is the address of the first I/O port of the FDC.  Normally, this is
+0x3f0 for the first FDC and 0x370 for the second.
+@end table
+
+@end table
+
+@node Drive type configuration, DCL configuration, Printing options, floppycontrol
+@subsection Drive type configuration and autodetection
+@cindex CMOS type
+@cindex drive type
+@cindex swapping drives
+
+The following options handle the different available drive types, such
+as double density vs. high density vs. extra density drives, and 5 1/4
+drives vs 3 1/2 drives.  Usually the drive type is stored in a
+non-volatile memory, called CMOS, under the form of an integer ranging
+from 1 to 6.
+
+Different drive types are able to handle and autodetect different
+formats (different autodetection lists). They also have different
+"native format name". The native format is the "usual" format with the
+highest capacity supported by the drive. (For example 720KB on a double
+density 3 1/2 drive, and 1.2MB on a high density 5 1/4 drive.)
+
+These settings are only changeable by the super user.
+
+@table @code
+@item -c @var{cmos-type}
+@itemx --cmos @var{ cmos-type}
+Set the virtual CMOS type of the floppy drive. This is useful if
+@itemize @bullet
+@item 
+the physical CMOS type is wrong (this may happen with BIOSes
+which use a non-standard mapping),
+@item 
+you have more than two drives
+(the physical CMOS may only describe up to two drives).
+@item
+you have a BIOS that allows swapping drives A: and B: for DOS.
+@end itemize
+ 
+Right now, this CMOS parameter is not used by the kernel, except for
+feeding it back to other applications (for instance @code{superformat},
+@code{floppymeter} or @code{MAKEFLOPPIES}).  It is also possible to
+supply a virtual CMOS type with the @code{cmos} boot option
+(@pxref{Boottime configuration}).  If possible, I recommend you use the
+boot option, rather than @code{floppycontrol}, because the boot option
+also sets any parameters derived from the CMOS type, such as the
+autodetection list and the native format, whereas @code{floppycontrol}
+does not.
+
+@item -A  @var{autodetect-seq} 
+@itemx --autodetect @var{ autodetect-seq}
+Set the autodetection sequence (@pxref{Autodetection}) The autodetection
+sequence is a comma-separated list of at most eight format
+descriptors. Each format descriptor is a format number optionally
+followed by the letter @code{t}.  For drive 0, the format number is the
+minor device number divided by 4.  The autodetection sequence is used by
+the driver to find out the format of a newly inserted disk. The formats
+are tried one after the other, and the first matching format is
+retained. To test the format, the driver tries to read the first sector
+on the first track on the first head when @code{t} is not given, or the
+whole first track when @code{t} is given. Thus, autodetection cannot
+detect the number of tracks. However, this information is contained in
+the boot sector, which is now accessible. The boot sector can then be
+used by mtools to configure the correct number of tracks.
+
+Example:
+@example
+7,4,24t,25
+@end example
+means to try out the formats whose minor device numbers are 28 (1.44M),
+16 (720KB), 96 (1.76MB), and 100 (1.92MB), in this order. For the 1.76MB
+format, try to read the whole track at once.
+
+Reading the whole track at once allows you to distinguish between two
+formats which differ only in the number of sectors. (The format with the
+most sectors must be tried first.)  If you use mtools@footnote{Version
+3.0 or higher}, you do not need this feature, as mtools can figure out
+the number of sectors without any help from the floppy driver, by
+looking at the boot sector.
+
+Reading the whole track at once may also speed up the first read by 200
+milliseconds. However, if, on the other hand, you try to read a disk
+which has less sectors than the format, you lose some time.
+
+I suggest that you put the most often used format in the first place
+(barring other constraints), as each format that is tried out takes
+400 milliseconds.
+
+@item -n @var{native-format}
+@itemx --native_format @var{ native-format}
+Set the native format of this drive. The native format of a drive is the
+highest standard format available for this drive. (Example: For a 5 1/4
+HD drive it is the usual 1200K format.) This is format is used to make
+up the format name for the generic device (which is the name of the
+native format). This drive name is read back from the kernel by the
+@code{MAKEFLOPPIES} script which uses it to decide which device nodes to
+create.
+
+@end table
+
+
+@node DCL configuration, Timing parameters, Drive type configuration, floppycontrol
+@subsection Configuration of the disk change line
+@cindex disk change line
+@cindex Thinkpad
+@cindex disk change detection
+@cindex disk absent during operation (false alert)
+
+@table @code
+@item --broken_dcl
+Assumes that the disk change line of the drive is broken.  If this is
+set, disk changes are assumed to happen whenever the device node is
+first opened. The physical disk change line is ignored.
+
+This option should be used if disk changes are either not detected at
+all, or if disk changes are detected when the disk was actually not
+changed.  If this option fixes the problem, I'd recommend that you try to
+trace the root cause of the problem.  Indeed, this options results in
+reduced performance due to spurious cache flushes.  
+
+The following hardware problems may lead to a bad disk change line:
+@itemize @bullet
+@item
+If the floppy cable is not inserted straight, or if it is kinked, the
+disk change line is likely to suffer, as it is on the edge of the cable.
+Gently press on both connectors of the cable (drive and controller) to
+insure that all wires make contact.  Visually inspect the cable, and if
+it shows obvious traces of damage, get a new one.
+@item
+On some drives, the locations disk change line may be chosen by
+jumper. Make sure that your floppy controller and your drive agree on
+which line is the disk change line. 
+@item
+Some older drives (mostly double density 5 1/4 drives) don't have a disk
+change line.  In this case, you have no choice other than to leave the
+@code{broken_dcl} option on.
+@end itemize
+
+@item --working_dcl
+Assumes that the disk change line works all right. Switching from
+broken to working may lead to unexpected results after the first disk
+change.
+
+@item --inverted_dcl
+Assumes that this disk drive uses an inverted disk change
+line. Apparently this is the case for IBM thinkpads.
+
+@item --no_inverted_dcl
+Assumes that this drive follows the standard convention for the disk
+change line.
+
+@item --noisy_dcl_clear
+Switches off silent disk change line clearing for this drive.
+
+@end table
+
+@node Timing parameters, Debugging, DCL configuration, floppycontrol
+@subsection Timing Parameters
+@cindex strange noises during seek
+
+This section describes how to configure drive timings.  To set these
+parameters, you need superuser privileges. All times are in "jiffy"
+units (10 milliseconds), unless otherwise specified.
+
+@table @code
+@item --hlt @var{ hlt}
+Set the head load time (in microseconds) for this floppy drive.  The
+head load time describes how long the floppy controller waits after
+seeking or changing heads before allowing access to a track.
+
+@item --hut @var{ hut}
+Set the head unload time (in microseconds) for this floppy drive.  The
+head unload time describes how long the floppy controller waits after an
+access before directing its attention to the other head, or before
+seeking.
+
+@item --srt @var{ srt}
+Set the step rate (in microseconds) for this floppy drive.  The step
+rate describes how long the drive head stays on one cylinder when
+seeking.  Setting this value to low (too fast seeks) may make seeks
+fail, because the motor doesn't follow fast enough.
+
+@item -u @var{spinup-time} 
+@itemx --spinup @var{ spinup-time}
+Set the spinup time of the floppy drive. In order to do read or write
+to the floppy disk, it must spin. It takes a certain time for the
+motor to reach enough speed to read or write. This parameter describes
+this time. The floppy driver doesn't try to access the drive before
+the spinup time has elapsed. With modern controllers, you may set this time
+to zero, as the controller itself enforces the right delay.
+
+@item -o @var{spindown-time} 
+@itemx --spindown @var{ spindown-time}
+Set the spindown time of this floppy drive. The motor is not stopped
+immediately after the operation completes, because there might be more
+operations following. The spindown time is the time the driver waits
+before switching off the motor.
+
+@item -O @var{spindown-offset} 
+@itemx --spindown_offset @var{ spindown-offset}
+Set the spindown offset of this floppy drive. This parameter is used
+to set the position in which the disk stops. This is useful to
+minimize the next access time. (If the first sector is just near the
+head at the very moment at which the disk has reached enough speed,
+you win 200 milliseconds against the most unfavorable situation).
+
+This is done by clocking the time where the first I/O request
+completes, and using this time to calculate the current position of
+the disk.
+
+@item -s @var{select-delay} 
+@itemx --select_delay @var{ select-delay}
+Set the @var{select delay} of this floppy drive. This is the delay that
+the driver waits after selecting the drive and issuing the first command
+to it. For modern controllers/drives, you may set this to zero.
+
+@item -C @var{check-interval} 
+@itemx --checkfreq @var{ check-interval}
+Set the maximal disk change check interval.  The disk change line is
+checked whenever a read or write to the device is issued, and it has not
+been checked for more than @var{interval} jiffies.
+@end table
+
+
+@node Debugging, Error handling options, Timing parameters, floppycontrol
+@subsection Debugging messages
+
+This subsection describes how to switch the available debugging messages
+on and off.
+
+@table @code
+
+@item --debug
+Switch debugging output on. The debugging information includes timing
+information. This option might be useful to fine-tune the timing
+options for your local setups. (But for most normal purposes, the
+default values are good enough.)
+
+@item --nodebug
+Switch debugging output off.
+
+@item --messages
+Print informational messages after autodetection, geometry parameter
+clearing and dma over/underruns.
+
+@item --nomessages
+Don't print informational messages after these events.
+
+@end table
+
+
+@node Error handling options, Write error reporting, Debugging, floppycontrol
+@subsection Error Handling Options
+
+The following options configure the behavior of the floppy driver in
+case of read/write errors. They may be used by any user who has write
+privileges for the drive. Whenever the floppy driver encounters an
+error, a retry counter is incremented. If the value of this counter gets
+bigger than the thresholds described below, the corresponding actions
+are performed at the next retry. The counter is reset when the read or
+write finally terminates, whether successfully or not.
+@table @code
+@item -a @var{operation-abort-trshld} 
+@itemx --abort @var{ operation-abort-trshld}
+Tell the floppy driver to stop trying to read/write a sector after
+@var{operation-abort-trshld}
+retries, and signal the I/O error to the user.
+
+@item -t @var{read-track-trshld} 
+@itemx --readtrack @var{ read-track-trshld}
+Tell the floppy driver to switch from track-reading mode to
+sector-at-a-time-mode after
+@var{read-track-trshld}
+retries.
+@item -r @var{recalibrate-trshld} 
+@itemx --recalibrate @var{ recalibrate-trshld}
+Tell the floppy driver to recalibrate the drive after
+@var{recalibrate-trshld} retries.
+
+@item -R @var{reset-treshold} 
+@itemx --reset @var{ reset-threshold}
+Tell the floppy driver to reset the controller after
+@var{reset-threshold} retries. After a controller reset, the floppy
+driver also recalibrates all drives connected to that controller.
+
+
+@item -e @var{error-report-trshld} 
+@itemx --reporting @var{ error-report-trshld}
+Tell the floppy driver to start printing error messages to the console
+after @var{error-report-trshld} retries.
+@end table
+
+
+@node Write error reporting, Misc options, Error handling options, floppycontrol
+@subsection Write error reporting
+
+Due to the buffer cache, write errors cannot always be reported to the
+writing user program as soon as the write system call returns.  Indeed,
+the actual writing may take place much later. If a write error is
+encountered, the floppy driver stores information about it in its per
+drive write error structure.  This write error structure stays until
+explicitly cleared.  It can for example be queried by a backup program
+which wants to make sure that the data has been written successfully.
+
+@table @code
+
+@item --clrwerror
+Clears the write error structure.
+
+@item --printwerror
+Prints the contents of the write error structure:
+@table @code
+@item write_errors
+is a count of how many write errors have occurred since the structure was last
+cleared.
+@item badness
+is the maximal number of retries that were needed to complete an
+operation (reads, writes and formats).
+@item first_error_sector
+is where the first (chronologically) write error occurred.
+@item first_error_generation
+is the disk change generation in which did the first write error
+occurred.  The disk change generation is a number which is incremented
+at each disk change.
+@item last_error_sector
+and
+@item last_error_generation
+are similar.
+@end table
+
+@end table
+
+
+@node Misc options, , Write error reporting, floppycontrol
+@subsection Other drive configuration options
+
+This subsection lists per drive configuration options, which don't fit
+in any other category.  They are available only to the superuser:
+
+@table @code
+
+@item --tracks @var{ max-tracks}
+Set the maximal numbers of physical tracks that this drive may
+handle. If you have a drive which is only able to handle 80 tracks
+(making strange noises when you try to format or read a disk with more
+than 80 tracks), use this option to prevent unprivileged users of
+damaging your drive by repeatedly reading disks with more than 80
+tracks.
+
+If you trust your users and your disks, you don't need this. With most
+drives you don't need to worry anyways. @xref{More cylinders}, for
+details.
+
+@item -i @var{sector-interleave} 
+@itemx --interleave @var{sector-interleave}
+Set the number of sectors beyond which sector interleaving will be used.
+This option will only be used by the @code{FDFMTTRK} ioctl.  The
+@code{fdformat} command, which is now considered obsolete, uses
+@code{FDFMTTRK} ioctl, but @code{superformat} does not.
+
+@end table

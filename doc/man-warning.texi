@@ -1,0 +1,37 @@
+@c for man page version only
+@unnumbered Note
+This manpage has been automatically generated from fdutils's texinfo
+documentation.  However, this process is only approximative, and some
+items, such as crossreferences, footnotes and indices are lost in this
+translation process.  Indeed, these items have no appropriate
+representation in the manpage format.  Moreover, only the items specific
+to each command have been translated, and the general information about
+fdutils has been dropped in the manpage version.  Thus I strongly advise
+you to use the original texinfo doc.
+
+@itemize @bullet
+@item
+To generate a printable copy from the texinfo doc, run the following
+commands:
+@example
+    ./configure; make dvi; dvips fdutils.dvi
+@end example
+
+@item
+To generate a html copy,  run:
+@example
+    ./configure; make html
+@end example
+A premade html can be found at:
+@file{http://www.tux.org/pub/knaff/fdutils}
+
+@item
+To generate an info copy (browsable using emacs' info mode), run:
+@example
+    ./configure; make info
+@end example
+@end itemize
+
+The texinfo doc looks most pretty when printed or as html.  Indeed, in
+the info version certain examples are difficult to read due to the
+quoting conventions used in info.

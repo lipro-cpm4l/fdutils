@@ -1,0 +1,161 @@
+\input texinfo @c -*-texinfo-*-
+@c %**start of header
+@setfilename fdutils.info
+@settitle Fdutils
+@c UPDATE THIS DATE WHENEVER YOU MAKE CHANGES!
+@c For double-sided printing, uncomment:
+@c @setchapternewpage odd
+@setchapternewpage off
+@c %**end of header
+
+@c MANtitle fdutils 1 "1Jul1999" fdutils
+@c MANskip
+
+@set EDITION 5.5
+@set VERSION 5.5
+@set UPDATED Mar 2005
+
+@iftex
+@finalout
+@end iftex
+
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* Fdutils: (fdutils).        Fdutils: Linux' floppy utilities
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+
+
+@ifinfo
+Fdutils
+Copyright (C) 1993-2000 Alain Knaff
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+@end ignore
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.
+@end ifinfo
+
+@titlepage
+@title Fdutils
+@subtitle Linux floppy utilities
+@subtitle Edition @value{EDITION}, for Fdutils version @value{VERSION}
+@subtitle @value{UPDATED}
+@author by Alain Knaff
+@page
+
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1993, 1994, 1995, 1996 Alain Knaff.
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.
+@end titlepage
+
+@ifinfo
+@node Top, Location, (dir), (dir)
+@end ifinfo
+
+@c MANend-skip
+
+@unnumbered General Introduction
+
+Fdutils is a collection of utililties for configuring and using the
+Linux floppy driver.  With fdutils, you can:
+
+@enumerate
+@item
+Format disks with a higher capacity than usual (up to 1992KB on a 3 1/2
+HD disk).
+@item
+Reconfigure the autodetection sequence to automatically detect some of
+these extended formats.
+@item
+Access various internal driver structures and drive configuration using
+the floppycontrol program.
+@end enumerate
+
+This manual describes these utilities, and also the floppy driver
+itself.
+
+@menu
+* Location::                   Where to get fdutils and its documentation
+* Basic usage::                How to get started
+* Device numbers::         
+* Media description::          How can a floppy disk and a format be described
+                               to fdutils?
+* Drive descriptions::         How can a drive and its characteristics be 
+                               described to fdutils?
+* Extended formats::           How to store more data on your floppy disks
+* Autodetection::              How the floppy driver distinguishes among the
+                               different kinds of disks
+* Boottime configuration::     Lilo boot options understood by the floppy driver
+* Floppy ioctls::              The ioctl's understood by the floppy driver
+* Commands::                   The available fdutils commands
+* Compile-time configuration:: How to use GNU autoconf to customize fdutils
+* Acronyms::                   A brief listing of acronyms used in this
+                               documentation
+* Interesting formats::        A brief list of legacy and other formats
+* Command Index::              Command Index
+* Concept Index::              Concept Index
+@end menu
+
+
+
+@include location.texi
+@include tips.texi
+@include formatlist.texi
+@include mediaprm.texi
+@include driveprm.texi
+@include moredata.texi
+@include autodetect.texi
+@include lilo.texi
+@include ioctl.texi
+@c MANskip
+@include commands.texi
+@c MANend-skip
+@include configure.texi
+@include acronyms.texi
+@include format2.texi
+
+@c MANskip
+@node Command Index, Concept Index,  Interesting formats, Top
+@unnumbered Command Index
+@printindex pg
+
+@node Concept Index, , Command Index, Top
+@unnumbered Concept index
+@printindex cp
+
+@contents
+@c MANend-skip
+@bye

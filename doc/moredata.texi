@@ -1,0 +1,544 @@
+@node Extended formats, Autodetection, Drive descriptions, Top
+@chapter Storing more data on a floppy disk
+@cindex extended formats
+@cindex high capacity formats
+@cindex formatting disks
+
+This section describes the techniques that are used by Linux' floppy
+driver and superformat to store more data than usual on a floppy disk.
+
+Each section contains a description of the technique used, lists the
+usages of the disks formatted using this technique (whether they are
+bootable, whether they are accessible on MS-DOS and for which kind of
+filesystems they are suitable) and finishes with a table listing the
+most interesting formats which can be obtained by the described
+technique.
+
+The table lists for each format the media type it is used for, the total
+capacity which can be achieved, the throughput for large reads or writes
+and the media description for these disks.  This description can the be
+used with superformat to make such disks, or with setfdprm to configure
+the drive to read/write to them.  Some formats (the XDF and XXDF
+formats) cannot be accessed directly, and thus there is no media
+description for them.  For these, we indicate a formatting command used
+to make these disks.  The formatting command assume that the disk is in
+the first drive (@code{/dev/fd0}).  Substitute @code{/dev/fd1} if you
+want to format XDF or XXDF disks in the second drive.
+
+
+@menu
+* More sectors::          Using more sectors per track by packing them
+                          close together
+* Interleave::            Use interleave to pack the sectors even closer
+                          together
+* Sector skewing::        Speeding up multi-track reads
+* More cylinders::        Use up to 83 cylinders
+* Larger sectors::        Minimize per byte overhead by using larger sectors
+* Mixed size sectors::    Minimize slack by using several sector sizes
+                          in a same track
+* Smart use of the dtr::  How to get more out of your disk by playing games
+                          with the data transfer rate
+* 2M::                    Make autodetection easyer by using a readable
+                          first track
+* XDF::                   Fast high capacity formats
+* XXDF::                  Fast formats with even higher capacity
+@end menu
+
+@node More sectors, Interleave, Extended formats, Extended formats
+@section More sectors per cylinder
+@cindex more sectors per track
+@cindex sectors per track
+
+The official formats used by MS-DOS and other operating systems are
+generally very conservative.  It is often possible to fit more sectors
+on each track than the default by simply reducing the size of the gap
+between tracks and/or the size of the leftover space at the end of the
+disk.
+
+For example, a 3 1/2 disk has a raw track capacity of around 12500
+bytes.  The raw capacity of a floppy disk is not rigorously constant
+among different boxes, because both the data transfer rate of the floppy
+controller, and the rotation speed of the drive are subject to small
+variations.  In order to account for these, we have to use a safety
+margin, and we only use up 12450 bytes of the 12500 bytes that are
+theoretically available.
+
+A sector contains a header of 62 bytes and 512 bytes of data.  A
+minimum gap of about 45 bytes should be used in order to leave enough
+time to the floppy controller to "rest" between reading two successive
+sectors.  In total, 619 bytes per sector are thus needed.
+
+This shows that we can fit 12450 / 619 = 20 sectors per track.
+
+@strong{Usage:} These disks are bootable by Lilo, and can be read in
+MS-DOS using numerous shareware utilities such as @code{vgacopy}, or
+@code{fdformat} or many others.  Check your nearest Simtel mirror.
+
+With dos6, you don't need any add-on utilities, just put the following
+line in your @code{config.sys}:
+
+@example
+drivparm=/d:0 /f:7 /h:2 /s:21 /t:82
+            ^    ^ \______________/
+            |    |          |
+   drive number  |     max geometry
+                 |
+      drive type, consult the dos help system for details
+@end example
+
+@strong{Interesting Formats:}
+
+@example
+density     tot. cap.    throughput    media description
+5 1/4 DD     800KB        30KB/s       dd sect=10
+3 1/2 DD     800KB        25KB/s       dd sect=10
+3 1/2 HD    1600KB        50KB/s       hd sect=21 
+3 1/2 ED    3200KB       100KB/s       ed sect=42 
+@end example
+
+The @code{--dd}, @code{--hd} and @code{--ed} options describe the
+density of the media to be formatted (double density, high density or
+extra density).
+
+The @code{-s} options describes the number of 512 byte sectors per
+track.
+
+@node Interleave, Sector skewing, More sectors, Extended formats
+@section Using interleave
+@cindex interleave
+
+After having read a sector, the floppy controller needs to "rest" for a
+short time.  This time is used to compute checksums, to reset internal
+circuitry, etc.  During this time, the floppy disk continues to rotate,
+and the "rest" time thusly translates to a certain minimal gap size.  If
+a smaller gap is used, the next sector header flies by the read-write
+head before the floppy controller is ready again to pick up the data.
+Thus, it has to wait until the next disk rotation until that sector
+comes back again.  This leads to an unacceptably low throughput, as now
+the system can only read one sector per rotation instead of all sectors
+in one rotation.  If we want to use smaller gaps, we have thus to use
+@emph{sector interleaving}.  This technique consists in arranging the
+sectors in a way such that the next logical sector does not immediately
+follow the current sector, but instead another sector is inserted
+between two successive sectors.  Instead of having the following order:
+@example
+1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
+@end example
+
+we would use the following order:
+
+@example
+1,12,2,13,3,14,4,15,5,16,6,17,7,18,8,19,9,20,10,21,11,
+@end example
+
+This new order allows the floppy controller to rest during the whole
+time that sector 12 flies by between reading sector 1 and 2.  This
+technique still cuts throughput in half, because two rotations are
+needed (one for reading sectors 1 to 11, and the second to read sectors
+12 to 21).  However, this is far better than the 21 rotations which
+would be needed without interleave.
+
+This technique allows us to use a gap size of just 1, and thus fit 21
+sectors on one track.
+
+
+@strong{Usage:} Once formatted, interleaved disks can be used in a
+similar way to disks which have simply more tracks.  They can be
+accessed using @code{vgacopy} in Dos, you can boot from them using Lilo,
+and you may install any filesystem on them.
+
+
+@strong{Interesting Formats:}
+
+@example
+density     tot. cap.    throughput    media description
+5 1/4 HD    1440KB        27KB/s       hd sect=18 
+3 1/2 HD    1680KB        26KB/s       hd sect=21 
+3 1/2 ED    3360KB        52KB/s       ed sect=42 
+@end example
+
+You don't need to tell @code{superformat} to use interleaving, it
+figures out by itself when interleaving is needed.  You don't need to
+tell @code{setfdprm} either that a disk is interleaved, as this
+information is not needed to read the disk
+
+@node Sector skewing, More cylinders, Interleave, Extended formats
+@section Sector skewing
+@cindex sector skewing
+@cindex skewing
+
+Sector skewing is a technique that allows bigger throughputs.  It does
+not increase the capacity of the disk. Sector skewing is only relevant
+during formatting. Sector skewed disks are indistinguishable from
+non-skewed disk by software, except for a different throughput.
+
+The principle of sector skewing is to start each track a little bit
+later than the previous one, i.e. the first logical sector of the second
+cylinder would for exemple lie near the sixth logical sector of the
+first cylinder.  This is done in order to account for the time needed to
+seek the drive head from the first cylinder to the second.  Without
+skewing, the first sector would already have passed the drive head after
+seeking, and we would need to wait for a whole rotation for it to come
+back again.
+
+By default, superformat applies appropriate skewing to all formats, and
+the listed throughput values refer to skewed disks. It is possible to
+provide different values for the skew using the @code{--head_skew} and
+@code{--track_skew} parameters. @code{head_skew} refers to the offset
+between both sides of the same cylinder, and @code{track_skew} refers to
+the offset of two consecutive cylinders. 0 means no skew.
+
+@node More cylinders, Larger sectors, Sector skewing, Extended formats
+@section More Cylinders
+@cindex more cylinder
+@cindex cylinders
+@cindex tracks
+@cindex 83 cylinders
+
+Many nominally 40-cylinders or 80-cylinder drives are capable of more
+cylinders, usually 41 and 83 respectively.  These can be used to get
+extra capacity.  However, not all drives can seek to these unofficial
+extra cylinders, and even on drives which can, these extra cylinders
+tend to be less reliable.
+
+@strong{WARNING}: Although most drives are able to use 83 cylinders,
+some may not.  If your drive is making strange noises while accessing
+these tracks.
+
+
+Although most drives support more than 80 tracks, I have heard rumors
+that some do not, and repeatedly trying to read beyond track 80 might be
+damaging to them.  In order to know wether your drive supports more than
+eighty tracks, first set the number of allowed tracks to 82.  (using
+@code{floppycontrol --cylinders 82 -d }@var{drive})
+
+Then format a disk with a 82 track format (for example
+@file{/dev/fd0H1722}), and copy on or several files to the disk until
+there are less than 18 KB of free space on the disk.  Then eject and
+reinsert the disk, and compare the files on the disk with the
+originals. If they are the same, your drive does support 82 tracks. If
+so, you might want to go further and try with 83 cylinders:
+@file{/dev/fd0H1743})
+This single experience should not damage the drive, although repeating
+it many times may be dangerous.
+
+If you do have a drive which supports more than 80 cylinders, you have
+to call @code{floppycontrol --cylinders 82 @var{drive}} before you can
+use the extra cylinders.  You may put this line into your
+@file{/etc/rc.local}, so that the driver is automatically configured for
+the addition cylinder after each boot.
+
+If on the other hand your drive doesn't support more than 80 tracks,
+you should remove the entries for formats 13-19 from your @file{/dev}
+directory after running @code{MAKEFLOPPIES}, and you should call
+@code{floppycontrol --cylinder 80 @var{drive}} from your
+@file{/etc/rc.local} (or @code{floppycontrol --cylinder 40 @var{drive}}
+for 5 1/4 DD drives).
+
+By default, 83 cylinder are enabled for any high density and double
+density drives.  3 1/2 double density drives have 80 cylinders enables,
+and 5 1/4 double density drives have 40 enabled.
+
+@strong{Usage:} These disks can be booted from using LILO, and can be
+accessed in MS-DOS using @code{vgacopy}.
+
+
+@strong{Interesting Formats:}
+
+All formats presented in the two previous sections may be amended to use
+83 cylinders instead of 80. Just add the @code{cyl=83} to the format
+description for superformat.  Using more cylinders has no effect on the
+throughput.
+
+@example
+density     tot. cap.    throughput    media description
+5 1/4 HD    1494KB        27KB/s       hd sect=18 cyl=83 
+3 1/2 HD    1743KB        26KB/s       hd sect=21 cyl=83
+3 1/2 ED    3486KB        52KB/s       ed sect=42 cyl=83
+@end example
+
+@node Larger sectors, Mixed size sectors, More cylinders, Extended formats
+@section Larger sectors
+@cindex larger sectors
+
+The floppy controller allows us to use larger sectors than the default
+size of 512 bytes. All powers of two larger than 256 bytes are
+acceptable sector sizes.  Large sectors have the same header and gap
+sizes than smaller sectors, thus the overhead per byte of data is
+smaller.  A little calculation shows this: A 1024 byte sector takes up
+at least 1024+62+1 = 1087 raw bytes.  You can fit eleven sectors of this
+size into a 12450 byte track.  This represents 11KB of data per track,
+versus the 10.5KB only that can be achieved with 512 byte sectors.
+
+@strong{Usage:} MS-DOS and other operating systems cannot normally read
+these formats.  Lilo is not yet able to boot from this kind of disks.
+
+@strong{Performance:} When any portion of one of these larger sectors is
+read, the entire sector must be read.  When any portion of such a sector
+is written to, the entire sector must be read, and then written back
+with just the necessary portion modified.  Both of these circumstances
+can entail worse performance than are listed in this table for small
+reads and (especially) small writes.
+
+@strong{Interesting Formats:}
+
+@example
+density     tot. cap.    throughput  media description
+5 1/4 HD    1440KB        30KB/s     dd sect=9 ssize=1KB
+3 1/2 HD    1760KB        55KB/s     hd sect=11 ssize=1KB
+3 1/2 ED    3520KB       110KB/s     ed sect=11 ssize=2KB
+@end example
+
+The @code{ssize} parameter of the format description indicates the
+sector size to be used.
+
+@node Mixed size sectors, Smart use of the dtr, Larger sectors, Extended formats
+@section Mixed sector size (MSS) formats
+@cindex MSS
+@cindex 2M (mixed sector sizes)
+@cindex XDF (mixed sector sizes)
+
+Using larger sectors has the disadvantage that the granularity is
+larger.  For example, when using 4096 byte sectors, there is enough
+space to fit two sectors in a track of 12450 bytes raw capacity, but not
+three.  However, the two sector format leaves plenty of space available
+(4132 bytes), in which smaller sectors would fit.  For example, these
+4142 raw bytes can be put to good use by filling them with a 2 KB sector
+(2048+62), plus an 1 KB sector (1024+62) and a 512 byte sector, leaving
+still 362 bytes for gaps.
+
+Mixed sector size formats take advantage of this by using sectors of
+several different sizes on a same track.  This way, a maximum capacity
+of 12KB per track, distributed in one 8k sector and one 4k sector can be
+achieved.
+
+
+@strong{Usage:} There is no known MS-DOS utility which can read basic
+MSS disks.  Lilo is not yet able to boot from this kind of disks.
+
+@strong{Performance:} As any format with larger sectors, the performance
+for small reads and writes is worse due to the larger granularity.
+
+
+@strong{Interesting Formats:}
+
+@example
+density     tot. cap.    throughput    media description
+3 1/2 DD     880KB        28KB/s       hd tracksize=11b mss
+5 1/4 HD    1600KB        30KB/s       hd tracksize=10KB mss
+3 1/2 DD     880KB        28KB/s       hd tracksize=11b mss
+3 1/2 HD    1840KB        28KB/s       hd tracksize=23b mss
+3 1/2 HD    1920KB        30KB/s       hd tracksize=12KB mss
+3 1/2 ED    3680KB        56KB/s       ed tracksize=23KB mss
+3 1/2 ED    3840KB        60KB/s       ed tracksize=24KB mss
+@end example
+
+For MSS formats, the system figures out the most efficient repartition
+of sector sizes by itself.  You do not need to describe the number of
+sectors and their size.  For MSS disks, the capacity of one track is
+described directly, using the @code{tracksize} parameter.
+
+The @code{1920KB} and @code{3840KB} formats may be unreliable on some
+computers.
+
+
+@node Smart use of the dtr, 2M, Mixed size sectors, Extended formats
+@section Smart use of the data transfer rate
+
+Due to different drive rotations speeds, 5 1/4 double density disks and
+3 1/2 double density disks are accessed using different raw data
+transfer rates (300 kb/s for the faster spinning 5 1/4 disks, and only
+250 kb/s for the slower spinning 3 1/2 disks).  The method described in
+this section consists in using the faster data transfer rate intended
+for 5 1/4 disks on 3 1/2 disks, and thus boost the raw capacity per
+track of these disks.  This is possible because 300 kb/s is still low
+enough not to excede the specification of the disk surface of a double
+density disk (which 500 kb/s would).
+
+
+@strong{Usage: this method is only available for 3 1/2 double density
+disks.  The disk obtained cannot be booted from by LILO, and are
+inaccessible from MS-DOS.}
+
+The following table shows the media description for a format using this
+method in conjuncion with the previous methods:
+@example
+density     tot. cap.    throughput    media description
+3 1/2 DD     1120KB         17KB/s     qd tracksize=7KB mss
+@end example
+
+We use the @code{QD} density selector to describe this particular DTR
+set-up, although the acronym @code{QD} is already taken to name 96tpi
+double density 5 1/4 disks.  However, as this dtr trickery is only
+meaningful for 3 1/2, we hope that there will be no ambiguity.
+
+
+@node 2M, XDF, Smart use of the dtr, Extended formats
+@section 2M formats
+@cindex MSS (2M)
+@cindex Mixed sector size formats (2M)
+@cindex 2M
+
+2M formats use a standard geometry (18 normal sized sectors) on the
+first side of the first cylinder, and an MSS geometry on the rest of the
+disk.  They are inspired for Ciriaco Garcia de Celis' 2M utility for
+MS-DOS.
+
+The advantage of 2M disks over simple MSS disks is twofold:
+@itemize @bullet
+@item
+They can be accessed from DOS
+@item
+They do not need an autodetect entry, as the boot sector is readable
+using a standard geometry.  Mtools can then use the information
+contained in the boot sector to configure the floppy driver to read the
+rest of the disk.
+@end itemize
+
+
+Although 2m disk have less sectors on the first track than on the
+others, the Linux floppy driver, and 2M's low level floppy access
+routines pretend that it contains the same number of sectors.  The
+missing sectors are called phantom sectors.  Writes to these sectors are
+ignored, and reads return random data.  In order to make up for this, 2M
+and mtools pretend that there is a duplicate FAT in the missing sectors,
+which is simulated by using data from the first (real) FAT.  Thus 2M
+disks work fine for their intended purpose, which is to hold an MS-DOS
+filesystem.  @strong{Never use 2M disks for anything other than a MS-DOS
+filesystem.  For example, never make an ext2 filesystem on a 2M disk.
+If you need a high capacity ext2 filesystem (or minix fs, raw tar or
+cpio archive), use the corresponding MSS format instead}
+
+
+@strong{Usage:} 2M disks are not bootable by LILO. They can be accessed
+in MS-DOS using the 2M utility. 2M can be found at
+ftp://FTP.Coast.NET/SimTel/msdos/diskutil/2m30.zip or at any other
+simtel mirror. @strong{2M disks are not suitable for non MS-DOS
+filesystems}.
+
+@strong{Performance:} Just as with MSS disks, performance is bad for
+small reads and writes.
+
+To describe a 2M format, add the keyword @code{2m} to its media
+description:
+@example
+density     tot. cap.    throughput    media description
+3 1/2 HD    1840KB        28KB/s       hd tracksize=23b mss 2m
+@end example
+
+
+
+@node XDF, XXDF, 2M, Extended formats
+@section XDF formats
+@cindex MSS (XDF)
+@cindex Mixed sector size formats (XDF)
+@cindex XDF
+@cindex OS/2 (XDF)
+
+XDF is the format used for OS/2 installation floppies.
+
+Just like 2M, XDF uses mixed sector sizes on "generic tracks".  The
+first cylinder uses 512 byte sectors.
+
+However, for XDF disks, the logical order of the sectors on a given
+track, and their physical order is not the same.  This allows a faster
+access, in a similar way that interleaving does for disk with normal
+sized sectors and too small gaps.  XDF's sector arrangement allows it to
+read sectors alternatively from both sides, i.e. the first sector from
+side 0, the second from side 1, and the third from side 0 again.  This
+differs from the usualy formats, where first the entire side 0 is read,
+and then the entire side 1.  This technique allows to read both sides of
+a disk in roughly three rotations. 
+
+The following example illustrates how this is done.  In our example we
+use the XDF format used for 3 1/2 HD disks, which contains one 8KB
+sector, one 2KB sector, one 1KB sector, and one 512 byte sector per
+track.  The upper line represents the sectors on side 0, and the lower
+line represents the sectors on side 1.  Different numbers represent
+different sectors.  Repeated identical numbers represent a single larger
+sector.  As the disk is circular, some sectors wrap around at the end:
+we find parts of the 8KB sector, represented by 6, both at the beginning
+and at the end of each track.
+
+@example
+position:|          1         2         5         4
+         | 1234567890123456789012345678901234567890
+         |==========================================
+side 0:  | 6633332244444446666666666666666666666666
+side 1:  | 6666444444422333366666666666666666666666
+
+2   512 byte sector
+3   1KB sector
+4   2KB sector
+6   8KB sector
+@end example
+
+When reading a track, sectors are read in the following order:
+@example
+sector id    head    position at start     position at end
+----------------------------------------------------------
+    3          0               3                 7
+    4          0               9                16
+    6          1              18                 5    (1st wrap around)
+    2          0               7                 9
+    2          1              12                14
+    6          0              16                 3    (2nd wrap around)
+    4          1               5                12
+    3          1              14                18
+@end example
+
+We notice that the start of each sector happens at least 2 units of
+position (around 300 bytes), after the end of the previously read
+sector, thus allowing the floppy disk controller sufficient time to
+rest.  Moreover, we notice two wrap-arounds, yielding three rotations to
+read the whole cylinder (the third rotation is due to the fact that we
+stop at a higher position than we started, and that we also need to
+allow some time for seeking to the next track).
+
+MSS or 2M formats of the same capacity nead at least 2 rotations per
+side (i.e. 4 per track), yielding a lower throughput.
+
+@strong{Usage:} XDF disks are not bootable by LILO.  They can be
+accessed from MS-DOS and OS/2 using @code{xdfcopy.exe} or
+@code{xdf.com}.  They are only suitable for MS-DOS filesystems.  The
+floppy driver has no direct support for this format yet, but
+@code{mtools} is able to read them using the @code{FDRAWCMD} ioctl.
+
+@strong{Interesting Formats:}
+
+@example
+density     tot. cap.    throughput    formatting command
+5 1/4 HD    1600KB        46KB/s       xdfcopy -0 /dev/fd0
+3 1/2 HD    1840KB        38KB/s       xdfcopy -1 /dev/fd0
+3 1/2 ED    3840KB       102KB/s       xdfcopy -2 /dev/fd0
+@end example
+
+The options @code{-1}, @code{-2} and @code{-3} descibre one out of the
+five formats understoood by @code{xdfcopy} (3 XDF formats and 2 XDF
+formats).
+
+@node XXDF,, XDF, Extended formats
+@section XXDF formats
+@cindex MSS (XXDF)
+@cindex Mixed sector size formats (XXDF)
+@cindex XXDF
+
+These use the simple principle as XDF, but use a higher geometry.  No
+new principle is used, these formats are simply more daring (smaller
+gaps, and smaller margin at the end of the sector).
+
+@strong{Usage:} XXDF disks are not bootable by LILO, and can't be
+accessed by MS-DOS.  They are only suitable for MS-DOS filesystems.  The
+floppy driver has no direct support for this format yet, but
+@code{mtools} is able to read them using the @code{FDRAWCMD} ioctl.  Due
+to their smaller tolerances, XXDF formats may not work on all
+drives. Problems may also occur if you write to XXDF disks using a
+different drive than the one you used to format the disk.
+
+@strong{Interesting Formats:}
+
+@example
+density     tot. cap.    throughput    formatting command
+3 1/2 HD    1920KB        45KB/s       xdfcopy -3 /dev/fd0
+3 1/2 ED    3840KB        90KB/s       xdfcopy -4 /dev/fd0
+@end example

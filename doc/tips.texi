@@ -1,0 +1,272 @@
+@node Basic usage, Device numbers, Location, Top
+@chapter Basic usage
+
+This chapter describes basic usage of floppies, and gives a few simple
+tips for using floppies under Linux.
+
+@menu
+* Disk organisation   :: How a disk is organized, high-level and low-level
+                         formats
+* File systems        :: Which file systems does Linux support
+* Device names        :: How floppy drives are named
+* Identifying disks   :: How to identify a disk
+* Nickel tours        :: Short summaries of the various storage methods
+* New features        :: New features of the kernel, mtools, and fdutils
+@end menu
+
+@node Disk organisation, File systems, Basic usage, Basic usage
+@section How disks are organized
+@cindex low level format
+@cindex format (low level vs. high level)
+@cindex high level format
+
+All floppies have two levels of @emph{formatting}, both of which must be
+known in order to read them.  The first is the @emph{binary} or
+@emph{sector} level format, which is how raw data is stored on the disk.
+The second is a higher level organization, often called a @emph{file
+system}, which allows multiple files to be conveniently stored on the
+disk.
+
+For example, a typical 1.44MB disk contains a low-level format, with 18
+sectors per track, 80 tracks, and two sides (or heads); each sector can
+hold 512 bytes of data for a total of 1474560 bytes (or 1440 KB).  When
+used under MS-DOS, this floppy would have a small portion of the disk
+used to keep track of files on the disk (including a bootsector, file
+allocation tables, directories, etc.).
+
+The floppy driver generally takes care of reading the binary, or
+low-level format.  It can often "guess" the low-level disk geometry
+needed to read the disk.  This is called autodetection
+(@pxref{Autodetection}).  If the driver can't autodetect the disk
+(e.g. if it is in an unusual format) you can tell the driver what the
+geometry is either by using the @code{setfdprm} (@pxref{setfdprm})
+utility or by using a fixed geometry device device
+(e.g. @file{/dev/fd0H1440}).
+
+Under Linux, many different file systems from many sources can be used.
+Some of these file systems are interpreted via a utility program (for
+example @code{mtools} for using disks with an MS-DOS file system).  Many
+file systems can alternatively be "mounted" to appear in the UNIX
+directory structure until subsequently being unmounted; this is usually
+implemented by having the kernel itself interpret the file system on the
+disk.
+
+@node File systems, Device names, Disk organisation, Basic usage
+@section File systems supported by Linux
+@cindex supported file systems
+@cindex file systems supported by linux
+
+The following file systems are supported:
+
+@table @strong
+@item OS/2 HPFS:
+read-only support (mount/kernel)
+@item Mac HPFS 1.44MB:
+read-only (xhfs utility)
+@item MS-DOS:
+read, write, format (mtools utility @emph{and} mount/kernel)
+@item tar, cpio:
+compatible with many variations of UNIX (tar, cpio utilities)
+@item System V, minix, xia, ext, ext2:
+(mount/kernel)
+@item pure binary disk access:
+no file system (any program, usually dd, cat, and cp)
+@end table
+
+@node Device names, Identifying disks, File systems, Basic usage
+@section What's in a name
+@cindex floppy device name
+@cindex file name of floppy devices
+@cindex name of floppy devices
+
+The following figure shows the meaning of the different parts of the
+name of a floppy device:
+
+@example
+ +--------------- /dev: directory for devices
+ |   +------------- fd: floppy disk device prefix
+ |   | +------------ 0: floppy drive #0 (A:) (0-1 typical, 0-7
+ |   | |                possible)
+ |   | |+-- 3.5" drive: (use d for 5.25" double density drives, and
+ |   | ||                    h for 5.25" high density drives,
+ |   | ||                    u for 3.5" drive of any density)
+ |   | ||   +---- 1440: Capacity (in KB) of format (usually between
+ |   | ||   |           360 and 3920)
+/dev/fd0u1440
+@end example
+
+
+@node Identifying disks, Nickel tours, Device names, Basic usage
+@section What to do if you get an unidentified floppy disk
+@cindex indentifying unknown disks
+
+@example
+dd if=/dev/fd0 of=/tmp/foo count=1
+        # If it works:
+getfdprm                # This will report what geometry the disk has
+file /tmp/foo           # This may indicate the type of file system
+mdir a:                 # Check for an MS-DOS file system
+tar tvf /dev/fd0        # Check for a tar archive
+cpio -itv < /dev/fd0    # Check for a cpio archive
+e2fsck /dev/fd0         # Check for an "ext2" file system
+        # If it doesn't work:
+        # Try the above dd command using various /dev/fd0* devices
+@end example
+
+@node Nickel tours, New features, Identifying disks, Basic usage
+@section Nickel tours
+@cindex nickel tours
+
+@menu
+* Mtools             :: Access MS-Dos disks from Unix
+* Tar                :: Tarring files directly to floppy disks
+* CPIO               :: Another archive format
+* Ext2               :: Seconded Extended File System
+@end menu
+
+@node Mtools, Tar, Nickel tours, Nickel tours
+@subsection mtools
+@cindex mtools (nickel tour)
+
+@example
+mdir a:                # Read directory of MS-DOS disk in drive A:
+mcopy /tmp/foo\* a:    # Copy files beginning with foo in /tmp to A:
+mcopy a:\* .           # Copy all files from A: to current directory
+mformat a:             # Add MS-DOS file system to formatted disk
+@end example
+
+@node Tar, CPIO, Mtools, Nickel tours
+@subsection Tar (Tape ARchive)
+@cindex tar
+
+@example
+tar tvf /dev/fd0              # Read directory of tar archive in
+                              # drive A:
+tar cvf /dev/fd0 foo1 foo2    # Write foo1 and foo2 to A: in tar
+                              # format foo1/foo2 can be entire
+                              # directory trees
+tar xvfp /dev/fd0             # extract entire tar archive in
+                              # drive A:
+@end example
+
+Tar is not a file system.  Only low-level format (@code{superformat},
+@pxref{superformat}) are needed to prepare a disk to accept a tar
+archive.
+
+@node CPIO, Ext2, Tar, Nickel tours
+@subsection CPIO (CoPy In/Out)
+@cindex CPIO
+
+@example
+cpio -itv < /dev/fd0        # Read directory of cpio archive in A:
+find foo1 foo2 -print | cpio -ov < /dev/fd0
+                            # Write foo1/foo2 to A:
+                            # foo1/foo2 can be entire directory trees
+cpio -idumv < /dev/fd0      # extract entire CPIO archive in drive A:
+@end example
+
+Note: blocks reported are in 512-byte units (due to UNIX System V
+heritage).  Cpio is not a file system.  Only low-level format (fdformat
+or superformat (@pxref{superformat}) needed.
+
+@node Ext2,, CPIO, Nickel tours
+@section Ext2 (Second Extended File System)
+@cindex Ext2
+
+@example
+mke2fs /dev/fd0 1440          # Makes an ext2 filesystem of 1440
+                              # block on A:
+mke2fs -c /dev/fd0 1440       # Same as above, but tests floppy first
+e2fsck /dev/fd0               # Tests filesystem integrity. (like
+                              # chkdsk in Dos)
+e2fsck -p /dev/fd0            # Repairs filesystem. (like chkdsk /f
+                              # in Dos)
+mount -t ext2 /dev/fd0 /mnt   # Mounts the disk in A: on /mnt.
+                              # The directory /mnt must already exist
+umount /mnt                   # Unmounts /mnt. No process should
+                              # have its working directory in /mnt
+                              # No process should have open files in
+                              # /mnt
+@end example
+
+Note: don't use ext2 on 2m disks
+On some systems @code{mke2fs} is also called mkfs.ext2, and e2fsck is also
+called fsck.ext2
+
+@node New features,, Nickel tours, Basic usage
+@section New Features of 1.2+ kernels
+@cindex New features
+
+@menu
+* kernel                 :: New kernel features since 1.2.0
+* mtools                 :: New mtools features since mtools-3.0
+* fdutils                :: Utilities contained in the fdutils package
+@end menu
+
+@node kernel, mtools, New features, New features
+@subsection New features of 1.2+ kernels
+@cindex Kernel (new features)
+
+@itemize @bullet
+@item
+Faster and more comprehensive automatic sensing of floppy formats
+@item
+Second Floppy Disk Controller (FDC) supported
+@item
+DOS fdformat-style formats (up to 21 sectors on HD 3.5" disk)
+@item
+DOS 2m-style formats (up to 24 sectors equivalent on HD 3.5" disk)
+@item
+non-DOS 2m-inspired formats
+@item
+Several long-standing bugs fixed
+@item
+More exact detection of FDC type
+@item
+More exact detection of floppy drives
+@end itemize
+
+@node mtools, fdutils, kernel, New features
+@subsection New features of mtools-3.0
+@cindex Mtools (new features)
+
+@itemize @bullet
+@item
+Support for new floppy formats (fdformat, 2m, 2m-like, ED)
+@item
+2.88MB (Extra Density) floppies supported
+@item
+More friendly syntax (e.g. "mcopy a:", "mmove")
+@item
+Improved mmount
+@item
+16-bit FATs (needed for some ED formats)
+@item
+Automatically sets disk geometry for Linux
+@item
+Several bug fixes
+@end itemize
+
+NOTE: Mtools has no longer maintained by its original maintainer Emmet
+P. Gray after 2.0.7.
+
+@node fdutils,, mtools, New features
+@subsection New Utilities
+@cindex Fdutils (brief list of supplied utilities)
+
+@itemize @bullet
+@item
+@code{superformat} (replaces fdformat; up to 3.84 MB floppies, faster,
+calls mformat)
+
+@item
+new @code{getfdprm}/@code{setfdprm}
+
+@item
+@code{fdrawcmd} (allows user-mode programs to do low-level floppy
+actions) @code{floppycontrol} (general-purpose floppy driver
+configuration utility)
+
+@item
+@code{MAKEFLOPPIES} (makes floppy devices)
+@end itemize
