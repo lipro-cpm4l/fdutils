@@ -20,6 +20,7 @@ typedef enum
 	FE_TPI,
 	FE_STRETCH,
 	FE_SWAPSIDES,
+	FE_ZEROBASED,
 
 	FE_GAP,
 
@@ -35,7 +36,8 @@ typedef enum
 	FE_DENSITY,
 } field_t;
 
-static int SIZE, SECT, VSECT, HEAD, CYL, TPI, STRETCH, SWAPSIDES, GAP, FM;
+static int SIZE, SECT, VSECT, HEAD, CYL, TPI, STRETCH, SWAPSIDES, ZEROBASED;
+static int GAP, FM;
 static int PERP, SSIZE, _2M, DTR, SPEC1, FMT_GAP, DENSITY;
 static int ssize;
 
@@ -48,6 +50,7 @@ static int ssize;
 #define F_TPI FE_TPI,&TPI
 #define F_STRETCH FE_STRETCH,&STRETCH
 #define F_SWAPSIDES FE_SWAPSIDES,&SWAPSIDES
+#define F_ZEROBASED FE_ZEROBASED,&ZEROBASED
 
 #define F_GAP FE_GAP,&GAP
 
@@ -77,6 +80,7 @@ static keyword_t ids[]= {
 	{ "stretch", F_STRETCH, 0 },
 
 	{ "swapsides", F_SWAPSIDES, 1},
+	{ "zerobased", F_ZEROBASED, 1},
 
 	{ "gap", F_GAP, 0},
 
@@ -234,7 +238,7 @@ static void compute_params(drivedesc_t *drvprm,
 	medprm->sect = VSECT / 512;
 	medprm->head = HEAD;
 	medprm->track = CYL;
-	medprm->stretch = STRETCH | (SWAPSIDES << 1);
+	medprm->stretch = STRETCH | (SWAPSIDES << 1) | (ZEROBASED << 2);
 	medprm->gap = GAP;
 	medprm->rate = (FM<<7) | (PERP<<6) | (ssize<<3) | (_2M<<2) | DTR;
 	medprm->spec1 = SPEC1;

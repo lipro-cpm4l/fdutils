@@ -1,3 +1,7 @@
+#include <sys/types.h>
+#ifdef HAVE_SYS_SYSMACROS_H
+# include <sys/sysmacros.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

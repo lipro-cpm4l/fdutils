@@ -141,6 +141,12 @@ void print_params(drivedesc_t *drivedesc,
 		print("swapsides",0);			
 #endif
 
+#ifdef FD_ZEROBASED
+	if(ft->stretch & FD_ZEROBASED)
+		print("zerobased",0);			
+#endif
+
+
 	if(ft->rate & FD_2M)
 		print("2M",0);
 	

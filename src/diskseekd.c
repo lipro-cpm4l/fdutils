@@ -1,4 +1,7 @@
 #include <sys/types.h>
+#ifdef HAVE_SYS_SYSMACROS_H
+# include <sys/sysmacros.h>
+#endif
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>

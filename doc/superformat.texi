@@ -187,14 +187,20 @@ spins, and on how much time is needed to change the head or the track.
 
 @table @code
 @item --absolute_skew @var{absolute-skew}
-Set the absolute skew. (The skew value used for the first formatted
-track)
+
+Set the absolute skew. This skew value is used for the first formatted
+track.  It is expressed in raw bytes.
 
 @item --head_skew @var{head-skew}
-Set the head skew. (The skew added for passing from head 0 to head 1)
+
+Set the head skew. This is the skew added for passing from head 0 to
+head 1.  It is expressed in raw bytes.
 
 @item --track_skew @var{track-skew}
-Set the track skew. (The skew added for seeking to the next track)
+
+Set the track skew. This is the skew added for seeking to the next
+track.  It is expressed in raw bytes.
+
 @end table
 
 Example: (absolute skew=3, head skew=1, track skew=2)
@@ -209,6 +215,10 @@ track 1 head 1: 6,1,2,3,4,5	(skew=1)
 track 2 head 0: 4,5,6,1,2,3	(skew=3)
 track 2 head 1: 3,4,5,6,1,2	(skew=4)
 @end example
+
+N.B. For simplicitie's sake, this example expresses skews in units of
+sectors. In reality, superformat expects the skews to be expressed in
+raw bytes.
 
 @node Examples, Troubleshooting, Sector skewing options, superformat
 @subsection Examples

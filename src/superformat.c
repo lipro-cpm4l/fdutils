@@ -26,7 +26,10 @@ Todo:
 	cylinders as happen to work (as in 2m).  Currently, if too many cylinders
 	are attempted it won't fail until the very end
  */
-
+#include <sys/types.h>
+#ifdef HAVE_SYS_SYSMACROS_H
+# include <sys/sysmacros.h>
+#endif
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -323,7 +326,8 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	raw_cmd.length = nssect * sizeof(format_map_t);
 	raw_cmd.cmd_count = 6;
 	raw_cmd.cmd[0] = FD_FORMAT & ~fm_mode;
-	raw_cmd.cmd[1] = head << 2 | ( fd->drive & 3);
+	raw_cmd.cmd[1] = (head << 2 | ( fd->drive & 3)) ^
+	    (fd->swapSides ? 4 : 0);
 	raw_cmd.cmd[2] = fd->sizecode;
 	raw_cmd.cmd[3] = nssect;
 	raw_cmd.cmd[4] = fd->fmt_gap;
@@ -355,7 +359,8 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 		raw_cmd.data = floppy_buffer;
 		raw_cmd.cmd_count = 9;
 		raw_cmd.cmd[0] = FD_WRITE & ~fm_mode & ~0x80;
-		raw_cmd.cmd[1] = head << 2 | ( fd->drive & 3);
+		raw_cmd.cmd[1] = (head << 2 | ( fd->drive & 3)) ^
+		    (fd->swapSides ? 4 : 0);
 		raw_cmd.cmd[2] = cylinder;
 		raw_cmd.cmd[3] = head;
 		raw_cmd.cmd[4] = cur_sector;
@@ -490,6 +495,7 @@ int main(int argc, char **argv)
 
 	short retries;
 	short zeroBased=0;
+	short swapSides=0;
 	int n,rsize;
 	char *verify_buffer = NULL;
 	char dosdrive;
@@ -662,11 +668,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	fd[0].zeroBased = zeroBased;
-	if(zeroBased)
-		noverify = 1;
-
-
 	/* sanity checking */
 	if (sizecode < 0 || sizecode >= MAX_SIZECODE) {
 		fprintf(stderr,"Bad sizecode %d\n", sizecode);
@@ -779,7 +780,16 @@ int main(int argc, char **argv)
 				break;
 		}
 		stretch = geometry.stretch & 1;
-		
+#ifdef FD_ZEROBASED
+		if(geometry.stretch & FD_ZEROBASED) {
+			zeroBased = 1;
+		}
+#endif
+#ifdef FD_SWAPSIDES
+		if(geometry.stretch & FD_SWAPSIDES) {
+			swapSides = 1;
+		}
+#endif
 		mask |= SET_SECTORS | SET_CYLINDERS | 
 			SET_SIZECODE | SET_2M | SET_RATE;
 	} else {
@@ -831,6 +841,15 @@ int main(int argc, char **argv)
 				stretch = 0;
 		}
 	}
+
+	fd[0].zeroBased = zeroBased;
+#ifndef FD_ZEROBASED
+	if(zeroBased) {
+		noverify = 1;
+	}
+#endif
+	
+	fd[0].swapSides = swapSides;
 		
 	if (cylinders > fd[0].drvprm.tracks) {
 		fprintf(stderr,"too many cylinder for this drive\n");
@@ -971,7 +990,11 @@ int main(int argc, char **argv)
 	parameters.head = heads;
 	parameters.track = cylinders;
 	parameters.size = cylinders * heads * sectors;
-	parameters.stretch = stretch;
+	parameters.stretch = stretch 
+#ifdef FD_ZEROBASED
+		| (zeroBased ? 4 : 0)
+#endif
+		| (swapSides ? 2 : 0);
 	parameters.gap = fd[0].gap;
 	if ( !use_2m)
 		fd0.rate = fd[0].rate;
@@ -1054,7 +1077,7 @@ int main(int argc, char **argv)
 	ioctl(fd[0].fd, FDFLUSH );
 	close(fd[0].fd);
 
-	if (! (mask & SET_DOSDRIVE ) && fd[0].drive < 2)
+	if (! (mask & SET_DOSDRIVE ) && fd[0].drive < 2 && !zeroBased)
 		dosdrive = fd[0].drive+'a';
 
 	if (dosdrive) {
@@ -1085,8 +1108,9 @@ int main(int argc, char **argv)
 			dosverify = 0;
 		}			
 	} else {
-		fprintf(stderr,
-			"\nwarning: mformat not called because DOS drive unknown\n");
+		if(!zeroBased)
+			fprintf(stderr,
+				"\nwarning: mformat not called because DOS drive unknown\n");
 		/*exit(1);*/
 		dosverify = 0;
 	}

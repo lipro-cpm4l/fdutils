@@ -14,3 +14,6 @@
 
 /* Define if you have the <linux/xia_fs.h> header file.  */
 #undef HAVE_LINUX_XIA_FS_H
+
+/* Define if you have the <sys/sysmacros.h> header file.  */
+#undef HAVE_SYS_SYSMACROS_H

@@ -1,3 +1,5 @@
+000612	Explicitly include sysmacros.h, apparently this is needed in
+	certain environments
 000603	Released 5.4
 000527	Fixed a couple of buffer overrun exploits and other cleanup. Made
 	fdutils compilable with Linux 2.3/2.4 kernels. Documentation fixes

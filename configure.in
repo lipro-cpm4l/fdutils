@@ -18,7 +18,7 @@ AC_CANONICAL_SYSTEM
 AC_C_CONST
 AC_C_INLINE
 
-AC_CHECK_HEADERS(linux/ext_fs.h linux/xia_fs.h)
+AC_CHECK_HEADERS(linux/ext_fs.h linux/xia_fs.h sys/sysmacros.h)
 
 dnl Make fdmount accessible by the floppy group only
 undefine([fdmount-floppy-only])dnl
