@@ -71,6 +71,7 @@ int index_size=146;
 char floppy_buffer[24 * 512];
 int verbosity = 3;
 static char noverify = 0;
+static char noformat = 0;
 static char dosverify = 0;
 static char verify_later = 0;
 short stretch;
@@ -516,6 +517,11 @@ int main(int argc, char **argv)
 		(void *) &noverify,
 		"skip verification" },
 
+	{ '\0', "print-drive-deviation", 0, EO_TYPE_BYTE, 1, 0,
+		(void *) &noformat,
+		"print deviation, do not format " },
+
+
 	{ 'B', "dosverify", 0, EO_TYPE_BYTE, 1, 0,
 		(void *) &dosverify,
 		"verify disk using mbadblocks" },
@@ -919,8 +925,9 @@ int main(int argc, char **argv)
 			fprintf(stderr,
 				"In order to avoid this time consuming "
 				"measurement in the future,\n"
-				"add the following line to " DRIVEPRMFILE
-				":\ndrive%d: deviation=%d\n",
+				"add the following line to " DRIVEPRMFILE ":\n");
+			fprintf(stdout,
+				"drive%d: deviation=%d\n",
 				fd[0].drive, 
 				(fd[0].raw_capacity-old_capacity)*1000000/
 				old_capacity);
@@ -932,6 +939,9 @@ int main(int argc, char **argv)
 				fd[0].drive);
 		}
 	}
+
+	if(noformat)
+	    return 0;
 
 	/* FIXME.  Why is this needed? */
 	fd[0].raw_capacity -= 30;

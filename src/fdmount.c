@@ -826,14 +826,9 @@ int do_umount(const char *devname,int force) {
 
     mnt=get_mounted(devname);
     if (!mnt) {
-	if (!force) {
-	    errmsg("not mounted");
-	    save_unlock_mtab();
-	    return -1;
-	}
-	else {
-	    msg("not in /etc/mtab, trying to unmount anyway!");
-	}
+	errmsg("not mounted");
+	save_unlock_mtab();
+	return -1;
     }
     else {
 	mountpoint=mnt->ms.mnt_dir;
@@ -860,7 +855,7 @@ int do_umount(const char *devname,int force) {
     }
 #endif
    
-    e=umount(devname);
+    e=umount(mountpoint);
     if (e) {
 	errmsg("failed to unmount: %s\n",strerror(errno));
 	goto err;

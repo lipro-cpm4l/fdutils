@@ -100,7 +100,7 @@ MFM is a low level encoding of disk data. It is used for DD, HD and ED
 disks, i.e. virtually all disks that are available today.  The PC
 hardware can only read MFM and FM disks.  The doc at:
 @example
-ftp://cantor.informatik.rwth-aachen.de/pub/linux/floppy.ps
+http://www.moria.de/~michael/floppy/floppy.ps
 @end example
 contains more detailed information about FM and MFM encoding.
 
@@ -108,7 +108,7 @@ contains more detailed information about FM and MFM encoding.
 FM is a low level encoding of disk data. It was used for SD disks, and
 is now considered to be obsolete.  The doc at:
 @example
-ftp://cantor.informatik.rwth-aachen.de/pub/linux/floppy.ps
+http://www.moria.de/~michael/floppy/floppy.ps
 @end example
 contains more detailed information about FM and MFM encoding.
 

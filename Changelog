@@ -1,3 +1,7 @@
+020203	Fix fdmount and superformat bugs
+020203	Create /dev/fd0 before testing for existence of /dev/fd0
+011002	Fix floppycontrol.c printf conditional on FD_DISK_CHANGED, so that
+	it works with gcc3 which apparently considers printf as a macro...
 000612	Explicitly include sysmacros.h, apparently this is needed in
 	certain environments
 000603	Released 5.4

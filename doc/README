@@ -171,7 +171,7 @@ Example:
 disks and also Commodore 1581 disks. Please get Michael Haardt's
 documentation on floppy drives for a detailed description of those
 formats. This can be ftp'ed from
-ftp://cantor.informatik.rwth-aachen.de/pub/linux/floppy.ps
+http://www.moria.de/~michael/floppy/floppy.ps
 
  Commodore 1581 disks are not yet described in this documentation.
 Use 'setfdprm /dev/fd0 1600 10 2 80 2 0x2A 0x02 0xDF 0x2E' to use

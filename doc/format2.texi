@@ -157,7 +157,7 @@ and also Commodore 1581 disks. Please get Michael Haardt's documentation
 on floppy drives for a detailed description of those formats. This can
 be ftp'ed from the following location:
 @example
-ftp://cantor.informatik.rwth-aachen.de/pub/linux/floppy.ps
+http://www.moria.de/~michael/floppy/
 @end example
 
 Commodore 1581 disks are not yet described in this documentation.  Use

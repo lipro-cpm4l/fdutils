@@ -16,6 +16,11 @@
 #include <getopt.h>
 #include "enh_options.h"
 
+#ifndef FD_DISK_CHANGED
+#define FD_DISK_CHANGED 0
+#endif
+
+
 int eioctl(int fd, int command,void * param, char *emsg)
 {
   int r;
@@ -381,14 +386,17 @@ int main( int argc, char **argv)
 			eioctl( fd, FDPOLLDRVSTAT, &drivstat,"get drive state");
 		else
 			eioctl( fd, FDGETDRVSTAT , &drivstat,"get drive state");
-		printf("%s %s %s %s %s\n", 
+
+#ifndef FD_DCL_SEEN
+# define FD_DCL_SEEN 0x40
+#endif
+		printf("%s %s %s %s %s %s\n", 
 		       drivstat.flags & FD_VERIFY ? "verify" : "",
 		       drivstat.flags & FD_DISK_NEWCHANGE ? "newchange" : "",
 		       drivstat.flags & FD_NEED_TWADDLE ? "need_twaddle" : "",
-#ifdef FD_DISK_CHANGED
 		       drivstat.flags & FD_DISK_CHANGED ? "disk_changed" : "",
-#endif
-		       drivstat.flags & FD_DISK_WRITABLE ?"disk_writable" : "");
+		       drivstat.flags & FD_DISK_WRITABLE ?"disk_writable" : "",
+		       drivstat.flags & FD_DCL_SEEN ?"dcl_seen" : "");
 		printf("spinup=		%ld\n", drivstat.spinup_date);
 		printf("select=		%ld\n", drivstat.select_date);
 		printf("first_read=	%ld\n", drivstat.first_read_date);
