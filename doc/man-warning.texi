@@ -23,7 +23,7 @@ To generate a html copy,  run:
     ./configure; make html
 @end example
 A premade html can be found at:
-@file{http://linux.wauug.org/pub/knaff/fdutils}
+@file{http://www.tux.org/pub/knaff/fdutils}
 
 @item
 To generate an info copy (browsable using emacs' info mode), run:

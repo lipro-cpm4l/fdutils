@@ -208,7 +208,7 @@ int floppy_read(struct params *fd, void *data, int cylinder, int head, int secto
 
 
 /* format_track. Does the formatting proper */
-int format_track(struct params *fd, int cylinder, int head)
+int format_track(struct params *fd, int cylinder, int head, int do_skew)
 {
 	format_map_t *data;
 	struct floppy_raw_cmd raw_cmd;
@@ -229,10 +229,13 @@ int format_track(struct params *fd, int cylinder, int head)
 		data[i].head = head;
 	}
 
-	fd += findex[cylinder][head];
-	skew = fd->min + lskews[cylinder][head] * fd->chunksize;
-	assert(skew >= fd->min);
-	assert(skew < fd->max);
+	if(do_skew) {
+		fd += findex[cylinder][head];
+		skew = fd->min + lskews[cylinder][head] * fd->chunksize;
+		assert(skew >= fd->min);
+		assert(skew < fd->max);		
+	} else
+		skew = 0;
 
 	/* place data sectors */
 	nssect = 0;
@@ -938,14 +941,14 @@ void main(int argc, char **argv)
 			print_formatting(cylinder, head);
 			if (!cylinder && !head && use_2m){
 				/* 2m-style 1st track */
-				if (format_track(&fd0, cylinder, head) &&
-					format_track(&fd0, cylinder, head))
+				if (format_track(&fd0, cylinder, head, 0) &&
+					format_track(&fd0, cylinder, head, 0))
 					exit(1);
 
 			} else {
 				/* Everything else */
-				if (format_track(fd, cylinder, head) &&
-					format_track(fd, cylinder, head))
+				if (format_track(fd, cylinder, head, 1) &&
+					format_track(fd, cylinder, head, 1))
 					exit(1);
 			}
 		}

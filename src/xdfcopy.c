@@ -537,7 +537,7 @@ static char *readme=
 " export MTOOLS_USE_XDF=1\r\n\r\n"
 "C shell syntax (csh and tcsh):\r\n"
 " setenv MTOOLS_USE_XDF 1\r\n\r\n"
-"mtools can be gotten from http://linux.wauug.org/pub/knaff/mtools\r\n"
+"mtools can be gotten from http://www.tux.org/pub/knaff/mtools\r\n"
 "\032";
 
 int progress;

@@ -95,8 +95,8 @@ int ruid=-1;
 int rgid=-1;
 int _umask=077;
 
-enum { T_NULL, T_MINIX, T_DOS, T_EXT2, T_EXT, T_XIA };
-char *fsnames[6] = {"???","minix","msdos","ext2","ext","xia"};
+enum { T_NULL, T_MINIX, T_DOS, T_VFAT, T_EXT2, T_EXT, T_XIA };
+char *fsnames[7] = {"???","minix", "msdos", "vfat", "ext2","ext","xia"};
 
 void die(const char *text,...) {
     char buff[80];
@@ -764,6 +764,10 @@ int do_mount(char *devname,char *_mountpoint,
     }
 
     e=mount(devname,mountpoint,fsname,flags|MS_MGC_VAL,NULL);
+    if (e && fstype==T_DOS) {
+        fsname=fsnames[T_VFAT];
+        e=mount(devname,mountpoint,fsname,flags|MS_MGC_VAL,NULL);
+    }
     if (e) {
 	errmsg("failed to mount %s %dK-disk: %s",
 	       fsname,F.size/2,strerror(errno));
@@ -970,6 +974,7 @@ void syntax() {
 	    "       --detach      run daemon in the background\n"
 	    "       --nosync      don't mount synchronously, even if daemon\n"
 	    "    -p --pidfile     dump the process id of the daemon to a file\n"
+	    "    -v --vfat        use vfat fs, instead of msdos\n"
 	    "    -h --help        this message\n\n");
     exit(1);
 }
@@ -1049,7 +1054,7 @@ int main(int argc, char **argv)
     int drivetype;
     static int opt_force=0, opt_list=0, opt_daemon=0,
 	opt_interval=10,opt_help=0,opt_umount=0,opt_nosync=0,
-	opt_noexec=0,opt_nodev=0,opt_nosuid=0;
+	opt_noexec=0,opt_nodev=0,opt_nosuid=0, opt_vfat=0;
     int mountflags=0;
     char *opt_pidfile="/var/run/fdmount.pid"; 
 #if FLOPPY_ONLY
@@ -1072,6 +1077,7 @@ int main(int argc, char **argv)
 	{ "daemon",	0, NULL,	'd' },
 	{ "options",	0, NULL,	'o' },
 	{ "interval",	1, NULL,	'i' },
+	{ "vfat",	0, &opt_vfat,	'v' },
 	{ "help",	0, &opt_help,	1 },
 	{0}
     };
@@ -1110,7 +1116,7 @@ int main(int argc, char **argv)
     *ext2_options = 0;
 
     while(1) {
-	c=getopt_long(argc,argv,"rsfldi:hp:o:",longopt,&optidx);
+	c=getopt_long(argc,argv,"rsfldi:hp:o:v",longopt,&optidx);
 	if (c==-1) break;
 	switch(c) {
 	case 'o':
@@ -1141,6 +1147,9 @@ int main(int argc, char **argv)
 	case 'h':
 	    opt_help=1;
 	    break;
+	case 'v': 
+	    opt_vfat=1; 
+	    break; 
 	case 0:
 	    break;
 	default:
@@ -1149,6 +1158,10 @@ int main(int argc, char **argv)
     }
 
     mountflags |= opt_noexec | opt_nosuid | opt_nodev;
+
+    if (opt_vfat) {
+	fsnames[T_DOS] = "vfat"; 
+    }
     
     if(opt_nosync)
 	mountflags &= ~MS_SYNCHRONOUS;

@@ -50,7 +50,7 @@ To generate a html copy,  run:
 .lp
  
 \&\fRA premade html can be found at:
-\&\fR\&\f(CW\(ifhttp://linux.wauug.org/pub/knaff/fdutils\(is\fR
+\&\fR\&\f(CW\(ifhttp://www.tux.org/pub/knaff/fdutils\(is\fR
 .TP
 * \ \ 
 To generate an info copy (browsable using emacs' info mode), run:
@@ -100,7 +100,7 @@ printed to stderr.
 .PP
 .SH Options
 .PP
-All numbers may be given in octal (0209), decimal (137), or hexadecimal
+All numbers may be given in octal (0211), decimal (137), or hexadecimal
 (0x89).
 .IP
 .TP
@@ -159,13 +159,13 @@ the commands that do exist is the same.
 .SS Commands\ available\ on\ all\ FDCs
 .IP
 .TP
-\&\fR\&\f(CWread\ \fIdrvsel\ cyl\ head\ sect\ szcod\ spt\ rw-gap\ szcod\fR\&\f(CW\fR\ 
+\&\fR\&\f(CWread\ \fIdrvsel\ cyl\ head\ sect\ szcod\ spt\ rw-gap\ szcod2\fR\&\f(CW\fR\ 
 Reads \fIlength\fR bytes of data from the disk.  \fIdrvsel\fR is the
 drive selector. Bit 0 and 1 describe the drive, and bit 2 describes the
 head.  The remaining parameters give the cylinder, head (yes, again),
 sector, size of the sector (128 * 2 ^ \fIszcod\fR), sectors per track
 (used to switch to the second head when the first side has been read),
-and size of the read-write gap. \fIszcod\fR should be 0xff.
+and size of the read-write gap. \fIszcod2\fR should be 0xff.
 \&\fR\&\f(CWread\fR returns \fIST0 ST1 ST2\fR and \fIcyl head sect szcod\fR
 of the next sector to be read; see \fR\&\f(CW\(if/usr/include/linux/fdreg.h\(is\fR .
 .TP

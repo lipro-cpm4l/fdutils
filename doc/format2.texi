@@ -168,7 +168,7 @@ drive. The following example describes how to redefine format number 31
 (minor device number 124) to be Commodore 1581:
 @example
 mknod /dev/fd0cbm1581 b 2 124
-setfdprm /dev/fd0cmb1581 DD DS sect=10 cyl=80 swapsides
+setfdprm /dev/fd0cbm1581 DD DS sect=10 cyl=80 swapsides
 floppycontrol --autodetect /dev/fd0 31,7,8,4,25,28,22,21
 @end example
 

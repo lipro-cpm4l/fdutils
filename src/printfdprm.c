@@ -134,7 +134,7 @@ void print_params(drivedesc_t *drivedesc,
 		print("fm=%d", (ft->rate & 0x80) >> 7);
 
 	if(level >= LEV_EXPL || (ft->track != 80 && ft->track != 40))
-		print("track=%d", ft->track);
+		print("cyl=%d", ft->track);
 
 #ifdef FD_SWAPSIDES
 	if(ft->stretch & FD_SWAPSIDES)

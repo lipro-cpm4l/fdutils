@@ -416,7 +416,7 @@ void main( int argc, char **argv)
 		printf("need_configure=%x\n", fdcstat.need_configure);
 		printf("has_fifo=%x\n", fdcstat.has_fifo);
 		printf("perp_mode=%x\n", fdcstat.perp_mode);
-		printf("address=%x\n", fdcstat.address);
+		printf("address=%x\n", (unsigned int) fdcstat.address);
 	}
 
 #ifdef FDWERRORGET

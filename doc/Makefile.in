@@ -55,8 +55,8 @@ info: fdutils.info
 	$(MAKEINFO) -I @srcdir@ @srcdir@/fdutils.texi
 
 
-%.dvi: $(TEXISRC)
-	$(TEXI2DVI) @srcdir@/fdutils.texi
+%.dvi: $(TEXISRC) Fdutils.texi
+	$(TEXI2DVI) Fdutils.texi
 
 clean:
 	rm -f fdutils.aux fdutils.cp fdutils.cps fdutils.dvi fdutils.fn 

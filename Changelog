@@ -1,3 +1,9 @@
+970411	Added error check to capacity measurement
+	Corrected documentation Makefile bug
+970629	Added vfat support to fdmount
+970609	Fixed bug where a skew was erroneously applied to a 2m track
+	Fixed typo in printfdprm
+970604	Added vfat option for fdmount
 970516	5.2 Released
 970516	Fixed sunsite location in doc.
 970430	Fixed typoes in doc about autodetection.

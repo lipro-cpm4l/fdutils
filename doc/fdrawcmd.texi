@@ -22,7 +22,7 @@ printed to stderr.
 
 @subsection Options
 
-All numbers may be given in octal (0209), decimal (137), or hexadecimal
+All numbers may be given in octal (0211), decimal (137), or hexadecimal
 (0x89).
 
 @table @code
@@ -78,17 +78,17 @@ the commands that do exist is the same.
 
 @table @code
 
-@item read @var{drvsel cyl head sect szcod spt rw-gap szcod}
+@item read @var{drvsel cyl head sect szcod spt rw-gap szcod2}
 Reads @var{length} bytes of data from the disk.  @var{drvsel} is the
 drive selector. Bit 0 and 1 describe the drive, and bit 2 describes the
 head.  The remaining parameters give the cylinder, head (yes, again),
 sector, size of the sector (128 * 2 ^ @var{szcod}), sectors per track
 (used to switch to the second head when the first side has been read),
-and size of the read-write gap. @var{szcod} should be 0xff.
+and size of the read-write gap. @var{szcod2} should be 0xff.
 @code{read} returns @var{ST0 ST1 ST2} and @var{cyl head sect szcod}
 of the next sector to be read; see @file{/usr/include/linux/fdreg.h} .
 
-@item write @var{drvsel cyl head sect szcod spt rw-gap szcod}
+@item write @var{drvsel cyl head sect szcod spt rw-gap szcod2}
 Analogous to
 @code{read}.
 

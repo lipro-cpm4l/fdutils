@@ -409,24 +409,24 @@ EOF
 	if echo "$ld_help_string" | grep >/dev/null 2>&1 "supported emulations: elf_i.86"; then
 	  echo "${UNAME_MACHINE}-pc-linux" ; exit 0
 	elif echo "$ld_help_string" | grep >/dev/null 2>&1 "supported emulations: i.86linux"; then
-	  echo "${UNAME_MACHINE}-pc-linux-gnuaout" ; exit 0
+	  echo "${UNAME_MACHINE}-pc-linux-aout" ; exit 0
 	elif echo "$ld_help_string" | grep >/dev/null 2>&1 "supported emulations: i.86coff"; then
-	  echo "${UNAME_MACHINE}-pc-linux-gnucoff" ; exit 0
+	  echo "${UNAME_MACHINE}-pc-linux-coff" ; exit 0
 	elif echo "$ld_help_string" | grep >/dev/null 2>&1 "supported emulations: m68kelf"; then
 	  echo "${UNAME_MACHINE}-unknown-linux" ; exit 0
 	elif echo "$ld_help_string" | grep >/dev/null 2>&1 "supported emulations: m68klinux"; then
-	  echo "${UNAME_MACHINE}-unknown-linux-gnuaout" ; exit 0
+	  echo "${UNAME_MACHINE}-unknown-linux-aout" ; exit 0
 	elif echo "$ld_help_string" | grep >/dev/null 2>&1 "supported emulations: elf32ppc"; then
-	  echo "powerpc-unknown-linux-gnu" ; exit 0
+	  echo "powerpc-unknown-linux" ; exit 0
 	elif test "${UNAME_MACHINE}" = "alpha" ; then
-	  echo alpha-unknown-linux-gnu ; exit 0
+	  echo alpha-unknown-linux ; exit 0
 	elif test "${UNAME_MACHINE}" = "sparc" ; then
-	  echo sparc-unknown-linux-gnu ; exit 0
+	  echo sparc-unknown-linux ; exit 0
 	else
-	  # Either a pre-BFD a.out linker (linux-gnuoldld) or one that does not give us
-	  # useful --help.  Gcc wants to distinguish between linux-gnuoldld and linux-gnuaout.
+	  # Either a pre-BFD a.out linker (linux-oldld) or one that does not give us
+	  # useful --help.  Gcc wants to distinguish between linux-oldld and linux-aout.
 	  test ! -d /usr/lib/ldscripts/. \
-	    && echo "${UNAME_MACHINE}-pc-linux-gnuoldld" && exit 0
+	    && echo "${UNAME_MACHINE}-pc-linux-oldld" && exit 0
 	  # Determine whether the default compiler is a.out or elf
 	  cat >dummy.c <<EOF
 main(argc, argv)

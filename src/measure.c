@@ -70,6 +70,17 @@ static int read_track(int fd, int dn, int rate, int cylinder)
 		exit(1);
 	}
 
+	if((raw_cmd.reply[1] & ~0x20) |
+	   (raw_cmd.reply[2] & ~0x20) |
+	   raw_cmd.reply[3]) {
+		int i;
+		fprintf(stderr, "\nFatal error while measuring raw capacity\n");
+		for(i=0; i < raw_cmd.reply_count; i++) {
+			fprintf(stderr, "%d: %02x\n", i, raw_cmd.reply[i]);
+		}
+		exit(1);
+	}
+
 	ptr = 514;
 	/* we look first for the place where the 0x4e's are going to stop */
 	while(buffer[ptr] == 0x4e)
