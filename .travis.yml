@@ -1,0 +1,14 @@
+language: c
+compiler: gcc
+install: mkdir -p src/linux && ln -s /usr/include/ext2fs/ext2_fs.h src/linux/ext2_fs.h
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y fakeroot
+  - sudo apt-get install -y build-essential
+  - sudo apt-get install -y autoconf
+  - sudo apt-get install -y automake
+  - sudo apt-get install -y flex
+  - sudo apt-get install -y texlive
+  - sudo apt-get install -y texinfo
+  - sudo apt-get install -y e2fslibs-dev
+script: ./configure --prefix=/usr && make all

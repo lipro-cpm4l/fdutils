@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lipro-cpm4l/fdutils.svg?branch=master)](https://travis-ci.org/lipro-cpm4l/fdutils)
+
 fdutils - Floppy utilities
 ==========================
 
