@@ -99,10 +99,10 @@ enum { T_NULL, T_MINIX, T_DOS, T_VFAT, T_EXT2, T_EXT, T_XIA };
 char *fsnames[7] = {"???","minix", "msdos", "vfat", "ext2","ext","xia"};
 
 void die(const char *text,...) {
-    char buff[80];
+    char *buff;
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vasprintf(&buff,text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
@@ -112,10 +112,10 @@ void die(const char *text,...) {
 }
 
 void msg(char *text,...) {
-    char buff[80];
+    char *buff;
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vasprintf(&buff,text,p);
     va_end(p);
     if(!opt_silent) {
 	if(use_syslog)
@@ -126,10 +126,10 @@ void msg(char *text,...) {
 }
 
 void errmsg(char *text,...) {
-    char buff[80];
+    char *buff;
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vasprintf(&buff,text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
@@ -208,8 +208,9 @@ canonicalize (const char *path)
 	}
   
     /* There is at least one character in canonical[],
-       and the last char in canonical[], *p, is '/'.  */
-    while ((*path != '\0') && (p < canonical + PATH_MAX))
+       and the last char in canonical[], *p, is '/',
+       and we also want to add /0 to end the string.  */
+    while ((*path != '\0') && (p < canonical + PATH_MAX - 2 ))
 	if (*p != '/')
 	    {
 		*++p = *path++;
