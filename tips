@@ -1,0 +1,138 @@
+A few simple tips for using floppies under Linux
+------------------------------------------------
+All floppies have two levels of "formatting", both of which must be determined
+in order to read them.  There is the "binary" or "sector" level, which is how
+raw data is stored on the disk.  There is also a higher level, often called a
+"file system", which allows multiple files to be conveniently stored on the
+disk.
+
+For example, a typical 1.44MB disk contains a low-level format, with
+18 sectors per track, 80 tracks, and two sides (or heads); each sector can hold
+512 bytes of data for a total of 1474560 bytes (or 1440 KB).  When used under
+MS-DOS, this floppy would have a small portion of the disk used to keep track
+of files on the disk (including a File Allocation Table).  This MS-DOS "file
+system" uses up 16896 bytes.
+
+Under Linux, many different file systems from many sources can be used.
+The kernel generally takes care of reading the binary, or low-level format.
+It can often "guess" the low-level disk geometry needed to read the disk, and
+if it can't (e.g. if the disk is in an unusual format) you can tell it what
+the geometry is either by using the "setfdprm" utility or by using an explicit
+device (e.g. /dev/fd0H1440).
+
+Some file systems are interpreted via a utility program (for example "mtools"
+for using disks with an MS-DOS file system).  Many file systems can
+alternatively be "mounted" to appear in the UNIX directory structure until
+subsequently being unmounted; this is usually implemented by having the kernel
+itself interpret the file system of the disk.
+
+File Systems Supported under Linux
+----------------------------------
+OS/2 HPFS: read-only support (mount/kernel)
+Mac HPFS 1.44MB: read-only (xhfs utility)
+MS-DOS: read, write, format (mtools utility *and* mount/kernel)
+tar, cpio: compatible with many variations of UNIX (tar, cpio utilities)
+System V, minix, xia, ext, ext2: (mount/kernel)
+pure binary disk access: no file system (any program, usually dd, cat, and cp)
+
+ +------------- /dev: directory for devices
+ |   +--------- fd: floppy disk device prefix
+ |   | +------- 0: floppy drive #0 (A:) (0-1 typical, 0-7 possible)
+ |   | |+------ H: High density 3.5" (d, q, h, D, H, E possible)
+ |   | ||   +--	1440: Capacity, KB of format (360-3920 typical)
+/dev/fd0H1440
+
+What to do if you get an unidentified floppy disk
+-------------------------------------------------
+dd if=/dev/fd0 of=/tmp/foo count=1
+	# If it works:
+getfdprm			# This will report what geometry the disk has
+file /tmp/foo			# This may indicate the type of file system
+mdir a:				# Check for an MS-DOS file system
+tar tvf /dev/fd0		# Check for a tar archive
+cpio -itv < /dev/fd0		# Check for a cpio archive
+e2fsck /dev/fd0			# Check for an "ext2" file system
+	# If it doesn't work:
+	# Try the above dd command using various /dev/fd0* devices
+
+
+Nickel tour of Mtools
+---------------------
+mdir a:				# Read directory of MS-DOS disk in drive A:
+mcopy /tmp/foo\* a:		# Copy files beginning with foo in /tmp to A:
+mcopy a:\* .			# Copy all files from A: to current directory
+mformat a:			# Add MS-DOS file system to formatted disk
+
+Nickel tour of Tar (Tape ARchive)
+---------------------------------
+tar tvf /dev/fd0		# Read directory of tar archive in drive A:
+tar cvf /dev/fd0 foo1 foo2	# Write foo1 and foo2 to A: in tar format
+				# foo1/foo2 can be entire directory trees
+tar xvfp /dev/fd0		# extract entire tar archive in drive A:
+
+Not a file system.  Only low-level format (fdformat or superformat) needed.
+
+Nickel tour of CPIO (CoPy In/Out)
+---------------------------------
+cpio -itv < /dev/fd0		# Read directory of cpio archive in A:
+find foo1 foo2 -print | cpio -ov < /dev/fd0	# Write foo1/foo2 to A:
+				# foo1/foo2 can be entire directory trees
+cpio -idumv < /dev/fd0		# extract entire CPIO archive in drive A:
+
+Note: blocks reported are in 512-byte units (due to UNIX System V heritage).
+Not a file system.  Only low-level format (fdformat or superformat) needed.
+
+Nickel tour of ext2 (Second Extended File System Revision)
+-----------------------------------------------------
+mke2fs /dev/fd0 1440		# Makes an ext2 filesystem of 1440
+				# block on A:
+mke2fs -c /dev/fd0 1440		# Same as above, but tests floppy first
+e2fsck /dev/fd0			# Tests filesystem integrity. (like
+				# chkdsk in Dos)
+e2fsck -p /dev/fd0		# Repairs filesystem. (like chkdsk /f
+				# in Dos)
+mount -t ext2 /dev/fd0 /mnt	# Mounts the disk in A: on /mnt.
+				# The directory /mnt must already exist
+umount /mnt			# Unmounts /mnt. No process should
+				# have its working directory in /mnt
+				# No process should have open files in
+				# /mnt
+
+Note: don't use ext2 on 2m disks
+On some systems mke2fs is also called mkfs.ext2, and e2fsck is also
+called fsck.ext2
+^L
+New Features of 1.1.41+ kernels
+-------------------------------
+-	Faster and more comprehensive automatic sensing of floppy formats
+-	Second Floppy Disk Controller (FDC) card supported
+-	DOS fdformat-style formats (up to 21 sectors on HD 3.5" disk)
+-	DOS 2m-style formats (up to 24 sectors equivalent on HD 3.5" disk)
+-	non-DOS 2m-inspired formats
+-	Several long-standing bugs fixed
+-	More exact detection of FDC type
+-	More exact detection of floppy drives
+
+New Features of new Mtools
+--------------------------
+-	Support for new floppy formats (fdformat, 2m, 2m-like, ED)
+-	2.88MB (Extra Density) floppies supported
+-	More friendly syntax (e.g. "mcopy a:")
+-	Improved mmount
+-	16-bit FATs (needed for some ED formats)
+-	Automatically sets disk geometry for Linux
+-	Several bug fixes
+NOTE: Mtools no longer maintained by original maintainer after 2.0.7
+
+New Utilities
+-------------
+superformat (replaces fdformat; up to 3.84 MB floppies, faster, calls mformat)
+new getfdprm/setfdprm
+fdrawcmd (allows user-mode programs to do low-level floppy actions)
+floppycontrol (general-purpose floppy driver configuration utility)
+MAKEFLOPPIES (makes floppy devices)
+
+-- David Niemi, 15 September 1994
+---------------------------------
+Alain Knaff	Alain.Knaff@inrialpes.fr	Grenoble, France
+David Niemi	niemidc@erols.com		Reston, Virginia, USA

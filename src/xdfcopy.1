@@ -1,0 +1,100 @@
+.TH XDFCOPY 1 "11nov1995" "fdutils" "fdutils"
+.de BP
+.sp
+.ti \-.2i
+\(**
+..
+.SH NAME
+xdfcopy \- Program to copy and format Xdf disks in Linux
+.SH SYNOPSIS
+.hy 0
+.na
+.B xdfcopy
+.RB "[\|" \-D \c
+.I dos\-drive\c
+\&\|]
+.RB "[\|" \-d "\|]"
+.RB "[\|" \-n "\|]"
+.RB "[\|" \-h \c
+.I head_skew\c
+\&\|]
+.RB "[\|" \-t \c
+.I track_skew\c
+\&\|]
+.RI "[\|" source "\|]"
+.I target
+.ad b
+.hy 1
+.SH DESCRIPTION
+
+Xdfcopy is a utility to copy and format Xdf disks. Xdf is a format
+used by OS/2 which can hold 1756k of data. Its advantage over 2m
+formats is that it's access is faster.
+
+This program only works with kernels newer than 1.3.40. (If there's
+sufficient interest, I'll include a program working with older kernels
+in the next release)
+
+If both source and target are given, xdfcopy copies the disk image
+from file to floppy disk or vice-versa. When copying to a floppy disk,
+the disk is first formatted, unless the
+.B \-n
+option is given.
+
+If no source is given, the target is formatted. In this case, the
+target must be a floppy drive.
+
+.SH OPTIONS
+
+.TP
+.BI "\-D" "dosdrive"
+Describes the DOS drive letter for mformat. If this option is given,
+an msdos filesystem is automatically installed on the disk after the
+low-level format is complete. In order for this to work, the drive has
+to be configured to accept the 23x2x80 geometry in your /etc/mtools or
+your ~/.mtoolsrc file. Moreover, this only works with a version of
+mtools that is more recent than 2.5.4.
+ Example of working mtoolsrc lines:
+  A /dev/fd0  0  0 0  0
+  A /dev/fd0 12 80 2 23
+
+The former is preferable, as it matches any format. The latter
+matches
+.B only
+23 sector formats (such as Xdf and certain 2m formats).
+
+ Examples of a non-working mtoolsrc line:
+  A /dev/fd0 12 80 2 18
+
+
+.TP
+.B \-n
+Don't format the disk before copying the disk image to the disk.
+
+
+.SH OPTIONS FOR POWER USERS
+
+.TP
+.BI "\-t" "track skew"
+Uses a different track skew than the default (14). For more details on
+skews, see the superformat manpage.
+
+.TP
+.BI "\-h" "head skew"
+Uses a different head skew than the default (0)
+
+.TP
+.B \-d
+Debugging. For each read or write operation, the time it took to
+complete the operation is printed (in milliseconds). This can be used
+to optimize the skews.
+
+.SH FILES
+/dev/fd* - Floppy devices
+
+.SH AUTHOR
+Alain Knaff, Alain.Knaff@inrialpes.fr
+
+.SH SEE ALSO
+fdrawcmd(1), getfdprm(1), mtools(1), floppycontrol(1), superformat(1)
+
