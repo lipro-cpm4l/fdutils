@@ -22,7 +22,7 @@
 #include <linux/ext_fs.h>
 #endif
 
-#include <linux/ext2_fs.h>
+#include <ext2fs/ext2_fs.h>
 
 #ifdef HAVE_LINUX_XIA_FS_H
 #include <linux/xia_fs.h>
