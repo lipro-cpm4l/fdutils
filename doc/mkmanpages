@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # extracts the manpage for a given command out of a texinfo doc
 
@@ -14,7 +14,11 @@ outfile=`echo $command | tr '[A-Z]' '[a-z]'`.1
 texifile=`echo $command | tr '[A-Z]' '[a-z]'`.texi
 
 echo \'\\\" t >>$outfile
-echo .TH\ $command\ 1\ \"$date\" $package >$outfile
+if [ "$command" = makefloppies ]; then
+  echo .TH\ `echo $command | tr a-z A-Z`\ 8\ \"$date\" $package >$outfile
+else
+  echo .TH\ $command\ 1\ \"$date\" $package >$outfile
+fi
 echo .SH Name >>$outfile
 grep -i $command cmdname >>$outfile
 #echo ".SH Description" >>$outfile
@@ -24,7 +28,8 @@ grep -i $command cmdname >>$outfile
 #	-e "/^@node [^,]*, [^,]*, $command, Commands$/,/^@bye/d" \
 #	-e "/^@node [^,]*, [^,]*, Commands/,/^@bye/d" \
 
-cat man-warning.texi $texifile |
+# cat man-warning.texi $texifile |
+cat $texifile |
 	sed \
 		-e 's/^@section/@chapter/' \
 		-e 's/^@subs/@s/' \
@@ -35,8 +40,14 @@ cat man-warning.texi $texifile |
 		-e "s/^@c MAN/@MAN/"  |
 	texi2roff -ma  |
 	sed -f strip-pp.sed >>$outfile
-echo ".SH See Also" >>$outfile
-echo "Fdutils' texinfo doc" >>$outfile
+cat >>$outfile <<EOF
+.SH Note
+This manpage has been automatically generated from fdutils's texinfo
+documentation.  Some information may be lost during this process.
+.SH See Also
+.IR /usr/share/doc/fdutils/Fdutils.html ,
+Fdutils' texinfo doc
+EOF
 }
 
 

@@ -3,7 +3,7 @@
 
 Unlike earlyer version, fdutils-5.0 separates drive descriptions and
 media description.  For more details on this separation,
-@pxref{Introduction}.  Drive descriptions are used to describe the
+@pxref{Media Introduction}.  Drive descriptions are used to describe the
 hardware characteristics of a drive, such as their maximal density,
 their rotation speed, their form factor, etc.
 

@@ -90,11 +90,12 @@ Verifies the disk using the @code{mbadblocks} program.
 advantage of this is that disks which are only partially bad can still
 be used for MS-DOS filesystems.
 
-@item -V
-@itemx --verify_later
-Verifies the whole disk at the end of the formatting process instead
-of at each track. Verifying the disk at each track has the advantage
-of detecting errors early on.
+@item -V0
+Verifies the whole disk at each track instead of at the end of the
+formatting process.  Verifying the disk at each track has the
+advantage of detecting errors early on, but it may fail due to the
+kernel read ahead mechanism, which may try to access not yet formatted
+tracks.
 
 @item -f
 @itemx --noverify
