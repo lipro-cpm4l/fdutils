@@ -798,3 +798,25 @@
 
 "TO7-2":
  SS DD sect=16 ssize=256 swapsides
+
+##############################################################################
+# Standard formats used by SCP and CP/A, a CP/M clone made by Robotron (GDR).
+#
+
+"SCP160":
+SS DD head=1 cyl=40 sect=16 ssize=256 dtr=1 fm=0
+
+"SCP200":
+SS DD head=1 cyl=40 sect=5 ssize=1KB dtr=1 fm=0
+
+"SCP320":
+SS DD head=1 cyl=80 sect=16 ssize=256 dtr=1 fm=0
+
+"SCP400":
+SS DD head=1 cyl=80 sect=5 ssize=1KB dtr=1 fm=0
+
+"SCP640":
+DS DD head=2 cyl=80 sect=16 ssize=256 dtr=1 fm=0
+
+"SCP800":
+DS DD head=2 cyl=80 sect=5 ssize=1KB dtr=1 fm=0
