@@ -1,0 +1,12 @@
+diskd - disk daemon; wait for disk to be inserted
+diskseek, diskseekd - disk seek daemon; simulates Messy Dos' drive cleaning effect
+fd - floppy disk device
+fdmount - Floppy disk mount utility
+fdrawcmd - send raw commands to the floppy disk controller
+floppycontrol - floppy driver configuration utility
+floppymeter - measure raw capacity and exact rotation speed of floppy drive
+getfdprm - print the current format information
+MAKEFLOPPIES - Creates the default floppy device nodes.
+setfdprm - sets user-provided floppy disk parameters
+superformat - format floppies
+xdfcopy - Program to copy and format Xdf disks in Linux

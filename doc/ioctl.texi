@@ -1,0 +1,65 @@
+@node Floppy ioctls, Commands , Boottime configuration, Top
+@chapter Floppy ioctls
+@cindex ioctl list
+@cindex floppy ioctls
+
+All these ioctl's may be issued using the floppycontrol program. (See
+also floppycontrols man page)
+
+@table @code
+@item FDSETPRM
+sets the geometry (number of tracks, heads and sectors,
+etc) of a drive.
+@item FDDEFPRM
+sets the geometry in a permanent way (not cleared after a
+disk change)
+@item FDGETPRM
+read a previously set drive geometry (or an autodetected
+geometry) back.
+@item FDCLRPRM
+makes the driver forget the geometry for a given drive
+(to trigger autodetection)
+@item FDFLUSH
+forgets the contents of the floppy buffers. CAUTION: This
+doesn't write dirty buffers to the disk. Use fsync first.
+@item FDGETDRVTYP
+displays the type of a drive (name parameter). This is
+used by @code{MAKEFLOPPIES}. For the naming convention, see the description
+of the @code{MAKEFLOPPIES} script. For formats which work in several drive
+types, @code{FDGETDRVTYP} return a name which is appropriate for the oldes
+drive type which supports this format.
+@item FDSETDRVPRM
+sets various drive parameters.
+@item FDGETDRVPRM
+reads these parameters back.
+@item FDGETDRVSTAT
+gets the cached drive state (disk changed, write
+protected et al.)
+@item FDPOLLDRVSTAT
+polls the drive and return its state.
+@item FDGETFDCSTAT
+gets the floppy controller state.
+@item FDRESET
+resets the floppy controller under certain conditions.
+@item FDRAWCMD
+sends a raw command to the floppy controller.
+@item FDWERRORCLR
+clear the write error stats.
+@item FDWERRORGET
+gets the write error stats.
+@item FDSETMAXERRS
+sets the error thresholds (when to display error messages on the
+console, and when to abort operations). The maxerror structure is part
+of the drive parameters, but this ioctl is needed in addition to
+@code{FDSETDRVPRM} because @code{FDSETDRVPRM} is only accessible to the
+superuser whereas @code{FDSETMAXERRS} is accessible to whoever has write access
+to the floppy device.
+
+@item FDMSGON/FDMSGOFF
+switch informational messages on/off. This flag is part of the drive
+parameters as well, but @code{FDMSGON/FDMSGOFF} don't need superuser status.
+
+@end table
+
+There are other ioctls as well, but they are considered obsolete and
+their use is discouraged.
