@@ -1,3 +1,11 @@
+970104	Fixed a few bugs listed in the Debian buglist posted to
+	linux.debian.bugs.dis
+	1.  Lessen dependancy of superformat on mtools by not failing if
+	mformat cannot be called: low-level verify will still be done, but
+	mbadblocks will be skipped
+	2.  Fixed a few instances where the return value of getopt was
+	misdeclared as a char instead of an integer
+	3.  Fixed device names in fd.4
 970411	Added error check to capacity measurement
 	Corrected documentation Makefile bug
 970629	Added vfat support to fdmount

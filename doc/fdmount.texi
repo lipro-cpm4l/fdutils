@@ -12,7 +12,7 @@
 [@code{-i} @var{interval}] [@code{--interval} @var{interval}] [@code{-o} @var{mount-options}]
 [@code{-r}] [@code{-readonly}] [@code{-s}] [@code{--sync}] [@code{--nosync}] [@code{--nodev}]
 [@code{--nosuid}] [@code{--noexec}] [@code{-f}] [@code{--force}] [@code{-h}] [@code{--help}]
-[@var{drivename}] [@var{mountpoint} [@var{mountpoint}]]
+[@var{drivename}] [@var{mountpoint}]
 
 @code{fdumount} [@code{-f}] [@code{--force}] [@var{drivename}]
 
@@ -44,6 +44,12 @@ corresponding to the special device files @file{/dev/fd[0-7]}. If
 The disk is mounted on the directory @var{mountpoint}, if specified, or
 on @file{/fd[0-7]}.  In either case, the mount point must be an
 existing, writable directory.
+
+
+@strong{Due to a bug in the floppy driver (?), the polling interval (-i
+flag) must be longer than the spindown offset. Thus you need to do (for
+example) floppycontrol --spindown 99 before starting fdmountd in daemon
+mode}
 
 @subsection Options
 

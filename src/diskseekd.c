@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	int mask=0;
 	int fd=-2;
 	int interval=1000;
-	char ch;
+	int ch;
 	struct timeval timval;
 	struct floppy_raw_cmd raw_cmd;
 	struct stat buf;

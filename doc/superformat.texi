@@ -5,7 +5,8 @@
 
 @example
 @code{superformat} [@code{-D} @var{dos-drive}] [@code{-v} @var{verbosity-level}] [@code{-b} @var{begin-track}]
-[@code{-e} @var{end-track}] [@code{--dosverify}] [@code{--noverify}] [@code{--verify_later}]
+[@code{-e} @var{end-track}] [@code{--superverify}] [@code{--dosverify}]
+[@code{--noverify}] [@code{--verify_later}]
 [@code{-G} @var{format-gap}] [@code{-F} @var{final-gap}] [@code{-i} @var{interleave}] [@code{-c} @var{chunksize}]
 [@code{-g} @var{gap}] [@code{--absolute-skew} @var{absolute-skew}] [@code{--head-skew} @var{head-skew}]
 [@code{--track-skew} @var{track-skew}] [@code{--biggest-last}] @var{drive} [@var{media-description}]
@@ -76,6 +77,11 @@ prints a changing sign for each formatted track (- for formatting the
 first head, = for formatting the second head, x for verifying the
 first head, and + for verifying the second head). 3 prints a complete
 line listing head and track. 6 and 9 print debugging information.
+
+@item --superverify
+Verifies the disk by first reading the track, than writing a pattern of
+U's, and then reading it again.  This is useful as some errors only show
+up after the disk has once been written.  However, this is also slower.
 
 @item -B
 @itemx --dosverify

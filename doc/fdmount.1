@@ -84,7 +84,7 @@ quoting conventions used in info.
 [\fR\&\f(CW-i \fIinterval\fR\&\f(CW] [\fR\&\f(CW--interval \fIinterval\fR\&\f(CW] [\fR\&\f(CW-o \fImount-options\fR\&\f(CW]
 [\fR\&\f(CW-r] [\fR\&\f(CW-readonly] [\fR\&\f(CW-s] [\fR\&\f(CW--sync] [\fR\&\f(CW--nosync] [\fR\&\f(CW--nodev]
 [\fR\&\f(CW--nosuid] [\fR\&\f(CW--noexec] [\fR\&\f(CW-f] [\fR\&\f(CW--force] [\fR\&\f(CW-h] [\fR\&\f(CW--help]
-[\fIdrivename\fR\&\f(CW] [\fImountpoint\fR\&\f(CW [\fImountpoint\fR\&\f(CW]]
+[\fIdrivename\fR\&\f(CW] [\fImountpoint\fR\&\f(CW]
 \&\&
 \&\fR\&\f(CWfdumount [\fR\&\f(CW-f] [\fR\&\f(CW--force] [\fIdrivename\fR\&\f(CW]
 \&\&
@@ -120,6 +120,11 @@ corresponding to the special device files \fR\&\f(CW\(if/dev/fd[0-7]\(is\fR. If
 The disk is mounted on the directory \fImountpoint\fR, if specified, or
 on \fR\&\f(CW\(if/fd[0-7]\(is\fR.  In either case, the mount point must be an
 existing, writable directory.
+.PP
+\&\fBDue to a bug in the floppy driver (?), the polling interval (-i
+flag) must be longer than the spindown offset. Thus you need to do (for
+example) floppycontrol --spindown 99 before starting fdmountd in daemon
+mode\fR
 .PP
 .SH Options
 .IP

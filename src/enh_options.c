@@ -474,7 +474,7 @@ int getopt_enh(int argc,
 	       int *mask,
 	       char *userparams)
 {
-	char ch;
+	int ch;
 	char *s;
 	int option_index;
 	int ret=0;
@@ -501,7 +501,7 @@ int getopt_enh(int argc,
 			/* we have probably a short option here */
 			for (option_index=0;
 			     option_index < length && 
-			     eo[option_index].shorto != ch;
+			     eo[option_index].shorto != (char) ch;
 			     option_index++);
 
 		if ( my_xopts[option_index] ){

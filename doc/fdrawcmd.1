@@ -80,7 +80,7 @@ quoting conventions used in info.
 .ft 3
 .in +0.3i
 \&\fR\&\f(CWfdrawcmd [\fR\&\f(CWdrive=\fIdrive\fR\&\f(CW] [\fR\&\f(CWrate=\fIrate\fR\&\f(CW] [\fR\&\f(CWlength=\fIlength\fR\&\f(CW] [\fR\&\f(CWrepeat=\fIrepeat\fR\&\f(CW]
-[\fR\&\f(CWseek=\fIphysical-cyl\fR\&\f(CW] \fIcommand\fR\&\f(CW [\fIparamters\fR\&\f(CW \&...] [\fImode\fR\&\f(CW]
+[\fR\&\f(CWcylinder=\fIphysical-cyl\fR\&\f(CW] \fIcommand\fR\&\f(CW [\fIparamters\fR\&\f(CW \&...] [\fImode\fR\&\f(CW]
 .fi
 .in -0.3i
 .ft R
@@ -119,6 +119,9 @@ and writing to the disk.  The default is to continue until end of file.
 \&\fR\&\f(CWrepeat=\fIcount\fR\&\f(CW\fR\ 
 Repeat the command \fIcount\fR times.  This only works correctly for
 commands which don't do any data transfer.
+.TP
+\&\fR\&\f(CWcylinder=\fIcount\fR\&\f(CW\fR\ 
+Seek to the given cylinder before executing the command
 .TP
 \&\fR\&\f(CW\fIcommand\fR\&\f(CW\fR\ 
 The name of the command to send.  \fIcommand\fR may be a spelled out
@@ -169,7 +172,7 @@ and size of the read-write gap. \fIszcod2\fR should be 0xff.
 \&\fR\&\f(CWread\fR returns \fIST0 ST1 ST2\fR and \fIcyl head sect szcod\fR
 of the next sector to be read; see \fR\&\f(CW\(if/usr/include/linux/fdreg.h\(is\fR .
 .TP
-\&\fR\&\f(CWwrite\ \fIdrvsel\ cyl\ head\ sect\ szcod\ spt\ rw-gap\ szcod\fR\&\f(CW\fR\ 
+\&\fR\&\f(CWwrite\ \fIdrvsel\ cyl\ head\ sect\ szcod\ spt\ rw-gap\ szcod2\fR\&\f(CW\fR\ 
 Analogous to
 \&\fR\&\f(CWread\fR.
 .TP
@@ -280,10 +283,14 @@ current data rate table configuration for the four drives is echoed.
 The mode option is only needed when you describe the command as a
 numerical value. Some mode names are also valid command names. They
 are considered as command name if the command name has not yet been
-given, and as mode name otherwise. If you give a command name and an
-explicit mode, both the implicit flags of the command name, and the
-explicit mode are or'ed together. Several modes may be or'ed together
-too.
+given, and as mode name otherwise.
+.PP
+ If you give a command name followed by explicit modes, both the
+implicit flags of the command name, and the explicit modes are or'ed
+together.
+.PP
+ If on the other hand you give a command name preceded by explicit
+modes, only the explicit modes are or'ed together.
 .TP
 \&\fR\&\f(CWread\fR\ 
 Read data from disk using DMA.
@@ -297,13 +304,9 @@ Wait for an interrupt.
 \&\fR\&\f(CWspin\fR\ 
 wait for the disk to spin up
 .TP
-\&\fR\&\f(CWneed-seek\fR\ 
-Seeks the drives head to the cylinder given by the seek parameter before
-sending the command.
-.TP
 \&\fR\&\f(CWdisk\fR\ 
-Aborts the operation if no disk is in the drive. This only works if
-\&\fR\&\f(CWneed_seek\fR is also chosen.
+Aborts the operation if no disk is in the drive. This only works if you
+also chose a physical cylinder to seek to.
 .TP
 \&\fR\&\f(CWno-motor\fR\ 
 Don't switch on the drive motor while issuing the command

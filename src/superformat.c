@@ -181,7 +181,8 @@ int send_cmd(int fd,struct floppy_raw_cmd *raw_cmd, char *message)
 	return 0;
 }
 
-int floppy_read(struct params *fd, void *data, int cylinder, int head, int sectors)
+int floppy_read(struct params *fd, void *data, int cylinder, 
+				int head, int sectors)
 {
 	int n,m;
 	if (lseek(fd->fd, (cylinder * heads + head) * sectors * 512,
@@ -206,6 +207,50 @@ int floppy_read(struct params *fd, void *data, int cylinder, int head, int secto
 	return 0;
 }
 
+
+int floppy_write(struct params *fd, void *data, 
+				 int cylinder, int head, int sectors)
+{
+	int n,m;
+	if (lseek(fd->fd, (cylinder * heads + head) * sectors * 512,
+		  SEEK_SET) < 0) {
+		perror("lseek");
+		return -1;
+	}
+	m = sectors * 512;
+	while(m>0) {
+		/* write until we have write everything we should */
+		n=write(fd->fd, data, m);
+		if ( n < 0 ) {
+			perror("write");
+			return -1;
+		}
+		if(n== 0) {
+			fprintf(stderr, "Error, %d bytes remaining\n", m);
+			return -1;
+		}
+		m -= n;
+	}
+	return 0;
+}
+
+int floppy_verify(int superverify, struct params *fd, void *data, 
+				  int cylinder, int head, int sectors)
+{
+	if(floppy_read(fd, data, cylinder, head, sectors))
+		return -1;
+	
+	if(superverify) {
+		/* write, and then read again */
+		memset(data, sectors * 512, 0x55);
+		if(floppy_write(fd, data, cylinder, head, sectors))
+			return -1;
+		ioctl(fd->fd, FDFLUSH);
+		if(floppy_read(fd, data, cylinder, head, sectors))
+			return -1;
+	}
+	return 0;
+}
 
 /* format_track. Does the formatting proper */
 int format_track(struct params *fd, int cylinder, int head, int do_skew)
@@ -233,7 +278,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 		fd += findex[cylinder][head];
 		skew = fd->min + lskews[cylinder][head] * fd->chunksize;
 		assert(skew >= fd->min);
-		assert(skew < fd->max);		
+		assert(skew <= fd->max);		
 	} else
 		skew = 0;
 
@@ -405,7 +450,7 @@ void old_parameters()
 
 #define DRIVE_DEFAULTS (drive_defaults[drivedesc.type.cmos])
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int nseqs; /* number of sequences used */
 	char env_buffer[10];
@@ -427,6 +472,8 @@ void main(int argc, char **argv)
 	int sizecode=2;
 	int error;
 	int biggest_last = 0;
+	int superverify=0;
+
 	char command_buffer[80];
 	char twom_buffer[6];
 	char *progname=argv[0];
@@ -574,6 +621,12 @@ void main(int argc, char **argv)
 	{ '\0', "biggest-last", 0, EO_TYPE_SHORT, 1, 0,
 		(void *) &biggest_last,
 		"for MSS formats, make sure that the biggest sector is the last on the track.  This makes superformat more reliable if your drive is slightly out of spec" },
+
+	{ '\0', "superverify", 0, EO_TYPE_SHORT, 1, 0,
+		(void *) &superverify,
+		"During the verification step, write a pattern of 0x55 to the track, and check whether it can still be read back" },
+
+
 
 	{ '\0', 0 }
 	};
@@ -957,11 +1010,11 @@ void main(int argc, char **argv)
 			for (head=0; head<heads; ++head) {
 				print_verifying(cylinder, head);
 				if (!cylinder && !head && use_2m)
-					n = floppy_read(&fd0,
+					n = floppy_verify(superverify, &fd0,
 							(void *)verify_buffer,
 							cylinder, head, fd0.dsect);
 				else
-					n = floppy_read(fd,
+					n = floppy_verify(superverify, fd,
 							(void *)verify_buffer,
 							cylinder, head, sectors);
 				if (n < 0) {
@@ -1004,12 +1057,18 @@ void main(int argc, char **argv)
 		sprintf(env_buffer,"%d", (int)fd->rate&3);
 		setenv("MTOOLS_RATE_ANY", env_buffer,1);
 		if(system(command_buffer)){
-			fprintf(stderr,"mformat error\n");
-			exit(1);
+			fprintf(stderr,"\nwarning: mformat error\n");
+			/*exit(1);*/  
+			/* Do not fail, if mformat happens to not be 
+			 * installed. The user might have wanted to make
+			 * an ext2 disk for instance */
+			dosverify = 0;
 		}			
 	} else {
-		fprintf(stderr,"mformat not called because DOS drive unknown\n");
-		exit(1);
+		fprintf(stderr,
+			"\nwarning: mformat not called because DOS drive unknown\n");
+		/*exit(1);*/
+		dosverify = 0;
 	}
 
 	if (!noverify && verify_later) {
@@ -1064,5 +1123,5 @@ void main(int argc, char **argv)
 	}		
 
 	printf("\n");
-	exit(0);
+	return 0;
 }

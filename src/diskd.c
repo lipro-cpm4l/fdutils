@@ -33,7 +33,7 @@ void main(int argc, char **argv)
 	int fd=-2;
 	char *command=0;
 	int interval=10;
-	char ch;
+	int ch;
 	struct timeval timval;
 	struct floppy_drive_struct state;
 

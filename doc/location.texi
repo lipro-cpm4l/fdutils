@@ -15,7 +15,7 @@ ftp://tsx-11.mit.edu/pub/linux/sources/sbin/fdutils-5.2.tar.gz
 
 The FAQ included in this package is also available separetely at:
 @example
-http://www.poboxes.com/Alain.Knaff/floppy/FAQ.html
+http://alain.knaff.linux.lu/floppy/FAQ.html
 http://www.tux.org/pub/knaff/floppy/FAQ.html
 @end example
 The FAQ at www.club.innet.lu and www.tux.org is usually more up to
@@ -26,12 +26,12 @@ info.
 Before reporting a bug, make sure that it has not yet been fixed in the
 Alpha patches which can be found at:
 @example
-http://www.poboxes.com/Alain.Knaff/fdutils
+http://fdutils.linux.lu
 ftp://www.tux.org/pub/knaff/fdutils
 @end example
 
 Note: It is highly probable that the innet address will cease to exist
-after November 1997.  The wauug address is permanent.
+after November 1997.  The tux address is permanent.
 
 These patches are named
 @code{fdutils-}@var{version}@code{-}@var{ddmm}@code{.taz}, where version

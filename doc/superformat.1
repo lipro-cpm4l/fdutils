@@ -78,7 +78,8 @@ quoting conventions used in info.
 .ft 3
 .in +0.3i
 \&\fR\&\f(CWsuperformat [\fR\&\f(CW-D \fIdos-drive\fR\&\f(CW] [\fR\&\f(CW-v \fIverbosity-level\fR\&\f(CW] [\fR\&\f(CW-b \fIbegin-track\fR\&\f(CW]
-[\fR\&\f(CW-e \fIend-track\fR\&\f(CW] [\fR\&\f(CW--dosverify] [\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later]
+[\fR\&\f(CW-e \fIend-track\fR\&\f(CW] [\fR\&\f(CW--superverify] [\fR\&\f(CW--dosverify]
+[\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later]
 [\fR\&\f(CW-G \fIformat-gap\fR\&\f(CW] [\fR\&\f(CW-F \fIfinal-gap\fR\&\f(CW] [\fR\&\f(CW-i \fIinterleave\fR\&\f(CW] [\fR\&\f(CW-c \fIchunksize\fR\&\f(CW]
 [\fR\&\f(CW-g \fIgap\fR\&\f(CW] [\fR\&\f(CW--absolute-skew \fIabsolute-skew\fR\&\f(CW] [\fR\&\f(CW--head-skew \fIhead-skew\fR\&\f(CW]
 [\fR\&\f(CW--track-skew \fItrack-skew\fR\&\f(CW] [\fR\&\f(CW--biggest-last] \fIdrive\fR\&\f(CW [\fImedia-description\fR\&\f(CW]
@@ -145,6 +146,11 @@ prints a changing sign for each formatted track (- for formatting the
 first head, = for formatting the second head, x for verifying the
 first head, and + for verifying the second head). 3 prints a complete
 line listing head and track. 6 and 9 print debugging information.
+.TP
+\&\fR\&\f(CW--superverify\fR\ 
+Verifies the disk by first reading the track, than writing a pattern of
+U's, and then reading it again.  This is useful as some errors only show
+up after the disk has once been written.  However, this is also slower.
 .TP
 \&\fR\&\f(CW-B\fR\ 
 .TQ

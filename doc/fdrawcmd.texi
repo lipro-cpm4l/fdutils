@@ -7,7 +7,7 @@
 
 @example
 @code{fdrawcmd} [@code{drive=}@var{drive}] [@code{rate=}@var{rate}] [@code{length=}@var{length}] [@code{repeat=}@var{repeat}]
-[@code{seek=}@var{physical-cyl}] @var{command} [@var{paramters} @dots{}] [@var{mode}]
+[@code{cylinder=}@var{physical-cyl}] @var{command} [@var{paramters} @dots{}] [@var{mode}]
 @end example
 
 @code{fdrawcmd}
@@ -42,6 +42,9 @@ and writing to the disk.  The default is to continue until end of file.
 @item repeat=@var{count}
 Repeat the command @var{count} times.  This only works correctly for
 commands which don't do any data transfer.
+
+@item cylinder=@var{count}
+Seek to the given cylinder before executing the command
 
 @item @var{command}
 The name of the command to send.  @var{command} may be a spelled out
@@ -210,10 +213,14 @@ current data rate table configuration for the four drives is echoed.
 The mode option is only needed when you describe the command as a
 numerical value. Some mode names are also valid command names. They
 are considered as command name if the command name has not yet been
-given, and as mode name otherwise. If you give a command name and an
-explicit mode, both the implicit flags of the command name, and the
-explicit mode are or'ed together. Several modes may be or'ed together
-too.
+given, and as mode name otherwise.
+
+ If you give a command name followed by explicit modes, both the
+implicit flags of the command name, and the explicit modes are or'ed
+together.
+
+ If on the other hand you give a command name preceded by explicit
+modes, only the explicit modes are or'ed together.
 
 @table @code
 @item read
@@ -228,13 +235,9 @@ Wait for an interrupt.
 @item spin
 wait for the disk to spin up
 
-@item need-seek
-Seeks the drives head to the cylinder given by the seek parameter before
-sending the command.
-
 @item disk
-Aborts the operation if no disk is in the drive. This only works if
-@code{need_seek} is also chosen.
+Aborts the operation if no disk is in the drive. This only works if you
+also chose a physical cylinder to seek to.
 
 @item no-motor
 Don't switch on the drive motor while issuing the command
