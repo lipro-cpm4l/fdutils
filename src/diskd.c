@@ -2,7 +2,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/fd.h>
@@ -10,8 +9,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
-#include <linux/major.h>
+#include <string.h>
 #include "enh_options.h"
 
 

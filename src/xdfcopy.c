@@ -4,17 +4,15 @@
 
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <linux/fd.h>
 #include <linux/fdreg.h>
 #include <sys/ioctl.h>
-#include <sys/time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/sysmacros.h>
 #include <linux/major.h>
-#include <linux/fs.h>
+#include <string.h>
 #include <sys/time.h>
 #include <errno.h>
 #include "fdutils.h"
@@ -516,10 +514,10 @@ static int get_type(int fd)
    exit(0);
  }
  
- if (!S_ISBLK(statbuf.st_mode) && MAJOR(statbuf.st_rdev) != FLOPPY_MAJOR)
+ if (!S_ISBLK(statbuf.st_mode) && major(statbuf.st_rdev) != FLOPPY_MAJOR)
    return -1;
 
- drive = MINOR( statbuf.st_rdev );
+ drive = minor( statbuf.st_rdev );
  return (drive & 3) + ((drive & 0x80) >> 5);
 }
 

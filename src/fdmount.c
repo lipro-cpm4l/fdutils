@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <malloc.h>
@@ -13,7 +12,10 @@
 #include <sys/ioctl.h>
 #include <sys/mount.h>
 #include <linux/fd.h>
-#include <linux/fs.h>
+#include <string.h>
+#include <limits.h>
+
+#include <linux/types.h>
 #include <linux/minix_fs.h>
 
 #ifdef HAVE_LINUX_EXT_FS_H
@@ -99,10 +101,10 @@ enum { T_NULL, T_MINIX, T_DOS, T_VFAT, T_EXT2, T_EXT, T_XIA };
 char *fsnames[7] = {"???","minix", "msdos", "vfat", "ext2","ext","xia"};
 
 void die(const char *text,...) {
-    char buff[80];
+    char *buff;
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vasprintf(&buff,text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
@@ -112,10 +114,10 @@ void die(const char *text,...) {
 }
 
 void msg(char *text,...) {
-    char buff[80];
+    char *buff;
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vasprintf(&buff,text,p);
     va_end(p);
     if(!opt_silent) {
 	if(use_syslog)
@@ -126,10 +128,10 @@ void msg(char *text,...) {
 }
 
 void errmsg(char *text,...) {
-    char buff[80];
+    char *buff;
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vasprintf(&buff,text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
@@ -180,7 +182,7 @@ canonicalize (const char *path)
     if (path == NULL)
 	return NULL;
 
-#if 0  
+#if 0
     if (streq (path, "none"))
 	{
 	    strcpy (canonical, path);
@@ -208,8 +210,9 @@ canonicalize (const char *path)
 	}
   
     /* There is at least one character in canonical[],
-       and the last char in canonical[], *p, is '/'.  */
-    while ((*path != '\0') && (p < canonical + PATH_MAX))
+       and the last char in canonical[], *p, is '/',
+       and we also want to add /0 to end the string.  */
+    while ((*path != '\0') && (p < canonical + PATH_MAX - 2 ))
 	if (*p != '/')
 	    {
 		*++p = *path++;
@@ -628,7 +631,7 @@ int do_mount(char *devname,char *_mountpoint,
     char *mountpoint;
    
     strcpy(curdev,devname);
-   
+
     if (access(devname,R_OK)!=0)
 	die("no access to %s",devname);
    
@@ -852,9 +855,9 @@ int do_umount(const char *devname,int force) {
     }
 #endif
    
-    e=umount(devname);
+    e=umount(mountpoint);
     if (e) {
-	errmsg("failed to unmount: %s\n",strerror(errno));
+	errmsg("failed to unmount %s: %s\n", mountpoint, strerror(errno));
 	goto err;
     }
     remove_mtab(devname);
@@ -938,7 +941,7 @@ int daemon_mode(char *devname,char *mountpoint,int mountflags,
 			msg("ioctl(FDPOLLDRVSTAT) failed: %s",strerror(errno));
 			return -1;
 		}
-		printf("flags=%02x\n", state.flags);
+		printf("flags=%02lx\n", state.flags);
 		disk_in=!(state.flags & (FD_VERIFY | FD_DISK_NEWCHANGE));
 		if (disk_in && !prev_disk_in && !first) {
 			msg("disk inserted");
@@ -1060,7 +1063,7 @@ int main(int argc, char **argv)
 {
     int pid;
     int i,e,c,is_default,optidx=0;
-    char *drivename,*mountpoint=NULL,def_mountpoint[40],devname[40];
+    char *drivename=NULL,*mountpoint=NULL,def_mountpoint[40],devname[40];
     int drivetype;
     static int opt_force=0, opt_list=0, opt_daemon=0,
 	opt_interval=10,opt_help=0,opt_umount=0,opt_nosync=0,
@@ -1116,7 +1119,8 @@ int main(int argc, char **argv)
     if (not_allowed)
         die("Must be member of group floppy");
 #endif
-                                                                                                                                                                                                                                                                                                                                                                   
+
+
     if (geteuid()!=0) 
 	die("Must run with EUID=root");
     ruid = getuid();
@@ -1184,8 +1188,8 @@ int main(int argc, char **argv)
     if(opt_force && ruid)
 	die("You must be root to use the force option");
 
-    drivename=argv[optind++];
-    if (drivename) mountpoint=argv[optind++];
+    if (optind<argc) drivename=argv[optind++];
+    if (optind<argc) mountpoint=argv[optind++];
     if (optind<argc) syntax();
    
     if (!drivename) drivename="fd0";

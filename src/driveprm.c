@@ -1,9 +1,8 @@
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
-#include <linux/fd.h>
 #include <sys/ioctl.h>
-#include <linux/fs.h>
+#include <string.h>
+#include <sys/sysmacros.h>
 #include <linux/major.h>
 #include "parse.h"
 #include "driveprm.h"
@@ -11,9 +10,9 @@
 
 typedef drive_field_t field_t;
 
-static int TPI, RPM, DEVIATION, FF, DENSITY, CMOS;
+static int TPI, RPM, DEVIATION, FF, DENSITY, SYS_CMOS;
 
-#define F_CMOS FE__CMOS,&CMOS
+#define F_CMOS FE__CMOS,&SYS_CMOS
 #define F_TPI FE__TPI,&TPI
 #define F_FF FE__FF,&FF
 #define F_RPM FE__RPM,&RPM
@@ -69,41 +68,41 @@ static void compute_params(drivedesc_t *drive)
 			switch(DENSITY) {
 				case DENS_DD:
 					if(FF == FF_525)
-						CMOS = 1;
+						SYS_CMOS = 1;
 					else
-						CMOS = 3;
+						SYS_CMOS = 3;
 					break;
 				case DENS_HD:
 					switch(FF) {
 						case FF_525:
-							CMOS = 2;
+							SYS_CMOS = 2;
 							break;
 						case FF_35:
-							CMOS = 4;
+							SYS_CMOS = 4;
 							break;
 					}
 					break;
 				case DENS_ED:
 					switch(FF) {
 						case FF_35:
-							CMOS = 6;
+							SYS_CMOS = 6;
 							break;
 					}
 					break;
 			}
 		} else {
-			CMOS = drive->drvprm.cmos;
-			if (CMOS < 1 || CMOS > 6)
-				CMOS = 4;
+			SYS_CMOS = drive->drvprm.cmos;
+			if (SYS_CMOS < 1 || SYS_CMOS > 6)
+				SYS_CMOS = 4;
 		}
 	}
 
-	if(CMOS) {
-		if(CMOS > 6 || CMOS < 1) {
-			fprintf(stderr, "Bad cmos code %d\n", CMOS);
+	if(SYS_CMOS) {
+		if(SYS_CMOS > 6 || SYS_CMOS < 1) {
+			fprintf(stderr, "Bad cmos code %d\n", SYS_CMOS);
 			exit(1);
 		}
-		drive->type = cmos_types[CMOS];
+		drive->type = cmos_types[SYS_CMOS];
 	}
 
 	if(ISSET(RPM))
@@ -137,12 +136,12 @@ static int getdrivenum(int fd, struct stat *buf)
 	}
 
 	if (!S_ISBLK(buf->st_mode) || 
-	    MAJOR(buf->st_rdev) != FLOPPY_MAJOR) {
+	    major(buf->st_rdev) != FLOPPY_MAJOR) {
 		fprintf(stderr,"Not a floppy drive\n");
 		exit(1);
 	}
 	
-	num = MINOR( buf->st_rdev );
+	num = minor( buf->st_rdev );
 	return (num & 3) + ((num & 0x80) >> 5);
 }
 

@@ -381,13 +381,16 @@ void main( int argc, char **argv)
 			eioctl( fd, FDPOLLDRVSTAT, &drivstat,"get drive state");
 		else
 			eioctl( fd, FDGETDRVSTAT , &drivstat,"get drive state");
+#ifdef FD_DISK_CHANGED
+#define CHANGED_PRINT_1 drivstat.flags & FD_DISK_CHANGED ? "disk_changed" : "",
+#else
+#define CHANGED_PRINT_1
+#endif
 		printf("%s %s %s %s %s\n", 
 		       drivstat.flags & FD_VERIFY ? "verify" : "",
 		       drivstat.flags & FD_DISK_NEWCHANGE ? "newchange" : "",
 		       drivstat.flags & FD_NEED_TWADDLE ? "need_twaddle" : "",
-#ifdef FD_DISK_CHANGED
-		       drivstat.flags & FD_DISK_CHANGED ? "disk_changed" : "",
-#endif
+		       CHANGED_PRINT_1
 		       drivstat.flags & FD_DISK_WRITABLE ?"disk_writable" : "");
 		printf("spinup=		%ld\n", drivstat.spinup_date);
 		printf("select=		%ld\n", drivstat.select_date);

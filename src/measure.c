@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/fd.h>
@@ -9,9 +8,8 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
-#include <linux/major.h>
 #include <getopt.h>
+#include <string.h>
 #include "enh_options.h"
 #include "fdutils.h"
 
@@ -137,6 +135,23 @@ static void m_format_track(int fd, int dn, int rate, int cylinder)
 	tmp = ioctl(fd, FDRAWCMD, & raw_cmd);
 	if ( tmp < 0 ){
 		perror("format");
+		exit(1);
+	}
+
+	if((raw_cmd.reply[1] & ~0x20) |
+	   (raw_cmd.reply[2] & ~0x20)) {
+		int i;
+
+		if ( raw_cmd.reply[1] & ST1_WP ){
+		    fprintf(stderr,"The disk is write protected\n");
+		    exit(1);
+		}
+
+		fprintf(stderr, 
+			"\nFatal error while measuring raw capacity\n");
+		for(i=0; i < raw_cmd.reply_count; i++) {
+			fprintf(stderr, "%d: %02x\n", i, raw_cmd.reply[i]);
+		}
 		exit(1);
 	}
 }

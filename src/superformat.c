@@ -29,7 +29,6 @@ Todo:
 
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/fd.h>
@@ -37,8 +36,8 @@ Todo:
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
-#include <linux/major.h>
+#include <sys/sysmacros.h>
+#include <string.h>
 #include <errno.h>
 #include "enh_options.h"
 #include "mediaprm.h"
@@ -707,7 +706,7 @@ int main(int argc, char **argv)
 		fd[0].drive = drivedesc.drivenum;
 		fd[0].drvprm = drivedesc.drvprm;
 
-		if(MINOR(drivedesc.buf.st_rdev) & 0x7c) {
+		if(minor(drivedesc.buf.st_rdev) & 0x7c) {
 			if(fd[0].name == drivename) {
 				fprintf(stderr,
 					"%s has bad minor/major numbers\n",

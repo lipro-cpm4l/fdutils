@@ -108,7 +108,7 @@ clean:
 
 spotless:	clean
 	-rm -f floppycontrol superformat getfdprm fdrawcmd diskseekd diskd \
-	diskseek diskd_old setfdprm xdfcopy fdmount 2>/dev/null
+	diskseek diskd_old setfdprm xdfcopy fdmount convertfdprm floppymeter 2>/dev/null
 
 install: install-bin install-conf
 	@grep -q '^floppy:' /etc/group \
@@ -127,7 +127,7 @@ install-bin: all
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppycontrol $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppymeter $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) getfdprm $(bindir)
-	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) MAKEFLOPPIES $(bindir)
+	$(INSTALL) -c -m $(PERM) -o $(UID) -g $(GID) MAKEFLOPPIES $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) setfdprm $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) fdrawcmd $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) superformat $(bindir)

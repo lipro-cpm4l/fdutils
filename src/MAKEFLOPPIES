@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# MAKEFLOP
+# MAKEFLOPPIES
 #
 # requires: expr
 # Note quirk of expr: if it prints "0", it always
@@ -10,8 +10,18 @@
 
 set -e
 set -u
+
+# check for devfs
+if [ -e /dev/.devfsd ]; then
+    echo "devfs found, skipping MAKEFLOPPIES..." >&2
+    exit 0
+fi
+
 MAJOR=2
 TMPDEVICE=/dev/tmpfloppy$$
+if [ ! -b /dev/fd0 ] ; then
+    mknod /dev/fd0 b $MAJOR 0
+fi
 if floppycontrol 2>/dev/null; then
 	FLOPPYCONTROL=yes
 else
@@ -226,7 +236,7 @@ for DRIVE in $DRIVES; do
 	while [ $BASE -lt 128 ] ; do
 		MINOR=`expr "$BASE" + "$BASENUMBER" || :`
 		NAME=`minorname "$BASE"`
-		if expr index "$FORMATS" "$NAME" >/dev/null ; then
+		if [ `expr index "$FORMATS" "$NAME"` -gt 0 ] ; then
 			if [ "$TYPE_OVERRIDE" != no ]; then
 				NAME=`echo $NAME | sed "s/^./$CL/g"`
 			fi

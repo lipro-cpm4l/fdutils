@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/fd.h>
@@ -9,9 +8,10 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
+#include <sys/sysmacros.h>
 #include <linux/major.h>
 #include <getopt.h>
+#include <string.h>
 #include "enh_options.h"
 #include "fdutils.h"
 #include "driveprm.h"
@@ -161,11 +161,11 @@ void main(int argc, char **argv)
 		perror("fstat");
 		exit(1);
 	}
-	if (!S_ISBLK(buf.st_mode) || MAJOR(buf.st_rdev) != FLOPPY_MAJOR) {
+	if (!S_ISBLK(buf.st_mode) || major(buf.st_rdev) != FLOPPY_MAJOR) {
 		fprintf(stderr,"%s is not a floppy drive\n", name);
 		exit(1);
 	}
-	dn = MINOR( buf.st_rdev );
+	dn = minor( buf.st_rdev );
 	dn = (dn & 3) + ((dn & 0x80) >> 5);
 
 	if(ioctl(fd, FDGETDRVPRM, &dpr) < 0) {
