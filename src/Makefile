@@ -14,7 +14,7 @@ makefloppies.1 superformat.1 xdfcopy.1 fdmount.1
 MANPAGES4=fd.4
 MANPAGES8=setfdprm.8
 CFLAGS=-O4 -fno-strength-reduce -Wall $(DEFINES)
-LDFLAGS=-s -N
+LDFLAGS=-s
 #CFLAGS=-O4 -g -Wall $(DEFINES)
 #LDFLAGS=-N
 
