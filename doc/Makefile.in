@@ -59,10 +59,10 @@ info: fdutils.info
 	$(TEXI2DVI) Fdutils.texi
 
 clean:
-	rm -f fdutils.aux fdutils.cp fdutils.cps fdutils.dvi fdutils.fn 
-	rm -f fdutils.log fdutils.pg fdutils.ps fdutils.toc fdutils.tp
-	rm -f fdutils.ky fdutils.vr fdutils.info fdutils.pgs
-	rm -f fdutils.info-1 fdutils.info-2 fdutils.info-3
+	rm -f Fdutils.aux Fdutils.cp Fdutils.cps Fdutils.dvi fdutils.fn 
+	rm -f Fdutils.log Fdutils.pg fdutils.ps Fdutils.toc fdutils.tp
+	rm -f fdutils.ky fdutils.vr fdutils.info Fdutils.pgs
+	rm -f fdutils.info-1 fdutils.info-2 fdutils.info-3 fdutils.info-4
 
 
 
@@ -70,7 +70,7 @@ clean:
 	$(TEXI2HTML) $<
 
 Fdutils.texi: $(TEXISRC) texi-linearize
-	texi-linearize $(srcdir) fdutils.texi > $@
+	./texi-linearize $(srcdir) fdutils.texi > $@
 
 Fdutils.texi: $(TEXISRC) 
 

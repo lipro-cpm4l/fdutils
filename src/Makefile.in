@@ -108,7 +108,7 @@ clean:
 
 spotless:	clean
 	-rm -f floppycontrol superformat getfdprm fdrawcmd diskseekd diskd \
-	diskseek diskd_old setfdprm xdfcopy fdmount 2>/dev/null
+	diskseek diskd_old setfdprm xdfcopy fdmount convertfdprm floppymeter 2>/dev/null
 
 install: install.bin install.conf
 	@grep -q '^floppy:' /etc/group \
