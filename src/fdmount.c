@@ -127,9 +127,10 @@ void msg(char *text,...) {
 
 void errmsg(char *text,...) {
     char buff[80];
+
     va_list p;
     va_start(p,text);
-    vsprintf(buff,text,p);
+    vsnprintf(buff, 80, text,p);
     va_end(p);
     if(use_syslog)
 	syslog(LOG_ERR, "%s: %s\n",curdev,buff);
