@@ -1,0 +1,142 @@
+# Define PIDFILE if you want to have the pid of the diskseekd stored
+# somewhere on the filesystem. You'll get a (very) little shell
+# script diskseek.sh that uses this to connect with the daemon
+# when the disk should be cleaned by hand. In that case it's a replacement
+# for diskseek. If you don't want to have this feature, don't define it.
+#
+
+
+top_srcdir=@top_srcdir@
+srcdir=@srcdir@
+VPATH=@srcdir@
+
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+infodir     = @infodir@
+mandir      = @mandir@
+infodir     = @infodir@
+sysconfdir  = @sysconfdir@
+
+CC       = @CC@
+PID      = -DPIDFILE=\"@localstatedir@/run/diskseekd.pid\"
+DEFINES  = $(DEFINES) $(PID) -DSYSCONFDIR=\"@sysconfdir@\"
+DEFS     = @DEFS@ -DSYSCONFDIR=\"@sysconfdir@\"
+CPPFLAGS = -I. -I@srcdir@ @CPPFLAGS@ $(DEFS)
+CFLAGS   = -Wall @CFLAGS@
+
+LDFLAGS     = @LDFLAGS@
+LIBS        = -L. -lfdutils @LIBS@
+SHLIB       = @SHLIB@
+MACHDEPLIBS = @MACHDEPLIBS@	
+LN_S        = @LN_S@
+
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+
+
+OBJECTS=enh_options.o floppycontrol.o superformat.o
+SOURCES=enh_options.c floppycontrol.o superformat.c
+MANPAGES1=diskd.1 diskseekd.1 fdrawcmd.1 floppycontrol.1 getfdprm.1  \
+makefloppies.1 superformat.1 xdfcopy.1 fdmount.1
+MANPAGES4=fd.4
+MANPAGES8=setfdprm.8
+
+
+
+PERM=755
+SPERM=4750
+#we only people in group floppy to run priviledged programs
+MANPERM = 644
+UID	= root
+GID	= floppy
+
+
+
+all: floppycontrol getfdprm setfdprm fdrawcmd \
+superformat xdfcopy fdmount diskseekd diskd floppymeter convertfdprm
+
+
+LIBFILES=lex.mediaprm.o lex.driveprm.o mediaprm.o driveprm.o parse.o \
+	oldfdprm.o enh_options.o measure.o printfdprm.o calc-format.o \
+	misc.o skews.o
+
+lex.%.c: %.lex
+	lex -P$* $<
+
+libfdutils.a: libfdutils.a($(LIBFILES))
+	ranlib libfdutils.a
+
+floppycontrol.o getfdprm setfdprm: /usr/include/linux/fd.h
+diskseekd.o superformat.o fdrawcmd.o: /usr/include/linux/fd.h \
+	/usr/include/linux/fdreg.h
+
+convertfdprm: convert.o libfdutils.a
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+floppycontrol: floppycontrol.o libfdutils.a
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+diskd: diskd.o  libfdutils.a
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+diskseekd: diskseekd.o  libfdutils.a
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+diskseek: diskseekd
+	ln -s diskseekd diskseek
+
+superformat: superformat.o libfdutils.a
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+floppymeter: floppymeter.o libfdutils.a
+	${CC} ${LDFLAFS} -o $@ $< $(LIBS)
+
+fdrawcmd: fdrawcmd.o
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+getfdprm: getfdprm.o libfdutils.a
+	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
+
+setfdprm: setfdprm.c libfdutils.a
+	${CC} $(LDFLAGS) $(CFLAGS) -o $@ $< $(LIBS)
+
+clean:
+	-rm -f *~ *.orig *.o a.out *.a lex.*.c core 2>/dev/null
+
+spotless:	clean
+	-rm -f floppycontrol superformat getfdprm fdrawcmd diskseekd diskd \
+	diskseek diskd_old setfdprm xdfcopy fdmount 2>/dev/null
+
+install: install-bin install-conf
+	@grep -q '^floppy:' /etc/group \
+	    || echo 'Add a group "floppy" to /etc/group.'
+
+
+install-conf:
+	$(top_srcdir)/mkinstalldirs $(syconfdir)
+	if [ ! -f $(sysconfdir)/mediaprm ] ; then \
+		cp $(srcdir)/mediaprm  $(sysconfdir) ; \
+	fi
+
+install-bin: all
+	$(top_srcdir)/mkinstalldirs $(bindir)
+	$(INSTALL) -c -m $(PERM) -o $(UID) -g $(GID) $(srcdir)/MAKEFLOPPIES $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) diskd $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) diskseekd $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppycontrol $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppymeter $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) getfdprm $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) setfdprm $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) fdrawcmd $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) superformat $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) xdfcopy $(bindir)
+	$(INSTALL) -c -s -m $(SPERM) -o $(UID) -g $(GID) fdmount $(bindir)
+	$(INSTALL) -c -s -m $(SPERM) -o $(UID) -g $(GID) fdmount $(bindir)/fdumount
+	( cd $(bindir); \
+	ln -sf xdfcopy $(bindir)/xdfformat; \
+	ln -sf fdmount $(bindir)/fdumount; \
+	ln -sf fdmount $(bindir)/fdlist; \
+	ln -sf fdmount $(bindir)/fdmountd )

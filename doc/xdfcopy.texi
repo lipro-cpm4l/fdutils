@@ -1,0 +1,102 @@
+@node xdfcopy, , superformat, Commands
+@section xdfcopy
+@pindex xdfcopy
+@cindex XDF (formatting and copying disks)
+@cindex formatting XDF disks
+
+@example
+@code{xdfcopy} [@code{-}@var{format-id}] [@code{-d}] [@code{-n}] [@code{-h} @var{head-skew}] [@code{-t} @var{cylinder-skew}] [@code{-T}
+@var{end-cylinder}] [@var{source}] @var{target}
+@end example
+
+
+@code{Xdfcopy} is a utility to copy and format XDF disks. XDF (eXtended
+Density Format) is a format used by OS/2 which can hold 1840KB of data
+(on a 3 1/2 high density disk). Its advantage over 2m formats is that it
+is faster: 38KB/s. Because of this fast speed, I extended the XDF
+standard to higher capacities (1992KB) with a transfer rate of 45KB/s. I
+called the new formats XXDF.
+
+This program works best with kernels newer than 2.0.0.
+
+If both source and target are given, xdfcopy copies the disk image from
+file to floppy disk or vice-versa. When copying to a floppy disk, the
+disk is first formatted, unless the @code{-n} option is given.
+
+If no source is given, the target is only formatted. In this case, the
+target must be a floppy drive.
+
+@subsection Options
+
+@subsubsection Selecting a format
+
+Formats are selected by the format_id. The following formats are understood:
+
+@table @code
+
+@item 0
+Formats a 5 1/4 XDF disk (1520 KB, 45.6 KB/s).
+
+@item 1
+Formats a 3 1/2 high density XDF disk (1840 KB, 38.3 KB/s).
+
+@item 2
+Formats a 3 1/2 extra density XDF disk (3680 KB, 102 KB/s)
+
+@item 3
+Formats a 3 1/2 high density XXDF disk (1920 KB, 45 KB/s)
+
+@item 4
+Formats a 3 1/2 extra density XXDF disk (3840 KB, 90 KB/s) 
+@end table
+
+@subsection Misc options
+
+@table @code
+@item -D @var{dosdrive}
+Describes the DOS drive letter for mformat. If this option is given, an
+MS-DOS filesystem is automatically installed on the disk after the
+low-level format is complete. In order for this to work, the drive has
+to be configured to accept the 23x2x80 geometry in your /etc/mtools or
+your ~/.mtoolsrc file. Moreover, this only works with a version of
+mtools that is more recent than 3.0.
+
+Example of a working mtoolsrc line:
+@example
+A /dev/fd0  0  0 0  0
+@end example
+
+Examples of a non-working mtoolsrc line:
+@example
+A /dev/fd0 12 80 2 18
+@end example
+
+@item -n
+Don't format the disk before copying the disk image to the disk.
+
+@end table
+
+@subsection Options for power users
+
+@table @code
+
+@item -t @var{cylinder skew}
+Uses a different track skew than the default (14). For more details on
+skews, @pxref{superformat}. In this version of xdfcopy, the @code{-t}
+parameter is ignored.
+
+@item -h @var{head skew}
+Uses a different head skew than the default (0) In this version, this
+parameter is ignored
+
+@item -d
+Debugging. For each read or write operation, the time it took to
+complete the operation is printed (in milliseconds). This can be used
+to optimize the skews.
+
+@item -T @var{end-cylinders}
+Tells how many cylinders to format.  With the XXDF formats, it is
+actually possible to format up to 83 cylinders, yielding a format of
+up to 1992KB on a 3 1/2 high density disk.
+
+@end table
