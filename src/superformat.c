@@ -133,6 +133,15 @@ int send_cmd(int fd,struct floppy_raw_cmd *raw_cmd, char *message)
 	if ( raw_cmd->reply_count ){
 		switch( raw_cmd->reply[0] & 0xc0 ){
 		case 0x40:
+			/* ignore EOC */
+			if((raw_cmd->reply[0] & ~0x4)== 0x40 &&
+			   (raw_cmd->reply[1] == 0x80) &&
+			   (raw_cmd->reply[2] == 0)) {
+				/* OK, we merely reached the end of 
+				 * our cylinder */
+				break;
+			}
+
 			if((raw_cmd->reply[0] & ~0x4)== 0x40 &&
 			   raw_cmd->reply[1] == 0x10 &&
 			   raw_cmd->reply[2] == 0x00) {
@@ -346,13 +355,13 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 		/* second pass */
 		raw_cmd.data = floppy_buffer;
 		raw_cmd.cmd_count = 9;
-		raw_cmd.cmd[0] = FD_WRITE & ~fm_mode;	
+		raw_cmd.cmd[0] = FD_WRITE & ~fm_mode & ~0x80;
 		raw_cmd.cmd[1] = head << 2 | ( fd->drive & 3);
 		raw_cmd.cmd[2] = cylinder;
 		raw_cmd.cmd[3] = head;
 		raw_cmd.cmd[4] = cur_sector;
 		raw_cmd.cmd[5] = i;
-		raw_cmd.cmd[6] = fd->dsect;
+		raw_cmd.cmd[6] = fd->last_sect[i] - 1;
 		raw_cmd.cmd[7] = fd->gap;
 		if ( i )
 			raw_cmd.cmd[8] = 0xff;
@@ -864,7 +873,7 @@ int main(int argc, char **argv)
 	} else  {
 		int old_capacity = fd[0].raw_capacity;
 
-		printf("old capacity=%d\n", old_capacity);
+/*		printf("old capacity=%d\n", old_capacity);*/
 
 		if(verbosity) {
 			fprintf(stderr,"Measuring drive %d's raw capacity\n",
@@ -880,16 +889,17 @@ int main(int argc, char **argv)
 		if(verbosity) {
 			fprintf(stderr,
 				"In order to avoid this time consuming "
-				"measurement in the future, add the following "
-				"line to " DRIVEPRMFILE
-				" :\ndrive%d: deviation=%d\n",
+				"measurement in the future,\n"
+				"add the following line to " DRIVEPRMFILE
+				":\ndrive%d: deviation=%d\n",
 				fd[0].drive, 
 				(fd[0].raw_capacity-old_capacity)*1000000/
 				old_capacity);
 			fprintf(stderr,
-				"CAUTION: this line is drive and controller"
-				"specific. Remove it before installing a new"
-				"drive %d or floppy controller\n\n", 
+				"CAUTION: The line is drive and controller "
+				"specific, so it should be\n" 
+				"removed before installing a new "
+				"drive %d or floppy controller.\n\n", 
 				fd[0].drive);
 		}
 	}

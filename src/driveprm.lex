@@ -51,7 +51,7 @@ ED       |
 
 [^\t \n][^\t =\n]* {
 	fprintf(stderr,
-		"Syntaxx error in " DRIVEPRMFILE 
+		"Syntax error in " DRIVEPRMFILE 
 		" at line %d col %d: %s unexpected\n",
 		lineno + 1, col + 1, yytext_ptr);
 	return 1;

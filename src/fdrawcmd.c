@@ -148,6 +148,7 @@ void main(int argc, char **argv)
 	long long *times=0;
 	long long *timesb4=0;
 	int fm_mode = 0;
+	int nomt_mode = 0;
 	char *eptr;
 	char buffer[ 512 * 2 * 24 ];
 
@@ -281,6 +282,13 @@ void main(int argc, char **argv)
 			}
 
 
+			if ( strcmp( "no-mt", *argv) == 0){
+				nomt_mode = 1;
+				continue;
+			}
+
+
+
 			if ( strcmp( "short", *argv) == 0){
 				do_short = 1;
 				continue;
@@ -310,6 +318,8 @@ void main(int argc, char **argv)
 
 		if(fm_mode)
 			raw_cmd.cmd[0] &= ~0x40;
+		if(nomt_mode)
+			raw_cmd.cmd[0] &= ~0x80;
     
 		if ( r_flags & FD_RAW_WRITE ){
 			size = 0;

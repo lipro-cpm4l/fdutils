@@ -4,14 +4,15 @@
     <title>Frequently asked question about the Linux floppy driver</title>
   </head>
 
-  <body>
+  <body bgcolor=#e0e4f0>
       <h1>Frequently asked question about the Linux floppy driver</h1>
 
+<div align=justify>
 
 Most of the floppy utilities mentioned in this FAQ can be found in the
 <a href="../fdutils/index.html">fdutils</a> package. For others,
 consult the lsm or archie. Alpha releases of fdutils are named
-fdu<em>day month</em>.taz or fdu5.0-<em>day month</em>.diff.gz
+fdu<em>day month</em>.taz or fdu5.3-<em>day month</em>.diff.gz
 
 <ul>
 
@@ -55,9 +56,9 @@ the floppy.</a>
 <h4> How do I access floppy drives in Linux?</h4>
 
  Either use mtools or mount the disk. Mtools can be found at <a
- href="sunsite.unc.edu:/pub/Linux/system/utils/disk-management/mtools-3.0.src.tar.gz">sunsite</a>
+ href="sunsite.unc.edu:/pub/Linux/system/utils/disk-management/mtools-3.9.6.src.tar.gz">sunsite</a>
  and <a
- href="tsx-11.mit.edu:/pub/linux/sources/usr.bin/mtools-3.0.src.tar.gz">tsx-11</a>
+ href="tsx-11.mit.edu:/pub/linux/sources/usr.bin/mtools-3.9.6.src.tar.gz">tsx-11</a>
  
  It is a collection of utilities to access DOS disks. These utilities
 behave mostly like their DOS counterparts, i.e. mdir is like dir,
@@ -181,21 +182,26 @@ just to make sure you aren't forgetting anything.
  bit) is described in the configuration file (/etc/mtools or
  ~/.mtoolsrc). It is the first number. Example:
 
+<table bgcolor=#d0d4e0 border=1><tr><td>
 <pre><code>A /dev/fd0 12 0 0 0
            ^^ 12 bit FAT
 </code></pre>
-<table>
-<table cellpadding = "8" border = "1">
+</td></tr></table>
+<br>
+<table bgcolor=#e0d4e0 border=1><tr><td>
+<table cellpadding=1 noborder>
 
-<tr><th> 12</th><th>means</th><th>12 bit FAT</td></tr>
+<tr><td align=right> 12</td><td>means</td><td>12 bit FAT</td></tr>
 
-<tr><th>16</th><th>means</th><th>16 bit FAT</th></tr>
+<tr><td align=right>16</td><td>means</td><td>16 bit FAT</td></tr>
 
-<tr><th>0</th><th>means</th><th>"use whatever is appropriate"</th></tr>
+<tr><td align=right>0</td><td>means</td><td>"use whatever is appropriate"</td></tr>
 
-<tr><th>-12</th><th>means</th><th>12 bit FAT, even if it looks fishy</th></tr>
-<tr><th>-16</th><th>means</th><th>16 bit FAT, even if it looks fishy</th></tr>
-</table><p>
+<tr><td align=right>-12</td><td>means</td><td>12 bit FAT, even if it looks fishy</td></tr>
+<tr><td align=right>-16</td><td>means</td><td>16 bit FAT, even if it looks fishy</td></tr>
+</table>
+</td></tr></table>
+<p>
 
  CAUTION: If you have an /etc/mtools file AND an ~/.mtoolsrc file, the
 ~/.mtoolsrc file overrides /etc/mtools. The home directory used for
@@ -227,23 +233,30 @@ in sh/bash/zsh/...)<p>
 <h4> How should I describe the new 2m formats in /etc/mtools?</h4>
 
 Support for both disk drives a: and b: for all formats (except Xdf) is
-already built into the new version of mtools (3.0). Definitions for
+already built into the new version of mtools (3.9.6). Definitions for
 new drive letters no longer override these default definitions.<p>
 
  Just for the record, here are definitions to mimic the standard
 behavior:
-<pre><code> drive a: file="/dev/fd0"
+<table bgcolor=#d0d4e0 border=1><tr><td>
+<pre><code>
+ drive a: file="/dev/fd0"
  drive b: file="/dev/fd1"
 </code></pre>
+</td></tr></table>
 
 <a name="mtools-xdf">
 <h4> How should I describe the Xdf formats in /etc/mtools?</h4>
 
  The following /etc/mtools lines allow to access all disks, including
 Xdf:
-<pre><code> drive a: file="/dev/fd0" use_xdf=1
+<table bgcolor=#d0d4e0 border=1><tr><td>
+<pre><code><br>
+ drive a: file="/dev/fd0" use_xdf=1
  drive b: file="/dev/fd1" use_xdf=1
 </code></pre>
+</td></tr></table>
+
 
  However, the use_xdf flag slightly slows down initial access to non
 Xdf disks.<p>
@@ -401,9 +414,7 @@ http://www.cs.uiowa.edu/~mfleck/vision-html/omnibook.html">here</a>.
 You may also install via hard disk and initrd. You need a big enough
 hard disk to do this (and it takes a little bit more time than the
 usual method). The following method presumes that it is possible to
-access the disk using DOS, and that you are using a kernel which is
-more recent than 1.3.73.  You also need a version of loadlin more
-recent than 1.6.<p>
+access the disk using DOS.<p>
 <ol>
 <li> Leave a small DOS partition (with enough spare space to hold the
 tar files from a few install disks). The bigger that partition is, the
@@ -413,10 +424,13 @@ is, the less space is available for Linux itself.
 smallish spare partition (for instance on your swap partition).  This
 filesystem should contain the files usually found on the install root
 disks. Add a '/linuxrc' file which contains the following lines:
-<pre><code>#!/bin/sh
+<table bgcolor=#d0d4e0 border=1><tr><td>
+<pre><code>
+#!/bin/sh
 . etc/rc
 /bin/sh
 </code></pre>
+</td></tr></table>
 <li> On the desktop computer, unmount the filesystem, and dd it to a
 file. Compress the file, and copy it to a floppy disk.
 <li> Copy it to the Laptops hard disks.
@@ -453,7 +467,7 @@ following formula gives the minor number:
 
 <pre><em>	minor = fdc * 128 + geometry * 4 + unit </em></pre>
 
- See the README file in fdutils for more details.<pp>
+ See the README file in fdutils for more details.<p>
 
 <a name="boot-special-fmt">
 <h4> Is it possible to boot off these special format disks?</h4>
@@ -488,11 +502,13 @@ Apparently, these laptops are supplied with a floppy controller which
 doesn't support the fifo.<p> Switch off the FIFO by adding
 <code>floppy=nofifo</code> to your Lilo command line.<p>
 
+</div>
+
 <hr>
 
 <!-- Created: Sat Dec 14 23:47:32 MET 1996 -->
 <!-- hhmts start -->
-Last modified: Fri Jun 26 22:42:57 CEST 1998
+Last modified: Thu Jul  1 23:13:23 MEST 1999
 <!-- hhmts end -->
 
   </body>

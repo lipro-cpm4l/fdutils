@@ -110,21 +110,24 @@ spotless:	clean
 	-rm -f floppycontrol superformat getfdprm fdrawcmd diskseekd diskd \
 	diskseek diskd_old setfdprm xdfcopy fdmount 2>/dev/null
 
-install: install.bin install.conf
+install: install-bin install-conf
 	@grep -q '^floppy:' /etc/group \
 	    || echo 'Add a group "floppy" to /etc/group.'
 
 
-install.conf:
+install-conf:
 	if [ ! -f $(sysconfdir)/mediaprm ] ; then \
 		cp $(srcdir)/mediaprm  $(sysconfdir) ; \
 	fi
 
-install.bin: all
+install-bin: all
 	$(INSTALL) -c -m $(PERM) -o $(UID) -g $(GID) $(srcdir)/MAKEFLOPPIES $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) diskd $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) diskseekd $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppycontrol $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) floppymeter $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) getfdprm $(bindir)
+	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) MAKEFLOPPIES $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) setfdprm $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) fdrawcmd $(bindir)
 	$(INSTALL) -c -s -m $(PERM) -o $(UID) -g $(GID) superformat $(bindir)

@@ -61,6 +61,11 @@ int interpret_errors(struct floppy_raw_cmd *raw_cmd, int probe_only)
 		if ( raw_cmd[k].reply_count ){
 			switch( raw_cmd[k].reply[0] & 0xc0 ){
 				case 0x40:
+					if((raw_cmd[k].reply[0] & 0x38) == 0 &&
+					   raw_cmd[k].reply[1] == 0x80 &&
+					   raw_cmd[k].reply[2] == 0)
+						break;
+
 					if(probe_only)
 						return -2;
 					curcylinder = -1;
@@ -102,10 +107,11 @@ int interpret_errors(struct floppy_raw_cmd *raw_cmd, int probe_only)
 						"\nabnormal termination caused by polling\n");
 					return 0;
 				case 0:
-					if (raw_cmd[k].flags & FD_RAW_NEED_SEEK)
-						curcylinder = raw_cmd[k].track;
-					/* OK */			
+					break;
 			}
+			if (raw_cmd[k].flags & FD_RAW_NEED_SEEK)
+			    curcylinder = raw_cmd[k].track;
+			/* OK */			
 		} else {
 			fprintf(stderr,"\nNull reply from FDC\n");
 			return 1;
@@ -178,10 +184,10 @@ int readwrite_sectors(int fd, /* file descriptor */
     raw_cmd->cmd_count = 9;  
     
     if (direction == READ_) {
-	raw_cmd->cmd[0] = FD_READ;
+	raw_cmd->cmd[0] = FD_READ & ~0x80;
 	raw_cmd->flags |= FD_RAW_READ;
     } else {
-	raw_cmd->cmd[0] = FD_WRITE;
+	raw_cmd->cmd[0] = FD_WRITE & ~0x80;
 	raw_cmd->flags |= FD_RAW_WRITE;
     }
 
@@ -192,7 +198,7 @@ int readwrite_sectors(int fd, /* file descriptor */
     raw_cmd->cmd[4] = sector;
     raw_cmd->cmd[5] = size;
     
-    raw_cmd->cmd[6] = 0;
+    raw_cmd->cmd[6] = sector + (bytes >> (size + 7)) - 1;
     raw_cmd->cmd[7] = 0x1b;
     raw_cmd->cmd[8] = 0xff;
 

@@ -393,9 +393,8 @@ THIS MANPAGE CAREFULLY. IMPROPER USAGE MAY LEAD TO DATA LOSS.
 
  There are man pages for mtools (in mtools/) and the utilities (in
 utils/) included. There's also a FAQ list. It is regularily updated on
-http://www.club.innet.lu/~year3160/floppy/FAQ.html .  You can find
-alpha versions of fdutils on
-http://www.club.innet.lu/~year3160/fdutils . (They are named
-fduddmm.taz, where dd stands for the day and mm for the month. I'll
-only leave these for a limited time, and then move them into an old
-directory, or remove them.)
+http://fdutils.linux.lu/FAQ.html .  You can find alpha versions of
+fdutils on http://fdutils.linux.lu/ . (They are named fduddmm.taz,
+where dd stands for the day and mm for the month. I'll only leave
+these for a limited time, and then move them into an old directory, or
+remove them.)

@@ -12,5 +12,5 @@
 /* Define if you have the <linux/ext_fs.h> header file.  */
 #undef HAVE_LINUX_EXT_FS_H
 
-/* Define if you have the <linux/xia_fs> header file.  */
-#undef HAVE_LINUX_XIA_FS
+/* Define if you have the <linux/xia_fs.h> header file.  */
+#undef HAVE_LINUX_XIA_FS_H

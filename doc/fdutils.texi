@@ -8,12 +8,12 @@
 @setchapternewpage off
 @c %**end of header
 
-@c MANtitle fdutils 1 "14Mar1997" fdutils
+@c MANtitle fdutils 1 "1Jul1999" fdutils
 @c MANskip
 
-@set EDITION 5.1
-@set VERSION 5.1
-@set UPDATED Apr 1997
+@set EDITION 5.3
+@set VERSION 5.3
+@set UPDATED Jul 1999
 
 @iftex
 @finalout
@@ -30,7 +30,7 @@ END-INFO-DIR-ENTRY
 
 @ifinfo
 Fdutils
-Copyright (C) 1993, 1994, 1995, 1996, 1997 Alain Knaff
+Copyright (C) 1993-1999 Alain Knaff
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice

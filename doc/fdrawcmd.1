@@ -1,4 +1,4 @@
-.TH fdrawcmd 1 "19apr97" fdutils-5.0
+.TH fdrawcmd 1 "02Jul99" fdutils-5.3
 .SH Name
 fdrawcmd - send raw commands to the floppy disk controller
 '\" t
@@ -79,7 +79,8 @@ quoting conventions used in info.
 .nf
 .ft 3
 .in +0.3i
-\&\fR\&\f(CWfdrawcmd [\fR\&\f(CWdrive=\fIdrive\fR\&\f(CW] [\fR\&\f(CWrate=\fIrate\fR\&\f(CW] [\fR\&\f(CWlength=\fIlength\fR\&\f(CW] [\fR\&\f(CWrepeat=\fIrepeat\fR\&\f(CW]
+\&\fR\&\f(CWfdrawcmd [\fR\&\f(CWdrive=\fIdrive\fR\&\f(CW] [\fR\&\f(CWrate=\fIrate\fR\&\f(CW]
+[\fR\&\f(CWlength=\fIlength\fR\&\f(CW] [\fR\&\f(CWrepeat=\fIrepeat\fR\&\f(CW]
 [\fR\&\f(CWcylinder=\fIphysical-cyl\fR\&\f(CW] \fIcommand\fR\&\f(CW [\fIparamters\fR\&\f(CW \&...] [\fImode\fR\&\f(CW]
 .fi
 .in -0.3i
@@ -125,7 +126,7 @@ Seek to the given cylinder before executing the command
 .TP
 \&\fR\&\f(CW\fIcommand\fR\&\f(CW\fR\ 
 The name of the command to send.  \fIcommand\fR may be a spelled out
-name (like \fR\&\f(CWread \fR or \fR\&\f(CWwrite\fR), or a number representing the
+name (like \fR\&\f(CWread\fR or \fR\&\f(CWwrite\fR), or a number representing the
 commands floppy disk controller opcode.  A named command has already a
 mode associated with it, whereas for a number the mode parameter should
 be described using the \fR\&\f(CWmode\fR option.
@@ -167,10 +168,18 @@ Reads \fIlength\fR bytes of data from the disk.  \fIdrvsel\fR is the
 drive selector. Bit 0 and 1 describe the drive, and bit 2 describes the
 head.  The remaining parameters give the cylinder, head (yes, again),
 sector, size of the sector (128 * 2 ^ \fIszcod\fR), sectors per track
-(used to switch to the second head when the first side has been read),
-and size of the read-write gap. \fIszcod2\fR should be 0xff.
-\&\fR\&\f(CWread\fR returns \fIST0 ST1 ST2\fR and \fIcyl head sect szcod\fR
-of the next sector to be read; see \fR\&\f(CW\(if/usr/include/linux/fdreg.h\(is\fR .
+(\fR\&\f(CWspt\fR, this is used to switch to the second head when the first
+side has been read), and size of the read-write gap. \fIszcod2\fR should
+be 0xff.  \fR\&\f(CWread\fR returns \fIST0 ST1 ST2\fR and \fIcyl head sect
+szcod\fR of the next sector to be read; see
+\&\fR\&\f(CW\(if/usr/include/linux/fdreg.h\(is\fR .
+.IP
+N.B. Certain newer floppy disk controllers are buggy, and do not
+correctly recognize the end of transfer when operating in virtual DMA
+mode.  For these, you need to set \fR\&\f(CWspt\fR to the id of the last
+sector to be read (for example, if you intend to read sectors 2, 3, 4,
+set \fR\&\f(CWspt\fR to 4, even if the disk has more sectors), and set the
+\&\fR\&\f(CWno-mt\fR flag.
 .TP
 \&\fR\&\f(CWwrite\ \fIdrvsel\ cyl\ head\ sect\ szcod\ spt\ rw-gap\ szcod2\fR\&\f(CW\fR\ 
 Analogous to
@@ -314,14 +323,22 @@ Don't switch on the drive motor while issuing the command
 \&\fR\&\f(CWno-motor-after\fR\ 
 Switch off the motor immediately after the command returns.
 .TP
-\&\fR\&\f(CWfm-mode\fR\ 
+\&\fR\&\f(CWfm\fR\ 
 Uses the FM version of the \fR\&\f(CWread\fR, \fR\&\f(CWreadid\fR, \fR\&\f(CWwrite\fR and
 \&\fR\&\f(CWformat\fR commands.
+.TP
+\&\fR\&\f(CWno-mt\fR\ 
+Do not use MT (multitrack) mode for the \fR\&\f(CWread\fR, \fR\&\f(CWreadid\fR and
+\&\fR\&\f(CWwrite\fR commands. This is needed on certain broken FDC's which
+don't recognize end of transfer when running in \fR\&\f(CWnodma\fR mode. In
+order to use these safely, set \fR\&\f(CWno-mt\fR, and chose the id of the
+last sector to be read as \fR\&\f(CWsect-per-track\fR.
 .PP
 \&\fR\&\f(CWfdrawcmd\fR opens the device node with the \fR\&\f(CWNDELAY\fR flag. This
 means that the driver should not try to autodetect the disk type (it
 might not be formatted), and that it should not reset the FDC. If a
 reset was needed, the command simply fails. If that happens, execute
 \&\fR\&\f(CWfloppycontrol --resetnow 0\fR , and try again.
+.PP
 .SH See Also
 Fdutils' texinfo doc

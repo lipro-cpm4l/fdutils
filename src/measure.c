@@ -41,6 +41,7 @@ static int read_track(int fd, int dn, int rate, int cylinder)
 {
 	struct floppy_raw_cmd raw_cmd;
 	int tmp;
+	unsigned char ref;
 
 	unsigned char buffer[32*1024];
 	unsigned char c;
@@ -48,7 +49,7 @@ static int read_track(int fd, int dn, int rate, int cylinder)
 	int i;
 	
 	raw_cmd.cmd_count = 9; 
-	raw_cmd.cmd[0] = FD_READ; /* format command */
+	raw_cmd.cmd[0] = FD_READ & ~0x80; /* format command */
 	raw_cmd.cmd[1] = dn /* drive */;
 	raw_cmd.cmd[2] = 0; /* cylinder */
 	raw_cmd.cmd[3] = 0; /* head */
@@ -63,12 +64,12 @@ static int read_track(int fd, int dn, int rate, int cylinder)
 		FD_RAW_READ;
 	raw_cmd.rate = rate;
 	raw_cmd.track = cylinder;
-	
 	tmp = ioctl(fd, FDRAWCMD, & raw_cmd);
 	if ( tmp < 0 ){
 		perror("read");
 		exit(1);
 	}
+
 
 	if((raw_cmd.reply[1] & ~0x20) |
 	   (raw_cmd.reply[2] & ~0x20) |
@@ -83,13 +84,14 @@ static int read_track(int fd, int dn, int rate, int cylinder)
 
 	ptr = 514;
 	/* we look first for the place where the 0x4e's are going to stop */
-	while(buffer[ptr] == 0x4e)
+	ref = buffer[ptr];
+	while(buffer[ptr] == ref)
 		ptr += 256;
 	ptr -= 240;
-	while(buffer[ptr] == 0x4e)
+	while(buffer[ptr] == ref)
 		ptr += 16;
 	ptr -= 15;
-	while(buffer[ptr] == 0x4e)
+	while(buffer[ptr] == ref)
 		ptr ++;
 	/* we have now found the first byte after wrap-around */
 
@@ -98,6 +100,8 @@ static int read_track(int fd, int dn, int rate, int cylinder)
 	c = buffer[ptr];
 	while(buffer[ptr] == c)
 		ptr--;
+
+
 	for(i=0; i<16; i++) {
 		if(byte_tab[i].value == c) {
 			ptr -= byte_tab[i].offset;

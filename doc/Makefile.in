@@ -29,12 +29,14 @@ GID         = root
 
 INSTALL     = @INSTALL@
 INSTALL_DATA= @INSTALL_DATA@
+INSTALL_INFO= @INSTALL_INFO@
+
 
 CC          = @CC@
 CPPFLAGS    = @CPPFLAGS@
 CFLAGS      = @CFLAGS@
 
-all: fdutils.info fdutils.dvi
+all: info dvi
 
 TEXISRC = \
 acronyms.texi       fdrawcmd.texi       ioctl.texi          superformat.texi \
@@ -47,7 +49,7 @@ fdmount.texi        getfdprm.texi       setfdprm.texi
 
 html: Fdutils.html
 
-dvi: fdutils.dvi
+dvi: Fdutils.dvi
 
 info: fdutils.info
 
@@ -55,7 +57,7 @@ info: fdutils.info
 	$(MAKEINFO) -I @srcdir@ @srcdir@/fdutils.texi
 
 
-%.dvi: $(TEXISRC) Fdutils.texi
+%.dvi: Fdutils.texi
 	$(TEXI2DVI) Fdutils.texi
 
 clean:
@@ -70,13 +72,11 @@ clean:
 	$(TEXI2HTML) $<
 
 Fdutils.texi: $(TEXISRC) texi-linearize
-	texi-linearize $(srcdir) fdutils.texi > $@
-
-Fdutils.texi: $(TEXISRC) 
+	./texi-linearize $(srcdir) fdutils.texi > $@
 
 
 # Don't cd, to avoid breaking install-sh references.
-install.info: info
+install-info: info
 	$(top_srcdir)/mkinstalldirs $(infodir)
 	if test -f fdutils.info; then \
 	  for i in fdutils.info*; do \
@@ -86,10 +86,19 @@ install.info: info
 	  for i in $(srcdir)/fdutils.info*; do \
 	    $(INSTALL_DATA) $$i $(infodir)/`echo $$i | sed 's|^$(srcdir)/||'`; \
 	  done; \
+	fi; \
+	if [ -n "$(INSTALL_INFO)" ] ; then \
+		if [ -f $(infodir)/dir.info ] ; then \
+			$(INSTALL_INFO) $(infodir)/fdutils.info $(infodir)/dir.info; \
+		fi; \
+		if [ -f $(infodir)/dir ] ; then \
+			$(INSTALL_INFO) $(infodir)/fdutils.info $(infodir)/dir; \
+		fi; \
 	fi
 
 
-install.man:
+
+install-man:
 	for i in $(MANPAGES1); do \
 		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
 			$(srcdir)/$$i $(mandir1)/$$i; \
@@ -112,7 +121,7 @@ install.man:
 		ln -sf xdfcopy.1 $(mandir1)/xdfformat.1 \
 	)
 
-install.zman:
+install-zman:
 	for i in $(MANPAGES1); do \
 		gzip < $(srcdir)/$$i >_; \
 		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
@@ -130,4 +139,4 @@ install.zman:
 	done
 	rm _
 
-install: install.man install.info
+install: install-man install-info

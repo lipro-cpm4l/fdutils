@@ -6,7 +6,8 @@
 @cindex direct interaction with floppy driver
 
 @example
-@code{fdrawcmd} [@code{drive=}@var{drive}] [@code{rate=}@var{rate}] [@code{length=}@var{length}] [@code{repeat=}@var{repeat}]
+@code{fdrawcmd} [@code{drive=}@var{drive}] [@code{rate=}@var{rate}]
+[@code{length=}@var{length}] [@code{repeat=}@var{repeat}]
 [@code{cylinder=}@var{physical-cyl}] @var{command} [@var{paramters} @dots{}] [@var{mode}]
 @end example
 
@@ -48,7 +49,7 @@ Seek to the given cylinder before executing the command
 
 @item @var{command}
 The name of the command to send.  @var{command} may be a spelled out
-name (like @code{read } or @code{write}), or a number representing the
+name (like @code{read} or @code{write}), or a number representing the
 commands floppy disk controller opcode.  A named command has already a
 mode associated with it, whereas for a number the mode parameter should
 be described using the @code{mode} option.
@@ -86,10 +87,18 @@ Reads @var{length} bytes of data from the disk.  @var{drvsel} is the
 drive selector. Bit 0 and 1 describe the drive, and bit 2 describes the
 head.  The remaining parameters give the cylinder, head (yes, again),
 sector, size of the sector (128 * 2 ^ @var{szcod}), sectors per track
-(used to switch to the second head when the first side has been read),
-and size of the read-write gap. @var{szcod2} should be 0xff.
-@code{read} returns @var{ST0 ST1 ST2} and @var{cyl head sect szcod}
-of the next sector to be read; see @file{/usr/include/linux/fdreg.h} .
+(@code{spt}, this is used to switch to the second head when the first
+side has been read), and size of the read-write gap. @var{szcod2} should
+be 0xff.  @code{read} returns @var{ST0 ST1 ST2} and @var{cyl head sect
+szcod} of the next sector to be read; see
+@file{/usr/include/linux/fdreg.h} .
+
+N.B. Certain newer floppy disk controllers are buggy, and do not
+correctly recognize the end of transfer when operating in virtual DMA
+mode.  For these, you need to set @code{spt} to the id of the last
+sector to be read (for example, if you intend to read sectors 2, 3, 4,
+set @code{spt} to 4, even if the disk has more sectors), and set the
+@code{no-mt} flag.
 
 @item write @var{drvsel cyl head sect szcod spt rw-gap szcod2}
 Analogous to
@@ -245,9 +254,16 @@ Don't switch on the drive motor while issuing the command
 @item no-motor-after
 Switch off the motor immediately after the command returns.
 
-@item fm-mode
+@item fm
 Uses the FM version of the @code{read}, @code{readid}, @code{write} and
 @code{format} commands.
+
+@item no-mt
+Do not use MT (multitrack) mode for the @code{read}, @code{readid} and
+@code{write} commands. This is needed on certain broken FDC's which
+don't recognize end of transfer when running in @code{nodma} mode. In
+order to use these safely, set @code{no-mt}, and chose the id of the
+last sector to be read as @code{sect-per-track}.
 
 @end table
 

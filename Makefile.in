@@ -1,25 +1,25 @@
 @SET_MAKE@
 
-all: compile comp.doc 
-install: install.prog install.doc
-clean: clean.prog clean.doc
+all: compile comp-doc 
+install: install-prog install-doc
+clean: clean-prog clean-doc
 
 compile:
 	$(MAKE) -C src all
 
-install.prog: compile
-	$(MAKE) -C src install.bin install.conf
+install-prog: compile
+	$(MAKE) -C src install-bin install-conf
 
-comp.doc:
+comp-doc:
 	$(MAKE) -C doc all
 
-install.doc: doc
+install-doc: doc
 	$(MAKE) -C doc install
 
-clean.doc:
+clean-doc:
 	$(MAKE) -C doc clean
 
-clean.prog:
+clean-prog:
 	$(MAKE) -C src clean
 
 info:
@@ -32,5 +32,5 @@ dvi:
 	$(MAKE) -C doc dvi
 
 
-install.info:
+install-info:
 	$(MAKE) -C doc install-info

@@ -4,7 +4,7 @@ Heiko Schroeder (heiko@pool.informatik.rwth-aachen.de)
 	Wrote the fdpatches, which inspired the new floppy driver
 	since 1.1.41
 
-David Niemi (niemidc@erols.com)
+David Niemi (niemi@tux.org)
 	Provided many useful suggestions and general support.
 	Contributed to superformat.c and mtools.
 	Wrote fdc version detection code and the hlt/hut/srt code.
