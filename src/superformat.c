@@ -79,7 +79,7 @@ int verbosity = 3;
 static char noverify = 0;
 static char noformat = 0;
 static char dosverify = 0;
-static char verify_later = 1;
+static char verify_later = 0;
 short stretch;
 int cylinders, heads, sectors;
 int begin_cylinder, end_cylinder;
@@ -270,6 +270,8 @@ int floppy_verify(int superverify, struct params *fd, void *data,
 	return 0;
 }
 
+static int rw_track(struct params *fd, int cylinder, int head, int mode);
+
 /* format_track. Does the formatting proper */
 int format_track(struct params *fd, int cylinder, int head, int do_skew)
 {
@@ -278,9 +280,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	int offset;
 	int i;
 	int nssect;      
-	int cur_sector;
 	int skew;
-	int retries;
 	
 	data = (format_map_t *) floppy_buffer;
 
@@ -350,22 +350,35 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	if(send_cmd(fd->fd, & raw_cmd, "format"))
 		return -1;
 
-	cur_sector = 1 - fd->zeroBased;
 	memset(floppy_buffer, 0, sizeof(floppy_buffer));
 	if ( !fd->need_init && fd->sizecode)
 		return 0;
 
 	if (verbosity >= 6)
 		printf("initializing...\n");
+	return rw_track(fd, cylinder, head, 1);
+}
+
+/* format_track. Does the formatting proper */
+static int rw_track(struct params *fd, int cylinder, int head, int mode)
+{
+	int i;
+	int cur_sector;
+	int retries;
+	struct floppy_raw_cmd raw_cmd;
+
+	cur_sector = 1 - fd->zeroBased;
 
 	for (i=MAX_SIZECODE-1; i>=0; --i) {
 		if ( fd->last_sect[i] <= cur_sector + fd->zeroBased)
 			continue;
-
+		retries=0;
+	retry:
 		/* second pass */
 		raw_cmd.data = floppy_buffer;
 		raw_cmd.cmd_count = 9;
-		raw_cmd.cmd[0] = FD_WRITE & ~fm_mode & ~0x80;
+		raw_cmd.cmd[0] =
+			(mode ? FD_WRITE : FD_READ) & ~fm_mode & ~0x80;
 		raw_cmd.cmd[1] = (head << 2 | ( fd->drive & 3)) ^
 		    (fd->swapSides ? 4 : 0);
 		raw_cmd.cmd[2] = cylinder;
@@ -378,29 +391,30 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 			raw_cmd.cmd[8] = 0xff;
 		else
 			raw_cmd.cmd[8] = 0xff;
-
-		raw_cmd.flags = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_SPIN |
+		raw_cmd.flags = (mode ? FD_RAW_WRITE : FD_RAW_READ) | 
+			FD_RAW_INTR | FD_RAW_SPIN |
 			FD_RAW_NEED_SEEK | FD_RAW_NEED_DISK;
+		raw_cmd.track = cylinder << stretch;
 		raw_cmd.rate = fd->rate & 0x43;
 
-		retries=0;
-	retry:
 		raw_cmd.length = (fd->last_sect[i] - 
 				  fd->zeroBased - 
 				  cur_sector) * 128 << i;
 		/* debugging */
 		if (verbosity == 9)
-			printf("writing %ld sectors of size %d starting at %d\n",
+			printf("%s %ld sectors of size %d starting at %d\n",
+			       mode ? "writing" : "reading",
 			       raw_cmd.length / 512, i, cur_sector);
-		cur_sector = fd->last_sect[i];
-		if(send_cmd(fd->fd, & raw_cmd, "format")){
-			if ( !retries && (raw_cmd.reply[1] & ST1_ND) ){
+		if(send_cmd(fd->fd, & raw_cmd, 
+			    mode ? "format" : "verify")){
+			if ( !retries && mode && (raw_cmd.reply[1] & ST1_ND) ){
 				cur_sector = raw_cmd.reply[5];
 				retries++;
 				goto retry;
 			}
 			return -1;
 		}
+		cur_sector = fd->last_sect[i];
 	}
 	return 0;
 }
@@ -1067,17 +1081,20 @@ int main(int argc, char **argv)
 		if (!verify_later && !noverify && !dosverify) {
 			for (head=0; head<heads; ++head) {
 				print_verifying(cylinder, head);
-				if (!cylinder && !head && use_2m)
-					n = floppy_verify(superverify, &fd0,
-							(void *)verify_buffer,
-							cylinder, head, fd0.dsect);
-				else
-					n = floppy_verify(superverify, fd,
-							(void *)verify_buffer,
-							cylinder, head, sectors);
-				if (n < 0) {
-					error=1;
-					continue;
+				if (!cylinder && !head && use_2m){
+					/* 2m-style 1st track */
+					if (rw_track(&fd0, cylinder, head, 0) &&
+					    rw_track(&fd0, cylinder, head, 0)){
+						error=1;
+						break;
+					}
+				} else {
+					/* Everything else */
+					if (rw_track(fd, cylinder, head, 0) &&
+					    rw_track(fd, cylinder, head, 0)) {
+						error=1;
+						break;
+					}
 				}
 			}
 		}

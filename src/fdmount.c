@@ -1072,7 +1072,7 @@ int main(int argc, char **argv)
 	opt_noexec=0,opt_nodev=0,opt_nosuid=0, opt_vfat=0;
     int mountflags=0;
     char *opt_pidfile="/var/run/fdmount.pid"; 
-#if FLOPPY_ONLY
+#ifdef FLOPPY_ONLY
     gid_t groups[NGROUPS_MAX];
     int not_allowed = 1, ngroups;
 #endif                             
@@ -1107,7 +1107,7 @@ int main(int argc, char **argv)
     opt_daemon=(strcmp(progname,"fdmountd")==0);
     opt_list  =(strcmp(progname,"fdlist")==0);
 
-#if FLOPPY_ONLY
+#ifdef FLOPPY_ONLY
     if ((ngroups = getgroups (NGROUPS_MAX, groups)) != -1) {
     	int     i;
     	struct group *gr;

@@ -179,6 +179,7 @@ int parse_driveprm(int fd, drivedesc_t *drive)
 			    &mask, &found);
 		if(!found)
 			zero_all(ids, &mask);
+		fclose(driveprmin);
 	}
 	compute_params(drive);
 	return 0;

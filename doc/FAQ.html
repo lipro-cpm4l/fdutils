@@ -1,18 +1,80 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="css/fdutils.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
     <title>Frequently asked question about the Linux floppy driver</title>
+    <META NAME="description" CONTENT="Fdutils - Linux floppy tuning utilities">
+    <META NAME="keywords" CONTENT="fdutils, linux, vgacopy, xdf, 2m, 1992k, 199
+2K, , CP/M, cpm, legacy, proprietary, embedded, luxembourg">
+    <META NAME="Author" content="Alain Knaff">
   </head>
 
-  <body bgcolor=#e0e4f0>
-      <h1>Frequently asked question about the Linux floppy driver</h1>
+  <body bgcolor="#ffffff">
+<base href="http://fdutils.linux.lu">
+
+<div id="frame">
+  <div id="logobar">
+
+  <table border=0 width="100%">
+   <tr>
+    <td rowspan=2 valign="top">
+     <A HREF="http://www.transfair.lu/petition/campcafe.html"><img src="http://alain.knaff.lu/BigNoise.jpg" border="0" alt="Join the Big Noise! Pay fair prices to coffee growers" width="239" height="145"></A>
+    <td align="left">
+     <center><a href="http://swpat.ffii.org/"><img src="images/banner09.png" alt="No Software Patents!" width=468 height=60></a></center><p>
+  <tr>
+    <td><h1 class="globaltitle">Fdutils</h1>
+  </table>
+  </div>
+
+  <div id="leftcolumn">
+    <!-- the navigation bar -->
+    <div id="navbar">
+
+    <center><a href="http://alain.knaff.linux.lu">
+    <img src="images/home.gif" border=0 alt="[To my homepage]" width="31" height="24"></a></center>
+
+
+<ul>
+ <li><a href="index.html">Introduction</a>
+ <li><a href="download.html">Downloads</a>
+ <li><a href="mailing.html">Mailing list/doc</a>
+ <li><a href="faq.html#start">Frequently asked questions</a>
+ <li><a href="disk-id.html">How to identify<br>an unknown disk</a>
+</ul>
+
+    </div> <!-- navbar -->
+    <!-- the Lilux penguin -->
+    <div id="penguin">
+	    <center><a class="picture" href="http://www.lilux.lu" target="_blank"><img src="images/lilux_01.gif" width="90" height="104" border="0" alt="lien vers http://www.lilux.lu"></a></center>
+	    <center><a class="picture" href="http://validator.w3.org/check/referer"><img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a></center>
+
+    </div> <!-- penguin -->
+
+<br>
+
+<center><a href="http://www.netcraft.com/cgi-bin/Survey/whats?host=fdutils.linux.lu">
+<img src ="images/powered.gif" width=90 height=53 border=0 alt="Powered By ...?">
+</a></center>
+
+<br>
+
+<center><A HREF="http://www.anybrowser.org/campaign/">
+<IMG SRC="images/viewed-globe.gif" ALT="Content Enhanced - Use Any Browser" BORDER="0" ALIGN="MIDDLE" WIDTH="147" HEIGHT="42">
+</A></center>
+
+    </div> <!-- leftcolumn -->
+    <div id="contentright">
+<a name="start"></a>
+
+<h1>Frequently asked question about the Linux floppy driver</h1>
 
 <div align=justify>
 
 Most of the floppy utilities mentioned in this FAQ can be found in the
 <a href="../fdutils/index.html">fdutils</a> package. For others,
-consult the lsm or archie. Alpha patches of fdutils are named
-fdutils-<em>version</em>-<em>YearMonthDay</em>.diff.gz
+consult the lsm or archie. Alpha releases of fdutils are named
+fdutils-<em>version</em>-<em>YearMonthDay</em>..diff.gz
 
 <ul>
 
@@ -52,13 +114,11 @@ the floppy.</a>
 
 <hr>
 
-<a name="access">
+<a name="access"></a>
 <h4> How do I access floppy drives in Linux?</h4>
 
- Either use mtools or mount the disk. Mtools can be found at <a
- href="metalab.unc.edu:/pub/Linux/system/utils/disk-management/mtools-3.9.7.src.tar.gz">metalab.unc.edu</a>
- and <a
- href="tsx-11.mit.edu:/pub/linux/sources/usr.bin/mtools-3.9.7.src.tar.gz">tsx-11</a>
+ Either use mtools or mount the disk. Mtools can be found <a
+href="http://mtools.linux.lu/mtools-3.9.10.tar.gz">here</a>.<p>
  
  It is a collection of utilities to access DOS disks. These utilities
 behave mostly like their DOS counterparts, i.e. mdir is like dir,
@@ -72,7 +132,7 @@ mcopy is like copy, etc. Specifics are in the manpages.<p>
 <pre><code> mkdir /mnt
 </code></pre>
 
-<a name="bugs">
+<a name="bugs"></a>
 <h4> How should I report bugs?</h4>
 
  If you have a question or a bug report about the floppy driver, mail
@@ -170,26 +230,24 @@ particularly slow computer (386 SX)? PCI based?
 just to make sure you aren't forgetting anything.
 </ul>
 
-<a name="fdformat-new-fmt">
+<a name="fdformat-new-fmt"></a>
 <h4> I can't fdformat the new formats.</h4>
 
  Fdformat is considered obsolete. Use superformat instead.<p>
 
-<a name="mtools-12-bit-warning">
+<a name="mtools-12-bit-warning"></a>
 <h4> Mtools says "12 bit FAT on a: sure?" when trying to access an ED	disk (or a similar message) when formatting a disk</h4>
 
  Some ED (extra density) disks use 16 bit FATS. The FAT type (12 or 16
  bit) is described in the configuration file (/etc/mtools or
  ~/.mtoolsrc). It is the first number. Example:
 
-<table bgcolor=#d0d4e0 border=1><tr><td>
 <pre><code>A /dev/fd0 12 0 0 0
            ^^ 12 bit FAT
 </code></pre>
-</td></tr></table>
 <br>
-<table bgcolor=#e0d4e0 border=1><tr><td>
-<table cellpadding=1 noborder>
+
+<table cellpadding=1 border=0>
 
 <tr><td align=right> 12</td><td>means</td><td>12 bit FAT</td></tr>
 
@@ -200,7 +258,7 @@ just to make sure you aren't forgetting anything.
 <tr><td align=right>-12</td><td>means</td><td>12 bit FAT, even if it looks fishy</td></tr>
 <tr><td align=right>-16</td><td>means</td><td>16 bit FAT, even if it looks fishy</td></tr>
 </table>
-</td></tr></table>
+
 <p>
 
  CAUTION: If you have an /etc/mtools file AND an ~/.mtoolsrc file, the
@@ -211,7 +269,7 @@ and finally from getuid.<p>
  There are also compiled-in defaults, which are used if neither
 /etc/mtools, nor ~/.mtoolsrc are found.<p>
 
-<a name="mtools-wrong-fat-encoding-warning">
+<a name="mtools-wrong-fat-encoding-warning"></a>
 <h4> Mtools says "fat_read: Wrong FAT encoding 12 16?" (or similar) when accessing a disk formatted with the old mtools.</h4>
 
  mtools does some sanity checks on the size of the
@@ -229,46 +287,41 @@ in csh or tcsh, and
 
 in sh/bash/zsh/...)<p>
 
-<a name="mtools-2M">
+<a name="mtools-2M"></a>
 <h4> How should I describe the new 2m formats in /etc/mtools?</h4>
 
 Support for both disk drives a: and b: for all formats (except Xdf) is
-already built into the new version of mtools (3.9.7). Definitions for
+already built into the new version of mtools (3.9.10). Definitions for
 new drive letters no longer override these default definitions.<p>
 
  Just for the record, here are definitions to mimic the standard
 behavior:
-<table bgcolor=#d0d4e0 border=1><tr><td>
-<pre><code>
- drive a: file="/dev/fd0"
+<pre><code> drive a: file="/dev/fd0"
  drive b: file="/dev/fd1"
 </code></pre>
-</td></tr></table>
 
-<a name="mtools-xdf">
+<a name="mtools-xdf"></a>
 <h4> How should I describe the Xdf formats in /etc/mtools?</h4>
 
  The following /etc/mtools lines allow to access all disks, including
 Xdf:
-<table bgcolor=#d0d4e0 border=1><tr><td>
 <pre><code><br>
  drive a: file="/dev/fd0" use_xdf=1
  drive b: file="/dev/fd1" use_xdf=1
 </code></pre>
-</td></tr></table>
 
 
  However, the use_xdf flag slightly slows down initial access to non
 Xdf disks.<p>
 
-<a name="2m-minor">
+<a name="2m-minor"></a>
 <h4> Which minor device number should I use for 2m formats?</h4>
 
  2m formats don't have a minor number associated with them, they can
-only be accessed using the "generic format" devices (i.e. /dev/fd0,
+only be accessed using the "generic " devices (i.e. /dev/fd0,
 /dev/fd1).<p>
 
-<a name="thinkpad">
+<a name="thinkpad"></a>
 <h4> I have an IBM Thinkpad :-(</h4>
 
  Don't panic. Add the line 'floppy=thinkpad' to your lilo boot
@@ -289,7 +342,7 @@ required.<p>
  More info about IBM Tinkpads on Linux can be found <a
  href="http://peipa.essex.ac.uk/tp-linux/tp-linux.html">here</a>.
 
-<a name="floppy-minor">
+<a name="floppy-minor"></a>
 <h4> What are the minor device numbers for the floppy device nodes?</h4>
 
  The major device number for the floppy drives is 2. The minor device
@@ -298,12 +351,12 @@ number is calculated using the following formula:
 </em></pre>
  (fdc_nr identifies the floppy disk controller, and unit_nr identifies
 which drive on the floppy disk controller to be used) format_nr
-identifies the format (see the README file in fdutils for more
+identifies the  (see the README file in fdutils for more
 details). If format_nr is 0, the device is an autodetection device.
  Use the MAKEFLOPPIES script included in the fdutils package to
 automatically create the needed devices.<p>
 
-<a name="floppy-names">
+<a name="floppy-names"></a>
 <h4> What are the recommended names for the floppy device nodes?</h4>
 
  Floppy drives are named
@@ -320,17 +373,17 @@ letter described the type of the drive (density, 5 1/4 or 3
 letters describe 3 1/2 drives. h or H meant high density drives, d or
 D meant double density drives.<p> Initially this letter described the
 type of the <em>drive</em> and not the type of the media in the
-drive. For instance, a format meant for accessing 720k double density
+drive. For instance, a  meant for accessing 720k double density
 disks in a high density drive was called h720k and not d720k. The
 reason for this is that for 5 1/4 drives the parameters for accessing
-a disk do not only depend on the format of the disk, but also on the
-drive type. The format of the disk is already implied by the capacity,
+a disk do not only depend on the  of the disk, but also on the
+drive type. The  of the disk is already implied by the capacity,
 and so the type letter is used to describe the type of the
 <em>drive</em>.<p> However, this dependency on the drive type only
 exists for 5 1/4 drives.  For 3 1/2 drives, this is not needed, and as
 3 1/2 drives are more frequent, people started forgetting about this,
 and understood that the letter described the <em>media</em>
-format. When support for extra density drives was added to the kernel,
+. When support for extra density drives was added to the kernel,
 people still used the name H1440 for accessing high density disks
 using their extra density drive. By the way, several distribution use
 this scheme.<p> In order to calm down the confusion, we propose to
@@ -379,11 +432,11 @@ many useless cache flushes, so use it only if you really need it. This
 command has to be issued after each reboot, so I suggest you put it
 into your /etc/rc files.<p>
 
-<a name="no-such-device-or-address">
+<a name="no-such-device-or-address"></a>
 <h4> I get "No such device or address" errors for various floppy related commands.</h4>
 
  This message can mean one of several things:<p>
-<nl>
+<ol>
 <li> No floppy driver is compiled into the kernel, and no floppy
 module is inserted. Kerneld may fail to automatically insert the
 floppy module when you upgraded your kernel without upgrading the
@@ -395,10 +448,10 @@ only used to detect disk changes, but also to tell whether there is a
 disk in the drive at all.) See question 13 for fixes for disk change
 line problem.
 <li> The floppy geometry is unknown for the getfdprm or fdformat
-programs. If you format a disk, rather use superformat.
-</nl>
+programs. If you  a disk, rather use superformat.
+</ol>
 
-<a name="omnibook">
+<a name="omnibook"></a>
 <h4> I have a HP Omnibook 6000 :(</h4>
 
 These laptops are supplied with a floppy-drive & fdc combo which
@@ -408,7 +461,7 @@ command line.
 More info about the Omnibook and linux can be found <a href="
 http://www.cs.uiowa.edu/~mfleck/vision-html/omnibook.html">here</a>.
 
-<a name="floppyless-install">
+<a name="floppyless-install"></a>
 <h4> I can't get my floppy drive going, is there another method to install?</h4>
 
 You may also install via hard disk and initrd. You need a big enough
@@ -424,13 +477,12 @@ is, the less space is available for Linux itself.
 smallish spare partition (for instance on your swap partition).  This
 filesystem should contain the files usually found on the install root
 disks. Add a '/linuxrc' file which contains the following lines:
-<table bgcolor=#d0d4e0 border=1><tr><td>
 <pre><code>
 #!/bin/sh
 . etc/rc
 /bin/sh
 </code></pre>
-</td></tr></table>
+
 <li> On the desktop computer, unmount the filesystem, and dd it to a
 file. Compress the file, and copy it to a floppy disk.
 <li> Copy it to the Laptops hard disks.
@@ -451,7 +503,7 @@ case you need to bring more files later.
 
  Steps 5 to 10 may be skipped if your laptop has a CD-ROM drive :-)
 
-<a name="two-fdc">
+<a name="two-fdc"></a>
 <h4> Is it possible to use two floppy disk controllers under Linux?</h4>
 
  YES. To use both controllers, boot the kernel with the lilo parameter
@@ -469,8 +521,8 @@ following formula gives the minor number:
 
  See the README file in fdutils for more details.<p>
 
-<a name="boot-special-fmt">
-<h4> Is it possible to boot off these special format disks?</h4>
+<a name="boot-special-fmt"></a>
+<h4> Is it possible to boot off these special  disks?</h4>
 
 Yes.  Make sure you have a version of lilo more recent than v18, and
 put the following line into your /etc/lilo.defines before compiling
@@ -484,7 +536,7 @@ than you'll ever see :-) ) It allows to boot from ED disks and from
 disks with more sectors than usual (up to 21 on a HD disk, 42 on an ED
 disk). However, 2m and Xdf disks cannot be booted using this method.
 
-<a name="unable-to-allocate-dma">
+<a name="unable-to-allocate-dma"></a>
 <h4> I get "Unable to allocate DMA memory" messages when trying to use
 	    the floppy.</h4>
 
@@ -495,7 +547,7 @@ is more readily available. In order to disable DMA, use the
 <code>floppy=nodma</code> boot flag. If you use the floppy driver as a
 module, set the environment variable 'floppy' to 'dma'.
 
-<a name="millenia-transport">
+<a name="millenia-transport"></a>
 <h4> I have a Micron Millenia Transport.</h4>
 
 Apparently, these laptops are supplied with a floppy controller which
@@ -504,12 +556,17 @@ doesn't support the fifo.<p> Switch off the FIFO by adding
 
 </div>
 
-<hr>
 
-<!-- Created: Sat Dec 14 23:47:32 MET 1996 -->
+
+</div>
+</div>
+
+<hr>
 <!-- hhmts start -->
-Last modified: Fri Jun  2 22:38:39 CEST 2000
+Last modified: Thu Mar  3 23:29:19 CET 2005
 <!-- hhmts end -->
+
 
   </body>
 </html>
+

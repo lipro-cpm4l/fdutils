@@ -342,7 +342,7 @@ int main(int argc, char **argv)
 			size = raw_cmd.length;
     
 		if ( *drive ){
-			if ( fd )
+			if ( fd >= 0 )
 				close(fd);
 			fd = strtoul(drive, &end, 0);
       

@@ -267,6 +267,7 @@ static int parse_indirect(int argc, char **argv,
 
 	found = 0;
 	mediaprmlex(argv[0], ids, sizeof(ids)/sizeof(ids[0]), &mask, &found);
+	fclose(mediaprmin);
 	if(!found)
 		return 1;
 	compute_params(drvprm, medprm);

@@ -3,12 +3,12 @@
 
 
 @menu
-* Introduction            :: Benefits of the new representation
-* Syntax                  :: What a media description looks like
-* Media definition file   :: Refer to media by a symbolic name
+* Introduction (Mediaprm) :: Benefits of the new representation
+* Syntax                   :: What a media description looks like
+* Media definition file    :: Refer to media by a symbolic name
 @end menu
 
-@node Introduction, Syntax, Media description, Media description
+@node Introduction (Mediaprm), Syntax, Media description, Media description
 @section Introduction
 
 Fdutils-5.0 introduces a new uniform format description, which is
@@ -34,7 +34,7 @@ The first line above configures a 21 sector/83 cylinder format for drive
 0, and the second line formats a disk using this same format.
 
 
-@node Syntax, Media definition file, Introduction, Media description
+@node Syntax, Media definition file, Introduction (Mediaprm), Media description
 @section Syntax
 
 A media description is a series of @emph{variable=value} and

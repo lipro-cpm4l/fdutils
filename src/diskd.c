@@ -25,6 +25,30 @@ int eioctl(int fd, int command,void * param, char *emsg)
   return r;
 }
 
+static char procFd[80];
+
+
+int doPoll(int fd,
+	   struct floppy_drive_params *dpr,
+	   struct floppy_drive_struct *state)
+{
+	if(! (dpr->flags & FD_SILENT_DCL_CLEAR)) {
+		/* Work around a bug in floppy driver when silent dcl is not
+		   set */
+		struct floppy_raw_cmd raw_cmd;
+		int fd2;
+		fd2=open(procFd, 3 | O_NDELAY);
+		if(fd2 != -1)
+			close(fd2);
+		/* Perform "dummy" rawcmd to flush out newchange */
+		raw_cmd.flags = FD_RAW_NEED_DISK;
+		raw_cmd.cmd_count = 0;
+		raw_cmd.track = 0;
+		ioctl(fd, FDRAWCMD, &raw_cmd, "rawcmd");
+	}
+	eioctl(fd, FDPOLLDRVSTAT, state, "reset");
+	return state->flags;
+}
 
 int main(int argc, char **argv)
 {
@@ -35,6 +59,7 @@ int main(int argc, char **argv)
 	int ch;
 	struct timeval timval;
 	struct floppy_drive_struct state;
+	struct floppy_drive_params dpr;
 
 	struct enh_options optable[] = {
 	{ 'd', "drive", 1, EO_TYPE_FILE_OR_FD, 3, 0,
@@ -65,15 +90,18 @@ int main(int argc, char **argv)
 		fd = open("/dev/fd0", 3 | O_NDELAY);
 	if ( fd < 0 ){
 		perror("can't open floppy drive");
-		print_usage(argv[0],optable,"");
+		exit(1);
 	}
 
-	eioctl(fd, FDPOLLDRVSTAT, &state, "reset");
-	while (state.flags & FD_VERIFY) {
+	eioctl(fd,FDGETDRVPRM,(void *) &dpr, "Get drive parameters");
+	sprintf(procFd, "/proc/self/fd/%d", fd);
+
+	doPoll(fd, &dpr, &state);
+	while (state.flags & (FD_VERIFY|FD_DISK_NEWCHANGE)) {
 		timval.tv_sec = interval / 10;
 		timval.tv_usec = (interval % 10) * 100000;
 		select(0, 0, 0, 0, &timval);
-		eioctl(fd, FDPOLLDRVSTAT, &state, "reset");
+		doPoll(fd, &dpr, &state);
 	} 
 	close(fd);
 	if ( command)

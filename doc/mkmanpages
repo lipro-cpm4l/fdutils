@@ -3,7 +3,7 @@
 # extracts the manpage for a given command out of a texinfo doc
 
 date=`date +%d%b%y`
-package="fdutils-5.4"
+package="fdutils-5.5"
 
 infile=/tmp/infile.$$
 
