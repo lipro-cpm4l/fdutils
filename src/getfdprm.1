@@ -1,0 +1,34 @@
+.TH GETFDPRM 1 "21jan1996" "fdutils" "fdutils"
+.de BP
+.sp
+.ti \-.2i
+\(**
+..
+.SH NAME
+getfdprm \- print the current format information
+.SH SYNOPSIS
+.hy 0
+.na
+.B getfdprm
+.RI [ drive ]
+.ad b
+.hy 1
+.SH DESCRIPTION
+.B getfdprm
+prints the current format information for
+.IR drive .
+This information can be set using
+.BR setfdprm (8) ,
+which is part of most Linux distributions.
+.BR Setfdprm
+can now be used by the superuser to redefine the default
+formats.
+.SH FILES
+/dev/fd* - Floppy devices
+.SH AUTHOR
+Alain Knaff, Alain.Knaff@inrialpes.fr
+.SH SEE ALSO
+.BR superformat (1),
+.BR floppycontrol (1),
+.BR fdrawcmd (1),
+.BR setfdprm (8)

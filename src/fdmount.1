@@ -1,0 +1,382 @@
+.TH FDMOUNT 1 "12nov1995" "fdutils" "fdutils"
+.de BP
+.sp
+.ti \-.2i
+\(**
+..
+.SH NAME
+fdmount \- Floppy disk mount utility
+.SH SYNOPSIS
+.hy 0
+.na
+
+.B fdmount
+.RB "[\|" \-l "\|]"
+.RB "[\|" \-\-list "\|]"
+.RB "[\|" \-d "\|]"
+.RB "[\|" \-\-daemon "\|]"
+.RB "[\|" \-\-detach "\|]"
+.RB "[\|" \-i 
+.I interval
+.RB "\|]"
+.RB "[\|" \-\-interval 
+.I interval
+.RB "\|]"
+.RB "[\|" \-o
+.I options
+.RB "\|]"
+.RB "[\|" \-r "\|]"
+.RB "[\|" \-\-readonly "\|]"
+.RB "[\|" \-s "\|]"
+.RB "[\|" \-\-sync "\|]"
+.RB "[\|" \-\-nosync "\|]"
+.RB "[\|" \-\-nodev "\|]"
+.RB "[\|" \-\-nosuid "\|]"
+.RB "[\|" \-\-noexec "\|]"
+.RB "[\|" \-f "\|]"
+.RB "[\|" \-\-force "\|]"
+.RB "[\|" \-h "\|]"
+.RB "[\|" \-\-help "\|]"
+.RI "[\|" drivename 
+.RI "[\|" mountpoint "\|]"
+.RI "\|]"
+
+.B fdumount
+.RB "[\|" \-f "\|]"
+.RB "[\|" \-\-force "\|]"
+.RI "[\|" drivename "\|]"
+
+.B fdlist
+
+.B fdmountd
+.RB "[\|" \-i 
+.I interval
+.RB "\|]"
+.RB "[\|" \-\-interval 
+.I interval
+.RB "\|]"
+.RB "[\|" \-r "\|]"
+.RB "[\|" \-\-readonly "\|]"
+.RB "[\|" \-s "\|]"
+.RB "[\|" \-\-sync "\|]"
+.RB "[\|" \-\-nodev "\|]"
+.RB "[\|" \-\-nosuid "\|]"
+.RB "[\|" \-\-noexec "\|]"
+.RI "[\|" drivename 
+.RI "[\|" mountpoint "\|]"
+.RI "\|]"
+ 
+.ad b
+.hy 1
+
+.SH DESCRIPTION
+The 
+.B fdmount
+program mounts a floppy disk in the specified drive. It tries to
+figure out the exact format and filesystem type of the disk from 
+data in the disk's boot sector or super block and the auto-detected 
+track layout.
+
+Currently, fdmount supports the filesystems
+.I minix, ext, ext2, xia,
+and
+.I msdos,
+and includes special support for disks formatted by the ms\-dos
+.I 2M
+utility.
+
+It also checks whether the disk is write protected, in which case 
+it is mounted read\-only.
+
+The symbolic
+.I drivename
+is (currently) one of
+.B fd[0\-7],
+corresponding to the special device files
+.B /dev/fd[0\-7]. If
+.I drivename
+is not specified, fd0 is assumed.
+
+The disk is mounted on the directory
+.I mountpoint,
+if specified, or on 
+.B /fd[0\-7].
+In either case, the mount point must be an existing, writable
+directory.
+
+.SH OPTIONS
+
+.TP
+.B \-l \-\-list
+List all known drives with their symbolic name, type, and mount
+status. 
+
+.TP
+.B \-d \-\-daemon
+Run in daemon mode (see below).
+
+.TP
+.B \-\-detach
+Runs daemon in background, and detaches it from its tty. Messages
+produced after the fork are logged to syslog.
+
+.TP
+.BI "\-p \-\-pidfile " file
+Dumps the process id of the daemon to
+.I file\c
+\&. This makes killing the daemon easier:
+.B kill -9 `cat file`
+
+.TP
+.BI "\-i \-\-interval " "interval"
+Set the polling interval for daemon mode. Unit is 0.1 seconds, default
+is 10 (1 second).
+
+.TP
+.BI "\-o \-\-options " "options"
+Sets filesystem-specific options. So far, these are only available for
+DOS and Ext2 disks. The following DOS options are supported:
+.B check, conv, dotsOK, debug, fat, quiet, blocksize\c
+\&.
+The following Ext2 options are supported:
+.B check, errors, grpid, bsdgroups, nogrpid, sysvgroups, bsddf,
+.B minixdf, resgid, debug, nocheck
+\&.
+When running as a daemon, options not applying to the disk that is
+inserted (because of its filesystem type) are not passed to mount.
+
+.TP
+.B \-r \-\-readonly
+Mount the disk read\-only. This is automatically assumed if the
+disk is write protected.
+
+.TP
+.B \-s \-\-sync
+Mount with the SYNC option.
+
+.TP
+.B \-\-nosync
+Mounts without the SYNC option, even when not running as daemon.
+
+.TP
+.B \-\-nodev
+Mount with the NODEV option. Ignored for
+.I msdos 
+filesystems, otherwise always set for non\-root users.
+
+.TP
+.B \-\-nosuid
+Mount with the NOSUID option. Ignored for
+.I msdos 
+filesystems, otherwise always set for non\-root users.
+
+.TP
+.B \-\-noexec
+Mount with the NOEXEC option.
+
+.TP
+.B \-f \-\-force
+Attempt a mount or unmount operation even /etc/mtab says that
+the drive is already mounted, or not mounted, respectively.
+This option is useful if /etc/mtab got out of sync with the
+actual state for some reason.
+
+.TP
+.B \-h \-\-help
+Show short parameter description
+
+.SH SECURITY
+
+When mounting on the default mount point, the mount points' owner 
+is set to the current user, and the access flags according to the 
+user's 
+.I umask.
+For a specified
+.I mountpoint,
+owner and permissions are left unchanged. Default mount points are
+called /fd0, /fd1, ... , /fd7 .
+
+The user running fdmount must have read access to the floppy device
+for read only mounts, and read/write access for read/write mounts.
+
+Fdmount can be run suid root, allowing users to mount floppy
+disks. The following restrictions are placed upon non\-root
+users:
+
+If a
+.I mountpoint
+is specified explicitly, it must be owned by the user. 
+
+A user may only unmount a disk if the mount point is owned by the
+user, or if it the disk has been mounted by the same user.
+
+non-msdos disks are automatically mounted with the
+.I nodev
+and
+.I nosuid
+flags set.
+
+However,
+.B Do not rely on fdmount being secure at the moment.
+
+.SH DAEMON MODE
+
+In daemon mode, the specified drive is
+periodically checked and if a disk is inserted, it is 
+automatically mounted.
+
+When the disk is removed, it is automatically unmounted.
+However, it is recommended to unmount the disk manually
+.I before
+removing it. In order to limit corruption, disks are mounted
+with the SYNC option when running in daemon mode, unless the
+.BI \-\-nosync
+flag is given.
+
+Note that this mode has some potential drawbacks:
+
+Some floppy drives have to move the drive head physically
+in order to reset the disk change signal. It is strongly 
+recommended not to use daemon mode with these drives.
+Refer to the
+.I floppycontrol(1)
+documentation for details.
+
+It is not possible to specify special options, like 
+.BI \-\-readonly,
+to modify the mount process.
+
+If a disk does not contain a filesystem (e.g. a tar archive),
+the mount attempt may slow down initial access.
+
+As fdmount cannot identify the user trying to use the disk drive,
+there is no way to protect privacy. Disks are always mounted with
+public access permissions set.
+
+.SH DIAGNOSTICS
+
+.TP
+.B error opening device <name>
+
+.TP
+.B error reading boot/super block
+fdmount failed to read the first 1K of the disk. The disk might
+be damaged, unformatted, or have a format unsupported by the
+FDC/Linux kernel.
+
+.TP
+.B unknown filesystem type
+No magic number of any of the supported filesystems (see above) 
+could be identified.
+
+.TP
+.B sorry, can't figure out format (<fs> filesystem)
+The size of the filesystem on the disk is incompatible with
+the track layout detected by the kernel and an integer number of
+tracks. This may occur if the filesystem uses only part of the
+disk, or the track layout was detected incorrectly by the kernel.
+
+.TP
+.B failed to mount <fs> <size>K\-disk
+The actual
+.B mount(2)
+system call failed.
+
+.TP
+.B failed to unmount
+The actual
+.B unmount(2)
+system call failed.
+
+.TP
+.B cannot create lock file /etc/mtab~
+If
+.BI /etc/mtab~
+exists, you should probably delete it. Otherwise, check
+permissions.
+
+.TP
+.B Can't access <mountpoint>
+Most probably, the default or specified mount point does not exist.
+Use mkdir.
+
+.TP
+.B <mountpoint> is not a directory
+
+.TP
+.B not owner of <mountpoint>
+Non\-root users must own the directory specified as mount point.
+(This does not apply for the default mount points, /fd[0\-3].)
+
+.TP
+.B No write permission to <mountpoint>
+Non\-root users must have write permission on the mount point
+directory.
+
+.TP
+.B Not owner of mounted directory: UID=<uid>
+Non\-root users cannot unmount if the mount point is owned
+(i.e. the disk was mounted) by another user.
+
+.TP
+.B invalid drive name
+Valid drive names are
+.B fd0, fd1, fd2, fd3, fd4, fd5, fd6, fd7
+
+.TP
+.B drive <name> does not exist
+The drive does not exist physically, is unknown to the Linux
+kernel, or is an unknown type.
+
+.TP
+.B Drive <name> is mounted already
+Trying to mount a drive which appears to be mounted already.
+Use the
+.B \-\-force
+option if you think this is wrong.
+
+.TP
+.B Drive <name> is not mounted
+Trying to unmount a drive which does not appear to be mounted.
+Use the
+.B \-\-force
+option if you think this is wrong.
+
+.TP
+.B ioctl(...) failed
+If this occurs with
+.BI FDGETDRVTYP 
+or 
+.BI FDGETDRVSTAT, 
+you should probably update your Linux kernel.
+
+.TP
+.B mounted <fs> <size>K\-disk (<options>)
+Success message.
+
+.SH BUGS
+
+chown() fails for non\-msdos filesystems mounted read\-only, so
+the mount point may have the wrong owner.
+
+Fdmount should be more flexible about drive names and default
+mount points (currently hard coded).
+
+Probably not very secure yet (when running suid root).
+Untested with ext and xia filesystems.
+
+Can't specify filesystem type and disk layout explicitly.
+
+In daemon mode, the drive light stays on all the time.
+
+.SH FILES
+/dev/fd[0\-7] \- Floppy devices
+
+/etc/mtab \- Mounted filesystems table
+
+.SH AUTHORS
+Rainer Zimmermann, zimmerm@mathematik.uni\-marburg.de
+Alain Knaff, Alain.Knaff@inrialpes.fr
+
+.SH SEE ALSO
+mount(1), mmount(1), superformat(1), floppycontrol(1), setfdprm(1)

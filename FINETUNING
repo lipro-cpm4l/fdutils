@@ -1,0 +1,73 @@
+ This file contains several hints to fine tune the floppy driver. Most
+tuning is done by floppycontrol. These tuning commands have to be
+issued after each reboot, so I suggest that you put these commands
+into your /etc/rc file [exact name is system dependent], once you have
+found a suitable setting. Read also the floppycontrol manpage for more
+info.  All floppycontrol commands also have a drive parameter (not
+listed below). I.e. in order to chose a null select delay for drive
+one, use 'floppycontrol --select_delay 0 /dev/fd1'. Some of these
+options may not yet be available with the mainline kernel. In that
+case, get the alpha or beta patches from
+ftp.imag.fr:pub/Linux/ZLIBC/floppy/ALPHA/fdp1.1.??-????.diff.gz
+
+ 1. IBM thinkpads. These notebooks use an inverted convention for the
+disk change line. Use 'floppycontrol --inverted_dcl' to use the floppy
+drive on these machines.
+
+ 2. Broken disk change line. If your drive fails to notice disk
+changes, or notices disk changes where there aren't any, set this flag
+with 'floppycontrol --broken_dcl'. If you have dcl problems, but don't
+have any under DOS or with pre-1.1.41 kernels, mail me.
+
+ 3. Autodetection. The autodetection sequence is the order in which the
+different formats are probed. You may change this sequence with
+floppycontrol --autodetect <sequence>. Sequence is a comma separated
+list of format indexes. No space should occur in this list.
+ I suggest you put those formats you most frequently use near the
+beginning of the list. However, certain constraints should be
+respected:
+  a. formats which only differ in the number of tracks cannot be
+distinguished by autodetection.
+  b. if you have two formats which only differ in the number of
+sectors, you have to put the format with most sectors as first into
+the list, and add the read-track flag to this format. Indeed, a format
+with too many sectors always fits. (the t flag is set for a given
+format by typing a t after its index, such as in 
+ 'floppycontrol --autodetect 7,4t,25,22,21,31' )
+
+ 4. Speeding up concurrent access. If the select_delay of all drives
+is 0, the floppy driver probes all other drives for disk change during
+an access. This speeds up buffer io to these other drives. By default,
+the select_delay is not zero, because certain Dutch drives need it
+that way. Most modern drives however can do with a select delay of
+zero. Use 'floppycontrol --select_delay 0' on all drives. If after
+setting this delay to zero, your drives fails to detect disk changes,
+or complains wrongly about absent or changed disks, set the select
+delay back to 2.
+
+ 5. Silent disk change line clearing. If you have sufficiently recent
+drives, you may switch this on with 'floppycontrol --silent_dcl_clear'.
+ On most drives, the disk change line can only be cleared by seeking
+the drive head. The line has to be cleared before each access in order
+to be able to detect further disk changes. On most drives, this line
+can also be cleared by seeking the drive to track -1. This is silent.
+Don't enable this if you also use ftape, because tape drives might
+understand this as a tape command.
+ Now try this experiment: mdir a: , change the disk, and type again
+mdir a: . If for the second time your drive still makes noise, disable
+the feature with 'floppycontrol --noisy_dcl_clear'. Disable it also if
+your drives complains wrongly about absent or changed disks.
+
+ 6. Spin down time. If you often do several floppy commands in a row
+(such as mcopy immediately after mdir), and if you type slowly, it
+might be interesting to increase the spindown delay to make sure the
+motor is still spinning for the next command. Do this with
+'floppycontrol --spindown 1000'. (The spindown delay is expressed in
+units of 1/100 seconds.) If you also use ftape, don't use a high
+value, as the floppy driver locks the fdc while the floppy is still
+spinning.
+
+ 7. Timeout. If you have many formats in your autodetection list, I
+recommend setting the timeout to a higher value with 
+ 'floppycontrol --timeout 1000'. (The timeout is expressed in units of
+1/100 seconds.)

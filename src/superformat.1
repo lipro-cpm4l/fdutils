@@ -1,0 +1,372 @@
+.TH SUPERFORMAT 1 "17nov1995" "fdutils" "fdutils"
+.de BP
+.sp
+.ti \-.2i
+\(**
+..
+.SH NAME
+superformat \- format floppies
+.SH SYNOPSIS
+.hy 0
+.na
+.B superformat
+\fB\-d\ \fIdrive\fR
+[\fB\-D\ \fIdos-drive\fR]
+[\fB\-\-dd\fR]
+[\fB\-\-hd\fR]
+[\fB\-\-2m\fR]
+[\fB\-\-no2m\fR]
+[\fB\-s\ \fIsectors\fR]
+[\fB\-H\ \fIheads\fR]
+[\fB\-t\ \fItracks\fR]
+[\fB\-v\ \fIverbosity-level\fR]
+[\fB\-b\ \fIbegin-track\fR]
+[\fB\-e\ \fIend-track\fR]
+[\fB\-\-dosverify\fR]
+[\fB\-\-noverify\fR]
+[\fB\-\-verify_later\fR]
+[\fB\-S\ \fIsizecode\fR]
+[\fB\-G\ \fIformat-gap\fR]
+[\fB\-F\ \fIfinal-gap\fR]
+[\fB\-i\ \fIinterleave\fR]
+[\fB\-c\ \fIchunksize\fR]
+[\fB\-g\ \fIgap\fR]
+[\fB\-r\ \fIrate\fR]
+[\fB\-\-absolute-skew\ \fIabsolute-skew\fR]
+[\fB\-\-head-skew\ \fIhead-skew\fR]
+[\fB\-\-track-skew\ \fItrack-skew\fR]
+[\fB\-\-stretch\ \fIstretch-factor\fR]
+[\fB\-m\ \fImargin\fR]
+.ad b
+.hy 1
+.SH DESCRIPTION
+.B superformat
+is used to format disks with a capacity of up
+to 1992K HD or 3984K ED. When the disk is formatted,
+.BR mformat (1)
+is automatically called to put an msdos filesystem on it. You may ignore
+this filesystem, if you don't need it. Be aware, however, that the
+.B \-\-2m
+formats were specifically designed to hold an msdos filesystem, and
+take advantage from the fact that the msdos filesystem uses redundant
+sectors on the first track (the FAT, which is represented twice). The
+second copy of the FAT is \fInot\fR represented on the disk.
+.SH OPTIONS
+Many options have a long and a short form.
+.TP
+.B \-h \-\-help
+Print the help.
+.TP
+.BI "\-d" " drive" "  \-\-drive" " drive"
+Selects the drive to format.  The default is drive 0
+.RI ( /dev/fd0 ).
+.TP
+.BI "\-D" " drive" "  \-\-dosdrive" " dos\-drive"
+Selects DOS drive letter for
+.BR mformat (1).
+.RI ( a:
+or
+.IR b: ).
+The colon may be omitted.  The default is derived from the minor device
+number.  If the drive letter cannot be guessed, and is not given on the
+command line,
+.BR mformat
+is skipped.
+.TP
+.BI "\-v" " verbosity\-level" "  \-\-verbosity" " verbosity\-level"
+Sets the verbosity level. 1 prints a dot for each formatted track. 2
+prints a changing sign for each formatted track (- for formatting the
+first head, = for formatting the second head, x for verifying the
+first head, and + for verifying the second head). 3 prints a complete
+line listing head and track. 6 and 9 print debugging information.
+.TP
+.B "\-\-dd"
+Format a double density disk.
+.TP
+.B "\-\-hd"
+Format a high density disk.
+.TP
+.B "\-2" " \-\-2m"
+Format a high capacity disk readable by the 
+.B 2mf
+program.
+.I "Only use these disks for MS\-DOS filesystems."
+This option is automatically selected when you attempt to format a disk
+with bigger sectors than usual. If you don't want this (for reliability
+reasons), use the
+.B \-\-no2m
+option.
+.TP
+.B "\-1" " \-\-no2m"
+Don't use 2m format.
+.TP
+.BI "\-t" " tracks" "  \-\-tracks" " tracks"
+Describes the number of tracks. Default is 40 or 80, depending on the
+drive type or the density.
+.TP
+.BI "\-H" " heads" "  \-\-heads" " heads"
+Describes the number of heads. Default is 2.
+.TP
+.BI "\-s" " sectors" "  \-\-sectors" " sectors"
+Describe the number sectors.
+.I sectors
+is not the number of physical (big) sectors, but rather the number of
+equivalent 512-byte sectors. If you ask for more sectors than fit on
+the disk,
+.B superformat
+groups them automatically into bigger sectors (as long as this is
+possible), unless you also specify the
+.B sizecode
+option.
+.TP
+.B "\-B" " \-\-dosverify"
+Verifies the disk using the
+.BR mbadblocks (1)
+program. 
+.B mbadblocks 
+marks the bad sectors as bad in the FAT.  The advantage of this is
+that disks which are only partially bad can still be used for MS\-DOS
+filesystems.
+.TP
+.B "\-V" " \-\-verify_later"
+Verifies the whole disk at the end of the formatting process instead
+of at each track. Verifying the disk at each track has the advantage
+of detecting errors early on.
+.TP
+.B "\-f" " \-\-noverify"
+Skips the verification altogether.
+.SH ADVANCED OPTIONS
+These options have sensible default values, so normally you won't
+need to set them manually.
+.TP
+.BI "\-b" " begin_track" "  \-\-begin_track" " begin_track"
+Describes the track where to begin formatting.  This is useful if the
+previous formatting failed halfway through.  The default is 0.
+.TP
+.BI "\-e" " end_track" "  \-\-end_track" " end_track"
+Describes where to stop formatting.
+.B end_track
+is the last track to be formatted plus one. This is mainly useful for
+testing purposes. By default, this is the same as the total number of
+tracks.  When the formatting stops, the final skew is displayed (to be
+used as absolute skew when you'll continue).
+.TP
+.BI "\-S" " sizecode" "  \-\-sizecode" " sizecode"
+Set the sector size to be used. The sector size is 128 * 2 ^
+.IR sizecode .
+Sector sizes below 512 bytes are not supported, thus sizecode must be at
+least 2. By default 512 is assumed, unless you ask for more sectors than
+would fit with 512 bytes.
+.TP
+.BI "\-\-stretch" " stretch"
+Set the stretch factor. The stretch factor describes how many physical
+tracks to skip to get to the next logical track (2 ^
+.IR stretch ).
+On double density 5\(14 disks, the tracks are further apart from each
+other.
+.TP
+.BI "\-G" " fmt_gap" "  \-\-format_gap" " fmt_gap"
+Set the formatting gap. The formatting gap tells how far the sectors
+are away from each other. By default, this is chosen so as to evenly
+distribute the sectors around the circle.
+.TP
+.BI "\-F" " final_gap" "  \-\-final_gap" " final_gap"
+Set the formatting gap to be used after the last sector.
+.TP
+.BI "\-i" " interleave" "  \-\-interleave" " interleave"
+Set the sector interleave factor.
+.TP
+.BI "\-c" " chunksize" "  \-\-chunksize" " chunksize"
+Set the size of the chunks. The chunks are small auxiliary sectors
+used during formatting. They are used to handle heterogeneous sector
+sizes (i.e. not all sectors have the same size) and negative
+formatting gaps.
+.TP
+.BI "\-r" " rate" "  \-\-rate" " rate"
+Set the raw data transfer rate (which is smaller for double density
+disks than for high density disks).
+.TP
+.BI "\-g" " gap" "  \-\-gap" " gap"
+Set the read/write gap.
+.TP
+.BI "\-m" " margin" "  \-\-margin" " margin"
+Changes the number of bytes left at the end of the physical track. By
+default, this is 35. Setting this to a smaller value may make disk
+accesses unbearably slow.
+.SH SECTOR SKEWING
+In order to maximize the user data transfer rate, the sectors are
+arranged in such a way that sector 1 of the new track/head comes under
+the head at the very moment when the drive is ready to read from that
+track, after having read the previous track. Thus the first sector of
+the second track is not necessarily near the first sector of the first
+track.  The skew value describes for each track how far sector number
+1 is away from the index mark. This skew value changes for each head
+and track. The amount of this change depends on how fast the disk
+spins, and on how much time is needed to change the head or the track.
+.TP
+.BI "\-\-absolute_skew" " absolute_skew"
+Set the absolute skew. (The skew value used for the first formatted
+track)
+.TP
+.BI "\-\-head_skew" " head_skew"
+Set the head skew. (The skew added for passing from head 0 to head 1)
+.TP
+.BI "\-\-track_skew" " track_skew"
+Set the track skew. (The skew added for seeking to the next track)
+.PP
+Example: (absolute skew=3, head skew=1, track skew=2)
+.nf
+track 0 head 0: 4,5,6,1,2,3,	(skew=3)
+track 0 head 1: 3,4,5,6,1,2,	(skew=4)
+.sp 1
+track 1 head 0: 1,2,3,4,5,6,	(skew=0)
+track 1 head 0: 6,1,2,3,4,5	(skew=1)
+.sp 1
+track 2 head 0: 4,5,6,1,2,3,	(skew=3)
+track 2 head 0: 3,4,5,6,1,2,	(skew=4)
+.fi
+.SH EXAMPLES
+Assume that drive 0 is a 3\(12 and drive 1 a 5\(14.
+.TP
+.B superformat
+Format 1440K disk in drive 0.
+.TP
+.B superformat \-d /dev/fd1
+Format a 1200K disk in drive 1.
+.TP
+.B superformat \-d /dev/fd1 -s 18
+Format a 1440K disk in drive 1.
+.TP
+.B superformat \-\-dd
+Format a 720K disk in drive 0.
+.TP
+.B superformat \-s21 \-t83
+Format a 1743K disk in drive 0 (83 tracks times 21 sectors).
+.TP
+.B superformat \-s24 \-t83
+Format a 1992K disk in drive 0 (83 tracks times 24 "sectors").
+There won't be 24 physical 512-byte sectors on the disk, but rather
+one 8192-byte sector and a 4096-byte sector.
+.B superformat
+will figure
+out that this is the only format which fits, with that many "sectors".
+24 sectors is the absolute maximum, and might not work everywhere.
+.TP
+.B superformat \-s23 \-\-2m
+Format a 1840K disk in drive 0. It will have 5 2048-byte sectors,
+one 1024-byte sector, and one 512-byte sector per track.
+.PP
+All these formats can be autodetected by mtools, using the floppy driver's
+default settings.
+.SH THE FORMATS
+For this discussion, let's assume you are using high density 3\(12
+disks.  Formats can be distinguished by the number of sectors, the
+size of these sectors and the number of tracks. Normally, you need not
+indicate the size of the sectors;
+.B superformat
+figures this out for you.
+.SS More Sectors
+With
+.BR superformat ,
+it is possible to put more sectors than usual on the disk, just by
+squeezing them closer together. However, for none of the formats is a
+bigger byte density used; i.e. within a sector, each byte takes as much
+space as with the normal format. Only the gaps between the sectors have
+become smaller. Formats of up to 20 sectors (17 on a 5\(14 disk) can
+be obtained. These formats are as fast and as reliable as the standard
+format. These formats can be read under MS DOS with various shareware
+utilities, and on SunOS with the
+.B mtools
+included in this package (define
+.BR -DSPARC_ODD ).
+.SS Sector Interleaving
+It is possible to fit 21 sectors (or 18 with a 5\(14 drive) on one
+track by making the gaps between the sectors even smaller. With this
+format, the sectors are so close together that the floppy controller
+is still processing the previous sector when it reaches the header of
+the next sector. Thus it misses the next sector, and must wait for one
+more turn, until it shows up again. That's 200 milliseconds per turn,
+and this would add up to 4.4 seconds for all sectors! To avoid this,
+sectors are interleaved, i.e.  the second sector does not immediately
+follow the first one. You get:
+.nf
+    1,11,2,12,3,13,4,14,5,15,6,16,7,17,8,18,9,19,10,20
+.fi
+Now, the disk is only twice slower instead of 22 times slower.
+.PP
+Interleave is also handled automatically by
+.BR superformat .
+.PP
+Although this format is twice as slow as the previous formats, it is as
+reliable, and can also be read under MS DOS and SunOS.
+.SS Bigger Sectors
+By making bigger sectors, i.e., grouping smaller logical sectors in
+one big sector, more data fits on the disk, because less space is
+taken up by the sector headers. (The header of a big sector takes as
+much space than the header of a small sector, but there are less of
+them.)
+.B superformat
+automatically groups sectors together when needed.
+The format with 11 1024-byte sectors is again as fast as the standard
+format. However, it is less reliable, because a failure is likely to
+erase a whole sector. So, instead of losing 512 bytes at once (normal
+sector size), you might lose 1024 byte at once. The biggest format
+that you can obtain with this method has the equivalent of 11264 byte
+per track, split up in 11 sectors of 1024 bytes each. Unfortunately,
+these formats can't be read neither under MS\-DOS nor under SunOS.
+.SS Mixing Sector Sizes on the Same Track
+It is possible to to put sectors of different sizes on one track.
+The biggest format that you can obtain with this method has the
+equivalent of 12288 byte per track, split up in a 8192 byte sector and
+a 4096 byte sector. Mixing sector sizes does not introduce a new
+unreliability.
+.SS 2M Formats
+These formats are essentially the same as the big sector formats, but
+their first track is formatted using 18 normal sized sectors. These
+disks can be read and written with the 2m20 utility under DOS. These
+disks store only one physical copy of the FAT, and might be less
+reliable for this reason.  If you lose this only copy of the FAT,
+there is no backup, as is the case on normal disks.
+.PP
+Only one FAT is stored because the first track appears to have 18
+sectors to to the applications, and the second copy of the FAT would
+fall into the missing sectors. That's also the reason why you
+shouldn't use these formats to store anything else than a DOS
+filesystem.
+.PP
+The 2m option is automatically selected for disks which have a bigger
+sector size than usual. If you don't want this (for reliability reasons),
+select the 
+.B \-\-no2m
+option.
+.PP
+The advantage of 2m is that it makes autodetection easier. The first
+track can be read using the usual parameters, and its boot sector
+contains the necessary information needed to read the other sectors.
+Thus, autodetection only needs to probe for the standard formats (one
+for ED, one for HD and one for DD). One of these formats allows to
+read the boot sector, and mtools uses the information contained therein
+to access the rest of the disk.
+.SH DIAGNOSTICS
+.TP
+.B "FDC busy, sleeping for a second"
+When another program accesses a disk drive on the same controller as
+the one being formatted,
+.B superformat
+has to wait until the other access is finished.  If this happens,
+check whether any other program accesses a drive (or whether a drive
+is mounted), kill that program (or unmount the drive), and the format
+should proceed normally.
+.SH BUGS
+Opening up new window while superformat is running produces overrun
+errors. Those are however detected, and the operation is retried.
+.SH FILES
+/dev/fd* - Floppy devices
+.SH AUTHOR
+Alain Knaff, Alain.Knaff@inrialpes.fr
+.SH SEE ALSO
+.BR fdrawcmd (1),
+.BR floppycontrol (1),
+.BR getfdprm (1),
+.BR mtools (1),
+.BR xdfcopy (1)
