@@ -1,3 +1,6 @@
+#ifndef __FDUTILS_H
+#define __FDUTILS_H
+
 #include <assert.h>
 /* This file contains common structures understood by several of the
  * fdutils
@@ -22,3 +25,13 @@ int measure_raw_capacity(int fd, int dn, int rate,
 #define SafeNew(type) ((type *)(safe_malloc(sizeof(type))))
 void *safe_malloc(size_t size);
 void *safe_calloc(size_t nmemb, size_t size);
+
+#ifndef FD_SWAPSIDES
+#define FD_SWAPSIDES 2
+#endif
+
+#ifndef FD_ZEROBASED
+#define FD_ZEROBASED 4
+#endif
+
+#endif

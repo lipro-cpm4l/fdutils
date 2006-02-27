@@ -136,15 +136,11 @@ void print_params(drivedesc_t *drivedesc,
 	if(level >= LEV_EXPL || (ft->track != 80 && ft->track != 40))
 		print("cyl=%d", ft->track);
 
-#ifdef FD_SWAPSIDES
 	if(ft->stretch & FD_SWAPSIDES)
 		print("swapsides",0);			
-#endif
 
-#ifdef FD_ZEROBASED
 	if(ft->stretch & FD_ZEROBASED)
 		print("zerobased",0);			
-#endif
 
 
 	if(ft->rate & FD_2M)

@@ -1,3 +1,5 @@
+v20060227
+	* Fixed "zero-based" flag
 v20050303
 	* Fixed instant verification in superformat (now based on
 	FDRAWCMD, rather than VFS' read which is plagued by excessive
