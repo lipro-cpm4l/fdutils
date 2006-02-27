@@ -805,16 +805,12 @@ int main(int argc, char **argv)
 				break;
 		}
 		stretch = geometry.stretch & 1;
-#ifdef FD_ZEROBASED
 		if(geometry.stretch & FD_ZEROBASED) {
 			zeroBased = 1;
 		}
-#endif
-#ifdef FD_SWAPSIDES
 		if(geometry.stretch & FD_SWAPSIDES) {
 			swapSides = 1;
 		}
-#endif
 		mask |= SET_SECTORS | SET_CYLINDERS | 
 			SET_SIZECODE | SET_2M | SET_RATE;
 	} else {
@@ -868,12 +864,6 @@ int main(int argc, char **argv)
 	}
 
 	fd[0].zeroBased = zeroBased;
-#ifndef FD_ZEROBASED
-	if(zeroBased) {
-		noverify = 1;
-	}
-#endif
-	
 	fd[0].swapSides = swapSides;
 		
 	if (cylinders > fd[0].drvprm.tracks) {

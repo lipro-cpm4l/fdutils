@@ -221,7 +221,7 @@ Then we redefine the geometry of the new device:
 setfdprm /dev/fd0H1520 1520 19 2 80 0 0x1b 0 0xcf 0x6c
 @end example
 
-@strong{Note:} This redefines the geometry for any device node with the
+@strong{NB:} This redefines the geometry for any device node with the
 same format number, not just the new node.
 
 The new geometry is only valid until the next reboot (or removal of the

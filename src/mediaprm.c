@@ -81,6 +81,7 @@ static keyword_t ids[]= {
 
 	{ "swapsides", F_SWAPSIDES, 1},
 	{ "zerobased", F_ZEROBASED, 1},
+	{ "zero-based", F_ZEROBASED, 1},
 
 	{ "gap", F_GAP, 0},
 

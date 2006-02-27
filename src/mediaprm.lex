@@ -12,7 +12,7 @@ static int col;
 %option pointer
 
 fid	[^\"]+
-vid     [A-Za-z_][A-Za-z0-9_]*
+vid     [A-Za-z_][A-Za-z0-9_-]*
 number	(0x[a-zA-Z0-9]+|-?[0-9]+)(KB|k|b)?
 
 %%
@@ -37,6 +37,8 @@ alias=\042{fid}\042 {
 }
 
 swapsides |
+zerobased |
+zero-based |
 mss      |
 2m	 |
 2M	 |
