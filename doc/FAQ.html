@@ -1,0 +1,572 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/fdutils.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
+    <title>Frequently asked question about the Linux floppy driver</title>
+    <META NAME="description" CONTENT="Fdutils - Linux floppy tuning utilities">
+    <META NAME="keywords" CONTENT="fdutils, linux, vgacopy, xdf, 2m, 1992k, 199
+2K, , CP/M, cpm, legacy, proprietary, embedded, luxembourg">
+    <META NAME="Author" content="Alain Knaff">
+  </head>
+
+  <body bgcolor="#ffffff">
+<base href="http://fdutils.linux.lu">
+
+<div id="frame">
+  <div id="logobar">
+
+  <table border=0 width="100%">
+   <tr>
+    <td rowspan=2 valign="top">
+     <A HREF="http://www.transfair.lu/petition/campcafe.html"><img src="http://alain.knaff.lu/BigNoise.jpg" border="0" alt="Join the Big Noise! Pay fair prices to coffee growers" width="239" height="145"></A>
+    <td align="left">
+     <center><a href="http://swpat.ffii.org/"><img src="images/banner09.png" alt="No Software Patents!" width=468 height=60></a></center><p>
+  <tr>
+    <td><h1 class="globaltitle">Fdutils</h1>
+  </table>
+  </div>
+
+  <div id="leftcolumn">
+    <!-- the navigation bar -->
+    <div id="navbar">
+
+    <center><a href="http://alain.knaff.linux.lu">
+    <img src="images/home.gif" border=0 alt="[To my homepage]" width="31" height="24"></a></center>
+
+
+<ul>
+ <li><a href="index.html">Introduction</a>
+ <li><a href="download.html">Downloads</a>
+ <li><a href="mailing.html">Mailing list/doc</a>
+ <li><a href="faq.html#start">Frequently asked questions</a>
+ <li><a href="disk-id.html">How to identify<br>an unknown disk</a>
+</ul>
+
+    </div> <!-- navbar -->
+    <!-- the Lilux penguin -->
+    <div id="penguin">
+	    <center><a class="picture" href="http://www.lilux.lu" target="_blank"><img src="images/lilux_01.gif" width="90" height="104" border="0" alt="lien vers http://www.lilux.lu"></a></center>
+	    <center><a class="picture" href="http://validator.w3.org/check/referer"><img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a></center>
+
+    </div> <!-- penguin -->
+
+<br>
+
+<center><a href="http://www.netcraft.com/cgi-bin/Survey/whats?host=fdutils.linux.lu">
+<img src ="images/powered.gif" width=90 height=53 border=0 alt="Powered By ...?">
+</a></center>
+
+<br>
+
+<center><A HREF="http://www.anybrowser.org/campaign/">
+<IMG SRC="images/viewed-globe.gif" ALT="Content Enhanced - Use Any Browser" BORDER="0" ALIGN="MIDDLE" WIDTH="147" HEIGHT="42">
+</A></center>
+
+    </div> <!-- leftcolumn -->
+    <div id="contentright">
+<a name="start"></a>
+
+<h1>Frequently asked question about the Linux floppy driver</h1>
+
+<div align=justify>
+
+Most of the floppy utilities mentioned in this FAQ can be found in the
+<a href="../fdutils/index.html">fdutils</a> package. For others,
+consult the lsm or archie. Alpha releases of fdutils are named
+fdutils-<em>version</em>-<em>YearMonthDay</em>..diff.gz
+
+<ul>
+
+<li><a href="#access"> How do I access floppy drives in Linux?</a>
+
+<li><a href="#bugs"> How should I report bugs?</a>
+
+<li><a href="#fdformat-new-fmt"> I can't fdformat the new formats.</a>
+
+<li><a href="#mtools-12-bit-warning"> Mtools says "12 bit FAT on a:
+sure?" when trying to access an ED disk (or a similar message) when
+formatting a disk)</a>
+
+<li><a href="#mtools-wrong-fat-encoding-warning"> Mtools says
+"fat_read: Wrong FAT encoding 12 16" (or similar) when accessing a
+disk formatted with the old mtools.</a>
+
+<li><a href="#mtools-2M"> How should I describe the new 2m formats in /etc/mtools.conf?</a>
+<li><a href="#mtools-xdf"> How should I describe the Xdf formats in /etc/mtools.conf?</a>
+<li><a href="#2m-minor"> Which minor device number should I use for 2m formats?</a>
+<li><a href="#thinkpad"> I have an IBM Thinkpad :-(</a>
+<li><a href="#floppy-minor"> What are the minor device numbers for the floppy device nodes?</a>
+<li><a href="#floppy-names"> What are the recommended names for the floppy device nodes?</a>
+
+<li><a href="#no-such-device-or-address"> I get "No such device or
+address" errors for various floppy related commands.</a>
+
+<li><a href="#omnibook"> I have a HP Omnibook 6000 :(</a>
+<li><a href="#floppyless-install"> I can't get my floppy drive going,
+	    is there another method to install?</a>
+<li><a href="#two-fdc"> Is it possible to use two floppy disk controllers under Linux?</a>
+<li><a href="#boot-special-fmt"> Is it possible to boot off these special format disks?</a>
+<li><a href="#unable-to-allocate-dma"> I get "Unable to allocate DMA memory" messages when trying to use
+the floppy.</a>
+<li><a href="#millenia-transport"> I have a Micron Millenia Transport.</a>
+</ul>
+
+<hr>
+
+<a name="access"></a>
+<h4> How do I access floppy drives in Linux?</h4>
+
+ Either use mtools or mount the disk. Mtools can be found <a
+href="http://mtools.linux.lu/mtools-3.9.10.tar.gz">here</a>.<p>
+ 
+ It is a collection of utilities to access DOS disks. These utilities
+behave mostly like their DOS counterparts, i.e. mdir is like dir,
+mcopy is like copy, etc. Specifics are in the manpages.<p>
+
+ To mount a disk on /mnt, use the following command lines:<p>
+<pre><code> mount -t msdos /dev/fd0 /mnt
+</code></pre>
+
+ The directory /mnt must already exist: 
+<pre><code> mkdir /mnt
+</code></pre>
+
+<a name="bugs"></a>
+<h4> How should I report bugs?</h4>
+
+ If you have a question or a bug report about the floppy driver, mail
+me at alain @ linux.lu . If you post to the news, use
+preferably one of the groups comp.os.linux.help (for questions) or
+comp.os.linux.hardware (for bug reports). As the volume in these
+groups is rather high, be sure to include the word "floppy" (or
+"FLOPPY") in the subject line.<p>
+
+<ul>
+<li> In case of a kernel panic, or OOPS, please note the EIP, and the
+values on the stack (some of these are the calling functions). Then
+look up those values in your zSystem.map (or System.map)
+
+<li> In case of a lock-up (operation never completes), try to figure
+out what operations are needed to reproduce it. (If you don't succeed
+in reproducing it, please mention the floppy operations you remember.)
+
+<li> If you can't access a disk, include the output of
+
+<pre><code> floppycontrol -pP --printfdcstate</code></pre>
+
+into your bug report.
+
+<li> If something weird happens during boot (lock-up, no floppy drives
+accessible, trouble with unrelated hardware), include a listing of the
+messages at boot. (You can obtain this with dmesg. If the boot doesn't
+complete only note the most important messages down [few lines before
+the crash, and floppy related lines]).
+
+<li> In case of I/O errors, first switch the error reporting threshold
+to 0. If that doesn't yield any more error messages, switch on full
+debugging with <code> floppycontrol --debug</code> and <code>
+floppycontrol --reporting 0</code>. Note that <code> floppycontrol
+--debug</code> generates a <strong>huge</strong> output. Thus, try
+first with <code>--reporting</code>. Please note also that both
+commands are drive specific, and that the default drive is
+/dev/fd0. So, if you experience a problem on /dev/fd1, use <code>
+floppycontrol --debug -d/dev/fd1</code>.
+
+Then include the kernel messages as well as the application messages
+with your bug report. If you're using X windows, you won't see the
+kernel messages appear in your xterm window. Use dmesg to get
+them. dmesg includes all messages since boot (or as many as fit in the
+buffer, if there are too many messages). Use dmesg also before
+executing the command, in order to find out which messages were
+generated by the command, and which ones were generated by earlyer
+commands. Alternatively, you may get the <a
+href="misc/user-printk.tgz">user-printk</a>
+module which allows you to insert "comments" into the stream of
+console messages.
+
+<li> Be aware that after a crash, no user program runs, not even
+syslog.  If you direct your kernel messages only to syslog, you may
+see nothing at all in the log file after rebooting. Thus, I recommend
+directing the messages also to the console, and noting them down. If
+there are more than a few lines, note only the last few lines, and the
+addresses of EIP and the stack trace, if applicable. Obviously, this
+only applies when investigating bugs which lead to a crash. If no
+crash happens (like for instance read errors), syslog is actually an
+useful and beneficial feature, as it is able to keep far more messages
+than fit into dmesg's buffer.
+
+<li> If you have other patches in the kernel, report them (especially
+ftape). If it is easy enough to undo these other patches, please try
+whether the problem happens without them.
+
+<li> Be sure to include <em>complete</em> command lines of the floppy
+commands which led to the problem, as well as a history of the disk
+changes.
+
+<li> Is the problem repeatable?
+
+<li> If you notice that the problem is very time dependent, try to
+find out if there is any correlation between the occurrence of the
+problem, and the state of the drive LED.
+
+<li> If the problem is that the drive becomes inaccessible, but
+everything else just works fine, try to find out the following:
+<ul>
+<li> Are all floppy drives inaccessible?
+<li> Does the drive LED stay on?
+<li> Does the drive make any noises?
+
+<li> Do all floppy related commands fail, or only those that try to
+actually read or write to the drive. In particular, what does
+<code>floppycontrol -P</code> do?
+
+</ul>
+
+<li> Give some description of your computer! Is it a Laptop? A
+particularly slow computer (386 SX)? PCI based?
+
+<li> If you can't supply all these items, go ahead anyways, I want
+just to make sure you aren't forgetting anything.
+</ul>
+
+<a name="fdformat-new-fmt"></a>
+<h4> I can't fdformat the new formats.</h4>
+
+ Fdformat is considered obsolete. Use superformat instead.<p>
+
+<a name="mtools-12-bit-warning"></a>
+<h4> Mtools says "12 bit FAT on a: sure?" when trying to access an ED	disk (or a similar message) when formatting a disk</h4>
+
+ Some ED (extra density) disks use 16 bit FATS. The FAT type (12 or 16
+ bit) is described in the configuration file (/etc/mtools or
+ ~/.mtoolsrc). It is the first number. Example:
+
+<pre><code>A /dev/fd0 12 0 0 0
+           ^^ 12 bit FAT
+</code></pre>
+<br>
+
+<table cellpadding=1 border=0>
+
+<tr><td align=right> 12</td><td>means</td><td>12 bit FAT</td></tr>
+
+<tr><td align=right>16</td><td>means</td><td>16 bit FAT</td></tr>
+
+<tr><td align=right>0</td><td>means</td><td>"use whatever is appropriate"</td></tr>
+
+<tr><td align=right>-12</td><td>means</td><td>12 bit FAT, even if it looks fishy</td></tr>
+<tr><td align=right>-16</td><td>means</td><td>16 bit FAT, even if it looks fishy</td></tr>
+</table>
+
+<p>
+
+ CAUTION: If you have an /etc/mtools file AND an ~/.mtoolsrc file, the
+~/.mtoolsrc file overrides /etc/mtools. The home directory used for
+~/.mtoolsrc is $HOME, if that is undefined, it is derived from
+$LOGNAME, and if that's undefined too, it is derived from getlogin,
+and finally from getuid.<p>
+ There are also compiled-in defaults, which are used if neither
+/etc/mtools, nor ~/.mtoolsrc are found.<p>
+
+<a name="mtools-wrong-fat-encoding-warning"></a>
+<h4> Mtools says "fat_read: Wrong FAT encoding 12 16?" (or similar) when accessing a disk formatted with the old mtools.</h4>
+
+ mtools does some sanity checks on the size of the
+FAT. Unfortunately, these are too strict for certain disks formatted
+with the old mtools, and for hard disk partitions formatted by DOS
+6, and probably for other conditions as well.  Define the environment
+variable MTOOLS_FAT_COMPATIBILITY to override this check.<p>
+(to do this, type 
+
+<pre><code> setenv MTOOLS_FAT_COMPATIBILITY 1</code></pre>
+
+in csh or tcsh, and 
+
+<pre><code> export MTOOLS_FAT_COMPATIBILITY=1</code></pre>
+
+in sh/bash/zsh/...)<p>
+
+<a name="mtools-2M"></a>
+<h4> How should I describe the new 2m formats in /etc/mtools?</h4>
+
+Support for both disk drives a: and b: for all formats (except Xdf) is
+already built into the new version of mtools (3.9.10). Definitions for
+new drive letters no longer override these default definitions.<p>
+
+ Just for the record, here are definitions to mimic the standard
+behavior:
+<pre><code> drive a: file="/dev/fd0"
+ drive b: file="/dev/fd1"
+</code></pre>
+
+<a name="mtools-xdf"></a>
+<h4> How should I describe the Xdf formats in /etc/mtools?</h4>
+
+ The following /etc/mtools lines allow to access all disks, including
+Xdf:
+<pre><code><br>
+ drive a: file="/dev/fd0" use_xdf=1
+ drive b: file="/dev/fd1" use_xdf=1
+</code></pre>
+
+
+ However, the use_xdf flag slightly slows down initial access to non
+Xdf disks.<p>
+
+<a name="2m-minor"></a>
+<h4> Which minor device number should I use for 2m formats?</h4>
+
+ 2m formats don't have a minor number associated with them, they can
+only be accessed using the "generic " devices (i.e. /dev/fd0,
+/dev/fd1).<p>
+
+<a name="thinkpad"></a>
+<h4> I have an IBM Thinkpad :-(</h4>
+
+ Don't panic. Add the line 'floppy=thinkpad' to your lilo boot
+parameters.  This can be entered at the lilo prompt after the name of
+the kernel image. It can also be specified in the lilo.conf file, by
+adding the following line:
+<pre><code> append = "floppy=thinkpad"
+</code></pre>
+
+ With some IBM thinkpads, it's also possible to make their floppy
+drive work by toggling the "FLOPPY" option in CMOS from "auto" to
+"on". However, apparently this CMOS option is not available on all
+models.<p>
+
+ On some models, both options may be required, on others, none are
+required.<p>
+
+ More info about IBM Tinkpads on Linux can be found <a
+ href="http://peipa.essex.ac.uk/tp-linux/tp-linux.html">here</a>.
+
+<a name="floppy-minor"></a>
+<h4> What are the minor device numbers for the floppy device nodes?</h4>
+
+ The major device number for the floppy drives is 2. The minor device
+number is calculated using the following formula:
+<pre><em>    minor_device = format_nr * 4 + 128 * fdc_nr + unit_nr
+</em></pre>
+ (fdc_nr identifies the floppy disk controller, and unit_nr identifies
+which drive on the floppy disk controller to be used) format_nr
+identifies the  (see the README file in fdutils for more
+details). If format_nr is 0, the device is an autodetection device.
+ Use the MAKEFLOPPIES script included in the fdutils package to
+automatically create the needed devices.<p>
+
+<a name="floppy-names"></a>
+<h4> What are the recommended names for the floppy device nodes?</h4>
+
+ Floppy drives are named
+ fd <em>drive_nr</em> <em>type</em> <em>max_capacity</em>.<p>
+
+<em>Drive_nr</em> identifies the drive. It ranges from 0 to 3 for
+drives connected to the first controller, and from 4 to 7 for drives
+connected to the second controller.<p>
+
+<em>Type</em> is the type of the drive or media. The exact meaning of
+this (drive or media) is still being discussed. Traditionally, this
+letter described the type of the drive (density, 5 1/4 or 3
+1/2). Lower case letters described 5 1/4 drives, and upper case
+letters describe 3 1/2 drives. h or H meant high density drives, d or
+D meant double density drives.<p> Initially this letter described the
+type of the <em>drive</em> and not the type of the media in the
+drive. For instance, a  meant for accessing 720k double density
+disks in a high density drive was called h720k and not d720k. The
+reason for this is that for 5 1/4 drives the parameters for accessing
+a disk do not only depend on the  of the disk, but also on the
+drive type. The  of the disk is already implied by the capacity,
+and so the type letter is used to describe the type of the
+<em>drive</em>.<p> However, this dependency on the drive type only
+exists for 5 1/4 drives.  For 3 1/2 drives, this is not needed, and as
+3 1/2 drives are more frequent, people started forgetting about this,
+and understood that the letter described the <em>media</em>
+. When support for extra density drives was added to the kernel,
+people still used the name H1440 for accessing high density disks
+using their extra density drive. By the way, several distribution use
+this scheme.<p> In order to calm down the confusion, we propose to
+make the type letter again describe the type of the
+<em>drive</em>. However, all 3 1/2 drives are now described by a
+unique type letter: "u". This means universal (one letter fits all 3
+1/2 formats). Moreover the u resembles the Greek letter mu, as in
+microfloppy.<p> So the recommended name for a device node allowing to
+read 1440K disks in a 3 1/2 drive (no matter its density) is called
+u1440. Note that this is now lowercase.<p> However, this new
+convention is still subject to discussion.<p>
+
+ Capacity is the capacity of the media in K bytes. Fortunately, this
+leads to no ambiguity.<p>
+
+ Example:<p>
+  A device node allowing to use 720K 5 1/4 floppies in a high density
+drive connected as first unit to the second controller is called
+ /dev/fd4h720
+
+ Right now, MAKEFLOPPIES supports all three conventions (media, drive,
+and "u"), you may chose amongst them using command line switches.<p>
+
+
+14. My drive doesn't detect disk changes / When I type mdir a:, I get
+the directory listing of the previous disk.
+
+ This means that there is a problem with the disk change line. This
+problem may have several reasons:<p>
+ a. The disk change line is near the edge of the cable, and is the
+first line to suffer if the cable is not inserted straight. Press
+gently on the connectors of your floppy disk cable, in order to ensure
+that all wires make contact.<p>
+ b. Because the disk change line is near the edge of the cable, it is
+also the first line to suffer if the cable is damaged. If necessary,
+buy a new cable, they cost less than five dollars.<p>
+ c. On some drives, the disk change line may be chosen by jumper. Make
+sure that your floppy controller board and your drive agree which line
+is the disk change line. The usual location is line 34.<p>
+ d. Some older drives don't support the disk change line at all. In
+this case, you have to configure the floppy driver to work around the
+problem. Use 'floppycontrol --broken_dcl' to do this. Now the floppy
+driver assumes that the disk is changed whenever the device node is
+closed and then re-opened. This is less efficient, as it results in
+many useless cache flushes, so use it only if you really need it. This
+command has to be issued after each reboot, so I suggest you put it
+into your /etc/rc files.<p>
+
+<a name="no-such-device-or-address"></a>
+<h4> I get "No such device or address" errors for various floppy related commands.</h4>
+
+ This message can mean one of several things:<p>
+<ol>
+<li> No floppy driver is compiled into the kernel, and no floppy
+module is inserted. Kerneld may fail to automatically insert the
+floppy module when you upgraded your kernel without upgrading the
+module and moving it to a place where kerneld finds it.
+<li> The drive doesn't exist (mistyped drive name?)
+<li> No disk is in the drive.
+<li> A problem with the disk change line: The disk change line is not
+only used to detect disk changes, but also to tell whether there is a
+disk in the drive at all.) See question 13 for fixes for disk change
+line problem.
+<li> The floppy geometry is unknown for the getfdprm or fdformat
+programs. If you  a disk, rather use superformat.
+</ol>
+
+<a name="omnibook"></a>
+<h4> I have a HP Omnibook 6000 :(</h4>
+
+These laptops are supplied with a floppy-drive & fdc combo which
+doesn't support DMA :( Just add <code>floppy=nodma</code> to your Lilo
+command line.
+
+More info about the Omnibook and linux can be found <a href="
+http://www.cs.uiowa.edu/~mfleck/vision-html/omnibook.html">here</a>.
+
+<a name="floppyless-install"></a>
+<h4> I can't get my floppy drive going, is there another method to install?</h4>
+
+You may also install via hard disk and initrd. You need a big enough
+hard disk to do this (and it takes a little bit more time than the
+usual method). The following method presumes that it is possible to
+access the disk using DOS.<p>
+<ol>
+<li> Leave a small DOS partition (with enough spare space to hold the
+tar files from a few install disks). The bigger that partition is, the
+less come and goes from DOS are needed later. However, the bigger it
+is, the less space is available for Linux itself.
+<li> On a desktop computer, using Linux, make a filesystem on a
+smallish spare partition (for instance on your swap partition).  This
+filesystem should contain the files usually found on the install root
+disks. Add a '/linuxrc' file which contains the following lines:
+<pre><code>
+#!/bin/sh
+. etc/rc
+/bin/sh
+</code></pre>
+
+<li> On the desktop computer, unmount the filesystem, and dd it to a
+file. Compress the file, and copy it to a floppy disk.
+<li> Copy it to the Laptops hard disks.
+
+<li> Copy the tar files from the first few install disks to the laptops
+hard disk.
+<li> Use loadlin to boot Linux on the laptop (use the umsdos fs as
+root).
+<li> Start installation (tell the install program to look for the
+tar files on your hard disk).
+<li> If the first few files are installed, move back to DOS to erase
+the tar files which you already unpacked, and copy the next ones.
+<li> reboot Linux.
+<li> repeat until all is installed.
+<li> After installation, it is wise to leave that DOS partition, in
+case you need to bring more files later. 
+</ol>
+
+ Steps 5 to 10 may be skipped if your laptop has a CD-ROM drive :-)
+
+<a name="two-fdc"></a>
+<h4> Is it possible to use two floppy disk controllers under Linux?</h4>
+
+ YES. To use both controllers, boot the kernel with the lilo parameter
+'floppy=two_fdc'. This parameter can be given on the lilo prompt, just after
+the name of the kernel. It can also be specified in the /etc/lilo.conf file
+by adding the following line:
+<pre><code> append = "floppy=two_fdc"</code></pre><p>
+ It is assumed that your second controller lives at 0x370. If it uses
+another I/O base-address, change this address in the floppy.c. The
+drives on the second controller use the minor device numbers 128-131
+for the generic device, and 132-255 for the fixed geometry device. The
+following formula gives the minor number:
+
+<pre><em>	minor = fdc * 128 + geometry * 4 + unit </em></pre>
+
+ See the README file in fdutils for more details.<p>
+
+<a name="boot-special-fmt"></a>
+<h4> Is it possible to boot off these special  disks?</h4>
+
+Yes.  Make sure you have a version of lilo more recent than v18, and
+put the following line into your /etc/lilo.defines before compiling
+it:
+
+<pre><code> -DXL_SECS=44
+</code></pre>
+
+ This enables Lilo to boot from disks with up to 44 sectors (i.e. more
+than you'll ever see :-) ) It allows to boot from ED disks and from
+disks with more sectors than usual (up to 21 on a HD disk, 42 on an ED
+disk). However, 2m and Xdf disks cannot be booted using this method.
+
+<a name="unable-to-allocate-dma"></a>
+<h4> I get "Unable to allocate DMA memory" messages when trying to use
+	    the floppy.</h4>
+
+This happens whenever the memory is too scarce to allocate the floppy
+driver's DMA buffer. It is possible to use the floppy driver without
+DMA, and in that case, the floppy driver uses vmalloc'ed memory, which
+is more readily available. In order to disable DMA, use the
+<code>floppy=nodma</code> boot flag. If you use the floppy driver as a
+module, set the environment variable 'floppy' to 'dma'.
+
+<a name="millenia-transport"></a>
+<h4> I have a Micron Millenia Transport.</h4>
+
+Apparently, these laptops are supplied with a floppy controller which
+doesn't support the fifo.<p> Switch off the FIFO by adding
+<code>floppy=nofifo</code> to your Lilo command line.<p>
+
+</div>
+
+
+
+</div>
+</div>
+
+<hr>
+<!-- hhmts start -->
+Last modified: Thu Mar  3 23:29:19 CET 2005
+<!-- hhmts end -->
+
+
+  </body>
+</html>
+

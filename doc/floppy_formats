@@ -1,0 +1,188 @@
+Floppy format descriptions
+--------------------------
+
+Notes:
+
+Extra Tracks:
+	Many other variations upon these formats are possible.  In particular,
+	many nominally 40-track or 80-track drives are capable of more tracks,
+	usually 41 and 83 respectively.  Not all drives can seek to these
+	unofficial extra tracks, and even on drives which can these extra
+	tracks tend to be less reliable.  However, most of the formats listed
+	below could be increased in capacity by using extra tracks.
+
+Extra Sectors:
+	The official formats used by MS-DOS and other operating systems are
+	generally very conservative, and more sectors can nearly always be
+	fit onto each track by reducing the size of the gap between tracks
+	and/or the size of the leftover space at the end of the disk.
+
+	If the gap sizes are too small, it is necessary to use a 2:1
+	interleave to achieve acceptable performance.
+
+Larger sectors:
+	By using larger sectors, quite a bit of space is saved as the
+	per-sector overhead in gaps and headers, permitting more data
+	to fit on a disk than could possibly be achieved with normal
+	512-byte sectors.  However, MS-DOS and other operating systems
+	cannot normally read these formats.  Furthermore, when any portion
+	of one of these larger sectors is read, the entire sector must be
+	read.  When any portion of such a sector is written to, the entire
+	sector must be read, and then written back with just the necessary
+	portion modified.  Both of these circumstances can entail worse
+	performance for small reads and (especially) small writes.
+
+"2m" Formats:
+	"2m" formats have a "standard" density on the first side of the first
+	track, and a higher density on the rest of the disk.  And are intended
+	only for MS-DOS file systems.  The MS-DOS boot sector indicates the
+	number of sectors and tracks on the disk, and by this method 2m and
+	mtools can determine the geometry of the *rest* of the disk.  To cover
+	up for the missing sectors on the first track, 2m and mtools pretend
+	that there is a duplicate FAT in the missing sectors, which it
+	simulates by using the first (real) FAT.
+
+	Linux is also capable of using non-2m formats with mixed sector sizes
+	(without using a reduced density on the first track.  This is necessary
+	for using non-MS-DOS formats, such as ext2fs, tar, Minix, or cpio.
+	This can also be done for MS-DOS formats, but 2m can only read disks
+	with the "standard" format on the first side of the first track.
+
+"Xdf" formats:
+	Just like "2m" formats, Xdf formats use mixed sector sizes.
+	However, for Xdf disks, the logical order of the sectors on a
+	given track, and their physical order is not the same. When
+	reading a track, sectors reads alternate between both
+	sides, instead of first one complete side and then the
+	other. This technique allows to do much faster accesses: 550
+	milliseconds per track instead of the 800 microseconds (or
+	more) needed for 2m. If you have any questions, please mail me
+	at Alain@knaff.lu
+
+80/90/160/180 KB 5.25":
+	Original IBM PC, CP/M, Apple II, TRS-80, etc.  Single density, FM
+	(not MFM), 40-track.  Some systems also used "hard" sectoring, with
+	an index hole for each sector.  These are probably readable on
+	standard FDCs if anyone cares to go to the effort.  160KB/180KB
+	formats were double-sided.
+
+320 KB 5.25":
+	CP/M, Zenith Z-100, some forms of MS-DOS.  8-sector DD 40-track.
+
+400 KB 5.25":
+	AT&T 7300/3B1: cpio format, 10 sectors, DS, 40 tracks.
+
+	PC: MS-DOS, 10 sectors, DS, 40 tracks; formatted by various
+	utilities; readable by some versions of MS-DOS.
+
+<720KB 3.5" formats:
+-	Some dedicated word-processing systems use lower than normal
+	capacity floppies (some may be 40-track either via "stretching"
+	or by having odd drives; others may be single-sided or use fewer
+	sectors per track, or use "single density" or FM).  IMHO these
+	are not worth supporting in the kernel per se, but providing
+	info on them for use via setfdprm is appreciated.
+
+-	Atari ST 360 KB floppies: these are 9 sector 250KBps 80-track
+	single-sided, using a slightly incompatible MS-DOS-like FAT.
+	Very common distribution format for Atari ST software.
+
+-	Mac 400 KB: single-sided 80-tracks, Mac MFS or HFS file system,
+	Group Code Recording, zone bit recording, variable RPMs from 300
+	to 600 in 5 zones, and auto-eject mechanism.  Almost theoretically
+	impossible to read on "normal" drives without some form of hardware
+	assistance.
+
+720 KB 3.5":
+-	PC: 9 sectors, DS, 80-track; very common.
+
+-	Atari ST: same as Atari ST 360 KB except double-sided.
+
+720 KB 5.25":
+-	"Quad Density": 9 sectors, DS, 80-track; name is rather misleading,
+	as it is double density 80 track.
+
+800 KB:
+-	PC: 10 sectors, DS, 80 tracks; readable by MS-DOS; formatted by
+	many PC utilities; "almost standard".
+
+-	Atari ST "Twister": 10 sectors, DS, 80-track; slightly incompatible
+	MS-DOS-like FAT; sector skewing (originated by David Small).
+
+-	Mac 800 KB: same as Mac 400KB except double-sided.
+
+880 KB:
+-	PC: 11 sectors, DS, 80 tracks, interleaved(?).  Formatted by various
+	PD utilities such as fdformat.
+
+-	Amiga: uses "single-sector" tracks the size of 11 sectors; DS; 80
+	tracks.  Written by a custom chip rather than a standard FDC; it
+	is very difficult to read using a standard FDC, though writing or
+	formatting might be theoretically possible.
+
+880 KB-960 KB:
+	Atari ST: 11/12 sectors, DS, 80-track, interleaved(?); not very
+	reliable, formatted by various PD utilities.
+
+960 KB:
+	2m and Linux; 12 sectors interleaved(?), DS, 250Kbps?, 80-track,
+	1K sectors(?).
+
+1001 KB:
+	"Japanese" format: 300Kbps, 77 tracks, HD drives/disks.
+
+1040 KB:
+	2m and Linux only; 13 sectors, DS, 300Kbps, 80-track.
+
+1120 KB:
+	2m and Linux only; 14 sectors interleaved, DS, 300Kbps, 80-track.
+	Can only be formatted under Linux; even under Linux difficult to
+	format on ED drives.
+
+1200 KB 5.25" HD:
+	"AT": 360 rpm 500Kbps 80-track 15-sector MS-DOS.
+
+1360 KB 5.25" HD:
+	Highest "fdformat" noninterleaved 5.25" format.  360 rpm 500Kbps
+	17-sector MS-DOS.
+
+1440 KB 5.25" HD:
+	Interleaved 18-sector 360 rpm 500Kbps; highest "fdformat" 5.25" format.
+	18-sector MS-DOS.
+
+	2m and Linux only: noninterleaved 1024-byte sector 18-sector-equivalent
+	360 rpm 500Kbps; 18-sector MS-DOS.  A good substitute for 1.44MB 3.5"
+	floppies.
+
+1600 KB 5.25" HD:
+	2m and Linux only: interleaved?  500Kbps 80-track; 1 8KB sector, 1
+	2KB sector?
+
+1760 KB 3.5" HD:
+	2m and Linux only: 11 1KB sectors; 500Kbps, noninterleaved?
+
+1840 KB 3.5" HD:
+	2m and Linux only: 23-sector equivalent; 500Kbps, noninterleaved.
+
+1920 KB 3.5" HD:
+	2m and Linux only: 3 4KB sectors; 500Kbps, interleaved?
+
+	2m and Linux only: 1 8KB sector, 1 4KB sector; 500Kbps, interleaved?
+
+2880 KB 3.5" ED:
+	"Extra Density" or "Extra High Density".   1Mbps, 36-sector, DS, 80-
+	track.
+
+3200 KB 3.5" ED:
+	Non-interleaved, 80 track, 40-sector 1Mbps.  Highest capacity that
+	MS-DOS can read directly(?)
+
+3520 KB 3.5" ED:
+	2m and Linux only: 1 16KB sector, 1 4KB sector, 1 2KB sector?
+	Non-interleaved, 80 track 1Mbps.  Highest capacity that 2m can
+	format.
+
+3840 KB 3.5" ED:
+	2m and Linux only: 1 16KB sector, 1 8KB sector (or is it 3 8KB
+	sectors?).  Non-interleaved, 80 track 1Mbps.  Formatted only by
+	Linux, but readable and writeable by 2m.
