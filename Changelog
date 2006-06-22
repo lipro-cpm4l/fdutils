@@ -1,0 +1,84 @@
+v20060227
+	* Fixed "zero-based" flag
+v20050303
+	* Fixed instant verification in superformat (now based on
+	FDRAWCMD, rather than VFS' read which is plagued by excessive
+	read-ahead)
+	* Fixed two filedescriptor leaks in parsing the media and drive
+	parameter files
+	* Released 5.5
+v20050213
+	* Fixed diskd (did not work if noisy_dcl_clear was set)
+	* Fixed close condition in fdrawcmd (invalid file descriptors are
+	-1, not 0)
+v20040228
+	Fix format for CBM 1581 ; added definition for CMDFD2M
+v20030718
+	Fix xdfcopy to correctly handle existing files
+v20030531
+	Fix doc for diskd
+v20030527
+	Fix the -3 format (tried it out, and tried to re-read disk)
+v20030525
+	Use a more appropriate skew for 3 1/2 XDF disks (20% performance
+	increase)
+v20021121
+	Makefile fixes for installation in non-standard root directory
+v20021102
+	Added cleanup for uppercase filenames to doc directory
+	Fixed typoes
+	Added media parameters for color computer (to be confirmed)
+	Added stdlib.h include to texi-linearize and skews.c
+v20020203
+	Fix fdmount and superformat bugs
+v20020203
+	Create /dev/fd0 before testing for existence of /dev/fd0
+v20011002
+	Fix floppycontrol.c printf conditional on FD_DISK_CHANGED, so that
+	it works with gcc3 which apparently considers printf as a macro...
+v20000612
+	Explicitly include sysmacros.h, apparently this is needed in
+	certain environments
+v20000603
+	Released 5.4
+v20000527
+	Fixed a couple of buffer overrun exploits and other cleanup. Made
+	fdutils compilable with Linux 2.3/2.4 kernels. Documentation fixes
+v19970104
+	Fixed a few bugs listed in the Debian buglist posted to
+	linux.debian.bugs.dis
+	1.  Lessen dependancy of superformat on mtools by not failing if
+	mformat cannot be called: low-level verify will still be done, but
+	mbadblocks will be skipped
+	2.  Fixed a few instances where the return value of getopt was
+	misdeclared as a char instead of an integer
+	3.  Fixed device names in fd.4
+v19970411
+	Added error check to capacity measurement
+	Corrected documentation Makefile bug
+v19970629
+	Added vfat support to fdmount
+v19970609
+	Fixed bug where a skew was erroneously applied to a 2m track
+	Fixed typo in printfdprm
+v19970604
+	Added vfat option for fdmount
+v19970516
+	5.2 Released
+v19970516
+	Fixed sunsite location in doc.
+v19970430
+	Fixed typoes in doc about autodetection.
+v19970428
+	Fixed manpage installation
+v19970427
+	5.1 Released.  These repeated complaints about yylineno not
+	defined start getting annoying ;-)
+v19970426
+	More Makefile fixes.  Added note to doc about Alpha site
+v19970422
+	Various Makefile fixes
+v19970421
+	Lex yylineno fixes
+v19970419
+	5.0 Released
