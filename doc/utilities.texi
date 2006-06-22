@@ -1,0 +1,70 @@
+@node Utilities
+@chapter Included utilities
+
+The following utilities are included in the fdutils package
+
+@table @code
+@item floppycontrol
+
+This program sets the various error tresholds (error reporting,
+operation abortion, and read track), prints out drive drive types, and
+flushes buffers. There is a -h help option.
+This program provides examples on how to use the new ioctl's.
+ 
+To compile this program just type make in the util directory.
+
+See also the included manpage. (in the utils directory)
+
+@item MAKEFLOPPIES
+This shell script creates the new floppy block
+device files.  It uses the floppycontrol program to translate the
+minor device numbers into meaningful names. It also uses these names
+to decide wether to create a given block device file or not, depending
+on the type of the physical drive (for instance, for a 3 1/2 drive,
+the formats corresponding to a 5 1/4 drive are not created).
+If you have more than two floppy drives, the kernel cannot find out
+the types of these additional drives, and you need to specify them
+with the environmental variables FD2 and FD3. The following types are
+available: H1440 ( HD 3''1/2), h1200 (HD 5''1/4), D720 (DD 3''1/2) and
+d360 (DD 5''1/4).
+Sample command line:
+@example
+  FD2=1.44M FD3=1.2M MAKEFLOPPIES
+@end example
+
+The names of the device are a letter describing the _drive_ types,
+followed by a letter describing the size of the _format_.
+The letters are
+@table @code
+@item E
+3.5"  ED drive
+@item H
+3.5"  HD drive
+@item D
+3.5"  DD drive
+@item h
+5.25" HD drive
+@item d
+5.25" DD drive
+@end table
+
+Example: @file{h360} is a device for accessing a @file{360KB} disk in a
+@file{5.25" HD} drive.
+
+This convention is the same as used by Slackware and the @code{MAKEDEV}
+script, except for the ED drives (which are named @code{H2880} by
+@code{MAKEDEV}, and don't yet exist in Slackware)
+
+@strong{Important}: The @code{MAKEFLOPPIES} script needs the
+floppycontrol program on the search @code{PATH}.
+
+@item Setfdprm
+This program is used to set the media parameters for a drive.
+
+@item Superformat
+This program is used to format floppy disks. The old fdformat doesn't
+work for disks with bigger sectors. WARNING: DO READ THIS MANPAGE
+CAREFULLY. IMPROPER USAGE MAY LEAD TO DATA LOSS.
+
+@item Others: see the manpages
+@end table

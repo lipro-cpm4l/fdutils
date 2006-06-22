@@ -1,0 +1,272 @@
+@node fdmount, fdrawcmd, diskseekd, Commands
+@section fdmount
+@pindex fdmount
+@pindex fdmountd
+@pindex fdlist
+@pindex fdumount
+@cindex automounting
+
+
+@example
+@code{fdmount} [@code{-l}] [@code{--list}] [@code{-d}] [@code{--daemon}] [@code{--detach}]
+[@code{-i} @var{interval}] [@code{--interval} @var{interval}] [@code{-o} @var{mount-options}]
+[@code{-r}] [@code{-readonly}] [@code{-s}] [@code{--sync}] [@code{--nosync}] [@code{--nodev}]
+[@code{--nosuid}] [@code{--noexec}] [@code{-f}] [@code{--force}] [@code{-h}] [@code{--help}]
+[@var{drivename}] [@var{mountpoint}]
+
+@code{fdumount} [@code{-f}] [@code{--force}] [@var{drivename}]
+
+@code{fdlist}
+
+@code{fdmountd} [@code{-i} @var{interval}] [@code{--interval} @var{interval}] [@code{-r}]
+[@code{-readonly}] [@code{-s}] [@code{--sync}] [@code{--nosync}] [@code{--nodev}]
+[@code{--nosuid}] [@code{--noexec}] [@code{--help}] [@var{drivename}] [@var{mountpoint}]]
+
+@end example
+
+
+The @code{fdmount} program mounts a floppy disk in the specified
+drive. It tries to figure out the exact format and filesystem type of
+the disk from data in the disk's boot sector or super block and the
+auto-detected track layout.
+
+Currently, fdmount supports the filesystems @code{minix}, @code{ext},
+@code{ext2}, @code{xia}, and @code{msdos}, and includes special support
+for disks formatted by the @code{2M} utility for MS-DOS.
+
+It also checks whether the disk is write protected, in which case 
+it is mounted read-only.
+
+The symbolic @var{drivename} is (currently) one of @file{fd[0-7]},
+corresponding to the special device files @file{/dev/fd[0-7]}. If
+@var{drivename} is not specified, @file{fd0} is assumed.
+
+The disk is mounted on the directory @var{mountpoint}, if specified, or
+on @file{/fd[0-7]}.  In either case, the mount point must be an
+existing, writable directory.
+
+
+@strong{Due to a bug in the floppy driver (?), the polling interval (-i
+flag) must be longer than the spindown offset. Thus you need to do (for
+example) floppycontrol --spindown 99 before starting fdmountd in daemon
+mode}
+
+@subsection Options
+
+@table @code
+
+@item -l @var{--list}
+List all known drives with their symbolic name, type, and mount
+status. 
+
+@item -d @var{--daemon}
+Run in daemon mode (see below).
+
+@item --detach
+Runs daemon in background, and detaches it from its tty. Messages
+produced after the fork are logged to syslog.
+
+@item -p @var{file}
+@itemx --pidfile @var{file}
+
+Dumps the process id of the daemon to
+@var{file}. This makes killing the daemon easier:
+@code{kill -9 `cat @var{file}`}
+
+@item -i @var{interval}
+@itemx --interval @var{interval}
+Set the polling interval for daemon mode. The unit for @var{interval} is
+0.1 seconds, the default value is 10 (i.e. 1 second).
+
+@item -o @var{options}
+@itemx --options @var{options}
+Sets filesystem-specific options. So far, these are only available for
+DOS and Ext2 disks. The following DOS options are supported:
+@code{check}, @code{conv}, @code{dotsOK}, @code{debug}, @code{fat},
+@code{quiet}, @code{blocksize}.  The following Ext2 options are
+supported: @code{check}, @code{errors}, @code{grpid}, @code{bsdgroups},
+@code{nogrpid}, @code{sysvgroups}, @code{bsddf}, @code{minixdf},
+@code{resgid}, @code{debug}, @code{nocheck}.  When running as a daemon,
+options not applying to the disk that is inserted (because of its
+filesystem type) are not passed to mount.
+
+@item -r @var{--readonly}
+Mount the disk read-only. This is automatically assumed if the
+disk is write protected.
+
+@item -s @var{--sync}
+Mount with the @code{SYNC} option.
+
+@item --nosync
+Mounts without the @code{SYNC} option, even when running as daemon.
+
+@item --nodev
+Mount with the @code{NODEV} option. Ignored for @code{msdos}
+filesystems, otherwise always set for non-root users.
+
+@item --nosuid
+Mount with the @code{NOSUID} option. Ignored for @code{msdos}
+filesystems, otherwise always set for non-root users.
+
+@item --noexec
+Mount with the @code{NOEXEC} option.
+
+@item -f @var{--force}
+Attempt a mount or unmount operation even @file{/etc/mtab} says that
+the drive is already mounted, or not mounted, respectively.
+This option is useful if @file{/etc/mtab} got out of sync with the
+actual state for some reason.
+
+@item -h @var{--help}
+Show short parameter description
+
+@end table
+
+@subsection Security
+
+When mounting on the default mount point, the mount points' owner is set
+to the current user, and the access flags according to the user's umask.
+For a specified mountpoint, owner and permissions are left
+unchanged. Default mount points are called @code{/fd0}, @code{/fd1},
+@dots{} , @code{/fd7}.
+
+The user running fdmount must have read access to the floppy device for
+read only mounts, and read/write access for read/write mounts.
+
+Fdmount can be run suid root, allowing users to mount floppy
+disks. The following restrictions are placed upon non-root
+users:
+
+@itemize @bullet
+@item
+If a mountpoint is specified explicitly, it must be owned by the user.
+@item
+A user may only unmount a disk if the mount point is owned by the user,
+or if it the disk has been mounted by the same user.
+@item
+Non-msdos disks are automatically mounted with the @code{nodev} and
+@code{nosuid} flags set.
+@end itemize
+
+However, @strong{do not rely on fdmount being secure at the moment}.
+
+@subsection Daemon mode
+
+In daemon mode, the specified drive is periodically checked and if a
+disk is inserted, it is automatically mounted.
+
+When the disk is removed, it is automatically unmounted.  However, it is
+recommended to unmount the disk manually @emph{before} removing it. In
+order to limit corruption, disks are mounted with the SYNC option when
+running in daemon mode, unless the @code{--nosync} flag is given.
+
+Note that this mode has some potential drawbacks:
+@itemize @bullet
+@item
+Some floppy drives have to move the drive head physically in order to
+reset the disk change signal. It is strongly recommended not to use
+daemon mode with these drives.  @xref{floppycontrol}, for details.
+@item
+If a disk does not contain a filesystem (e.g. a tar archive),
+the mount attempt may slow down initial access.
+@item
+As fdmount cannot identify the user trying to use the disk drive,
+there is no way to protect privacy. Disks are always mounted with
+public access permissions set.
+@end itemize
+
+@subsection Diagnostics
+
+@table @code
+
+@item error opening device @var{name}
+
+@item error reading boot/super block
+fdmount failed to read the first 1K of the disk. The disk might be
+damaged, unformatted, or it may have a format wich is unsupported by the
+FDC or the Linux kernel.
+
+@item unknown filesystem type
+No magic number of any of the supported filesystems (see above) 
+could be identified.
+
+@item sorry, can't figure out format (@var{fs} filesystem)
+The size of the filesystem on the disk is incompatible with
+the track layout detected by the kernel and an integer number of
+tracks. This may occur if the filesystem uses only part of the
+disk, or the track layout was detected incorrectly by the kernel.
+
+@item failed to mount @var{fs> <size}K-disk
+The actual @code{mount} system call failed.
+
+@item failed to unmount
+The actual @code{unmount} system call failed.
+
+@item cannot create lock file /etc/mtab~
+If @file{/etc/mtab~} exists, you should probably delete it. Otherwise,
+check permissions.
+
+@item Can't access @var{mountpoint}
+Most probably, the default or specified mount point does not exist.
+Use mkdir.
+
+@item @var{mountpoint} is not a directory
+The mountpoint is not a directory.
+
+@item not owner of @var{mountpoint}
+Non-root users must own the directory specified as mount point.
+(This does not apply for the default mount points, /fd[0-3].)
+
+@item No write permission to @var{mountpoint}
+Non-root users must have write permission on the mount point
+directory.
+
+@item Not owner of mounted directory: UID=@var{uid}
+Non-root users cannot unmount if the mount point is owned
+(i.e. the disk was mounted) by another user.
+
+@item invalid drive name
+Valid drive names are @file{fd0}, @file{fd1}, etc.
+
+@item drive @var{name} does not exist
+The drive does not exist physically, is unknown to the Linux kernel, or
+is an unknown type.
+
+@item Drive @var{name} is mounted already
+Trying to mount a drive which appears to be mounted already.  Use the
+@code{--force} option if you think this is wrong.
+
+@item Drive @var{name} is not mounted
+Trying to unmount a drive which does not appear to be mounted.  Use the
+@code{--force} option if you think this is wrong.
+
+@item ioctl(...) failed
+If this occurs with the @code{FDGETDRVTYP} or @code{FDGETDRVSTAT},
+ioctl's you should probably update your Linux kernel.
+
+@item mounted @var{fs} @var{size}-disk (@var{options})
+Success message.
+
+@end table
+
+@subsection Bugs
+
+@itemize @bullet
+@item
+Fdmount should be more flexible about drive names and default
+mount points (currently hard coded).
+
+@item
+Probably not very secure yet (when running suid root).
+Untested with ext and xia filesystems.
+
+@item
+Can't specify filesystem type and disk layout explicitly.
+
+@item
+In daemon mode, the drive light stays on all the time.
+
+@item
+Some newer filesystem types, such as vfat are not yet supported.
+
+@end itemize

@@ -1,0 +1,177 @@
+@node Interesting formats, Command Index, Acronyms, Top
+@appendix Interesting formats
+
+This table lists a few interesting formats.  Some of them are not
+included in the table of predefined formats due to lack of space.  You
+may use these by setting the geometry of the variable geometry device
+using @code{setfdprm}.  Most of the entries in the following table do
+not describe a single format, but rather a family of formats which share
+a common characteristic.  For this reason, no precise parameters are
+included.
+
+@table @strong
+
+@item 80/90/160/180 KB 5.25"
+Original IBM PC, CP/M, Apple II, TRS-80, etc.  Single density, FM
+(not MFM), 40-track.  Some systems also used "hard" sectoring, with
+an index hole for each sector.  These are probably readable on
+standard FDCs if anyone cares to go to the effort.  160KB/180KB
+formats were double-sided.
+
+@item 320 KB 5.25"
+CP/M, Zenith Z-100, some forms of MS-DOS.  8-sector DD 40-track.
+
+@item 400 KB 5.25"
+AT&T 7300/3B1: cpio format, 10 sectors, DS, 40 tracks.
+
+PC: MS-DOS, 10 sectors, DS, 40 tracks; formatted by various
+utilities; readable by some versions of MS-DOS.
+
+@item <720KB 3.5" formats
+
+@itemize @bullet
+@item
+Some dedicated word-processing systems use lower than normal capacity
+floppies (some may be 40-track either via "stretching" or by having odd
+drives; others may be single-sided or use fewer sectors per track, or
+use "single density" or FM).
+
+@item
+Atari ST 360 KB floppies: these are 9 sector 250kb/s 80-track
+single-sided, using a slightly incompatible MS-DOS-like FAT.  Very
+common distribution format for Atari ST software.
+
+@item
+Mac 400 KB: single-sided 80-tracks, Mac MFS or HFS file system, Group
+Code Recording, zone bit recording, variable RPMs from 300 to 600 in 5
+zones, and auto-eject mechanism.  Impossible to read on normal PC drives
+without some form of hardware assistance.
+@end itemize
+
+@item 720 KB 3.5"
+@itemize @bullet
+@item
+PC: 9 sectors, DS, 80-track; very common.
+@item
+Atari ST: same as Atari ST 360 KB except double-sided.
+@end itemize
+
+@item 720 KB 5.25"
+"Quad Density": 9 sectors, DS, 80-track; name is rather misleading,
+as it is double density 80 track.
+
+@item 800 KB
+@itemize @bullet
+@item
+PC: 10 sectors, DS, 80 tracks; readable by MS-DOS; formatted by
+many PC utilities; "almost standard".
+@item
+Atari ST "Twister": 10 sectors, DS, 80-track; slightly incompatible
+MS-DOS-like FAT; sector skewing (originated by David Small).
+@item
+Mac 800 KB: same as Mac 400KB except double-sided.
+@end itemize
+@item 880 KB
+
+@itemize @bullet
+@item 
+PC: 11 sectors, DS, 80 tracks, interleaved(?).  Formatted by various PD
+utilities such as fdformat.
+@item
+Amiga: uses "single-sector" tracks the size of 11 sectors; DS; 80
+tracks.  Written by a custom chip rather than a standard FDC; it is very
+difficult to access these using a standard FDC, though it might be
+possible in theory, using some trickery.
+@end itemize
+
+@item 880 KB - 960 KB
+Atari ST: 11/12 sectors, DS, 80-track, interleaved(?); not very
+reliable, formatted by various PD utilities.
+
+@item 960 KB
+2m and Linux; 6 sectors interleaved(?), DS, 250kb/s?, 80-track, 1K
+sectors(?).
+
+@item 1001 KB
+"Japanese" format: 300kb/s, 77 tracks, HD drives/disks.
+
+@item 1040 KB
+2m and Linux only; 13 sectors, DS, 300kb/s, 80-track.
+
+@item 1120 KB
+2m and Linux only; 14 sectors interleaved, DS, 300kb/s, 80-track.  Can
+only be formatted on Linux; even on Linux, it is difficult to format
+these on an ED drive.
+
+@item 1200 KB 5.25" HD
+"AT": 360 rpm 500kb/s 80-track 15-sector MS-DOS.
+
+@item 1360 KB 5.25" HD
+Highest "fdformat" noninterleaved 5.25" format.  360 rpm 500kb/s
+17-sector MS-DOS.
+
+@item 1440 KB 5.25" HD
+Interleaved 18-sector 360 rpm 500kb/s; highest "fdformat" 5.25" format.
+18-sector MS-DOS.
+
+2m and Linux only: noninterleaved 1024-byte sector 18-sector-equivalent
+360 rpm 500kb/s; 18-sector MS-DOS.  A good substitute for 1.44MB 3.5"
+floppies.
+
+@item 1600 KB 5.25" HD
+2m and Linux only: interleaved?  500kb/s 80-track; 1 8KB sector, 1
+2KB sector?
+
+@item 1760 KB 3.5" HD
+2m and Linux only: 11 1KB sectors; 500kb/s, noninterleaved?
+
+@item 1840 KB 3.5" HD
+2m and Linux only: 23-sector equivalent; 500kb/s, noninterleaved.
+
+@item 1920 KB 3.5" HD
+2m and Linux only: 3 4KB sectors; 500kb/s, interleaved?
+
+2m and Linux only: 1 8KB sector, 1 4KB sector; 500kb/s, interleaved?
+
+@item 2880 KB 3.5" ED
+"Extra Density" or "Extra High Density".   1 Mb/s, 36-sector, DS, 80-
+track.
+
+@item 3200 KB 3.5" ED
+Non-interleaved, 80 track, 40-sector 1 Mb/s.  Highest capacity that
+MS-DOS can read directly(?)
+
+@item 3520 KB 3.5" ED
+2m and Linux only: 1 16KB sector, 1 4KB sector, 1 2KB sector?
+Non-interleaved, 80 track 1 Mb/s.  Highest capacity that 2m can format.
+
+@item 3840 KB 3.5" ED
+2m and Linux only: 1 16KB sector, 1 8KB sector (or is it 3 8KB
+sectors?).  Non-interleaved, 80 track 1 Mb/s.  Formatted only by Linux,
+but readable and writeable by 2m.
+@end table
+
+
+Linux is able to read almost any MFM disk. These include many CP/M disks
+and also Commodore 1581 disks. Please get Michael Haardt's documentation
+on floppy drives for a detailed description of those formats. This can
+be ftp'ed from the following location:
+@example
+http://www.moria.de/~michael/floppy/
+@end example
+
+Commodore 1581 disks are not yet described in this documentation.  Use
+@code{setfdprm /dev/fd0 DD DS sect=10 cyl=80 swapsides}. If you want to
+use these disks often, redefine one of the "default" formats to be
+Commodore 1581, and then put it into the autodetection list for the
+drive. The following example describes how to redefine format number 31
+(minor device number 124) to be Commodore 1581:
+@example
+mknod /dev/fd0cbm1581 b 2 124
+setfdprm /dev/fd0cbm1581 DD DS sect=10 cyl=80 swapsides
+floppycontrol --autodetect /dev/fd0 31,7,8,4,25,28,22,21
+@end example
+
+The two latter commands have to be issued after each reboot, so I
+suggest you put them into your @file{/etc/rc} files if you use many
+Commodore 1581 disks.

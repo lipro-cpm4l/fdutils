@@ -1,0 +1,232 @@
+@node Device numbers, Media description, Basic usage, Top
+@chapter Device numbers
+@pindex MAKEFLOPPIES (making floppy devices)
+@cindex device numbers
+@cindex making floppy devices
+
+The floppy device nodes are usually made using the @code{MAKEFLOPPIES}
+shell script (@xref{makefloppies}.).
+
+The major device number for the floppy drives is 2.  The minor device
+number contains describes which drive it represents, and may in addition
+describe the kind of media which is currently in the drive.
+
+There are two kind of floppy devices:
+@itemize @bullet
+@item
+Variable geometry device nodes. Their minor number doesn't depend on the
+media in the drive, and is calculated as follows:
+@example
+@var{minor_device} = 128 * @var{fdc_nr} + @var{unit_nr}
+@end example
+
+@item
+Fixed geometry device nodes. Their minor number not only depends on the
+drive which they represent, but also the type of media currently in the
+drive.  It is computed as follows:
+
+@example
+@var{minor_device} = 128 * @var{fdc_nr} + @var{unit_nr} + 4 * @var{format_nr}
+@end example
+
+@end itemize
+
+In this formula, @var{fdc_nr} is the number of the floppy disk
+controller (0 or 1, usually 0), and @var{unit_nr} is the Unit number (0
+to 3, 0 for Dos drive @code{A:}, and 1 for Dos drive @code{B:}).
+@var{Format_nr} is only meaningful for the fixed format devices. It
+describes the disk geometry that is used.  It is an index into the
+@emph{geometry list} @ref{geometry list}.  Using all available
+controller numbers and all available drive numbers, you may thus connect
+up to 8 floppy drives to a single Linux box.
+
+@menu
+* Variable format devices::
+* Fixed format devices::
+* geometry list::
+* Adding new formats::
+@end menu
+
+@node Variable format devices, Fixed format devices, Device numbers, Device numbers
+@section Variable format devices
+@cindex Variable format devices
+
+Variable format devices don't have an intrinsic geometry.  When using
+these devices, the geometry has to be set either by using autodetection
+(@pxref{Autodetection}), or by using the @code{FDSETPRM} or
+@code{FDGETPRM} ioctl.  The latter ioctl can be issued using the
+@code{setfdprm} (@pxref{setfdprm}) and @code{getfdrpm}
+(@pxref{getfdprm}) programs. With the default settings, common formats
+are detected transparently, and you can access any disk transparently
+using the variable format devices.
+
+The geometry information is kept as long as the disk is in the drive,
+and is discarded as soon as the disk is removed, unless the geometry has
+been declared @emph{permanent} by using setfdprm's @code{-p} flag
+(@pxref{setfdprm}).
+
+@node Fixed format devices, geometry list, Variable format devices, Device numbers
+@section Fixed format devices
+@cindex Fixed format devices
+
+Fixed format devices should not be used under normal circumstances.  
+
+
+Fixed format devices have an intrinsic geometry.  They are useful for
+the @code{fdformat} program (which is now considered obsolete), and for
+booting off floppies which have formats that are different from the
+default format (because during booting, there is no application that can
+issue the otherwise needed @code{FDSETPRM} ioctl).
+
+@node geometry list, Adding new formats, Fixed format devices, Device numbers
+@section The geometry list
+@cindex Geometry List
+@cindex Format List
+@cindex Available Formats
+@cindex Formats
+@cindex Geometries
+@cindex Default Formats
+@cindex Builtin Formats
+
+The floppy driver contains a builtin list of 32 formats.  This list is used
+for two purposes:
+@itemize @bullet
+@item
+It says which geometry is used for the @emph{fixed format} devices.
+@item
+It is used for @emph{autodetection}
+@end itemize
+
+The following formats (geometries) are known:
+
+@table @asis
+@item @strong{format_nr}
+@strong{Format}
+@item 0
+autodetect
+@item 1
+360KB, 5.25" DD drive
+@item 2
+1200KB, 5.25" HD drive
+@item 3
+360KB, 3.5" DD drive
+@item 4
+720KB, 3.5" DD drive
+@item 5
+360KB, 5.25" DD disk in HD drive
+@item 6
+720KB, 5.25" DD disk in HD drive
+@item 7
+1440KB, 3.5" HD drive
+@item 8
+2880KB, 3.5" ED drive
+@item 9
+3120KB, 3.5" ED drive
+@item 10
+1440KB, 5.25" HD drive
+@item 11
+1680KB, 3.5" HD drive
+@item 12
+410KB, 5.25" DD disk in HD drive
+@item 13
+820KB, 3.5" DD drive
+@item 14
+1476KB, 5.25" HD drive
+@item 15
+1722KB, 3.5" HD drive
+@item 16
+420KB, 5.25" DD disk in HD drive
+@item 17
+830KB, 3.5" DD drive
+@item 18
+1494KB, 5.25" HD drive
+@item 19
+1743KB, 3.5" HD drive
+@item 20
+880KB, 5.25" DD drive
+@item 21
+1040KB, 3.5" DD drive
+@item 22
+1120KB, 3.5" DD drive
+@item 23
+1600KB, 5.25" HD drive
+@item 24
+1760KB, 3.5" HD drive
+@item 25
+1920KB, 3.5" HD drive
+@item 26
+3200KB, 3.5" ED drive
+@item 27
+3520KB, 3.5" ED drive
+@item 28
+3840KB, 3.5" ED drive
+@item 29
+1840KB, 3.5" HD drive
+@item 30
+800KB, 3.5" DD drive
+@item 31
+1600KB, 3.5" HD drive
+@end table
+
+This table lists first the format_nr (0-31) used to compute the minor
+number, then the capacity of the format (360KB - 3200KB), and then the
+type of the drive in which this format is used.
+
+The formats 0..8 are the standard PC formats.  The remaining formats are
+extended capacity formats. Some of them have been taken from Heiko
+Schroeder's fdpatches (after correcting some minor bugs).  Others have
+been added by David Niemi and me (Alain Knaff).  Formats 9, 12, 13, 16,
+17, 30 and 31 are non-interleaved formats with normal sized sectors, and
+have the highest capacity that can be achieved without resorting to
+interleaving or bigger sectors (@ref{More sectors}).  Formats 10, 11,
+14, 15, 18, 19 use interleaving interleaving to achieve a higher
+capacity (@ref{Interleave}).  Formats 20 and 22 to 29 use bigger sectors
+than usual (@ref{Larger sectors} and @ref{Mixed size sectors}).
+
+In addition to these techniques, formats 13-19 use more cylinders than
+usual (@ref{More cylinders}).  @strong{USE THESE FORMATS (13-19) ONLY IF
+YOUR DRIVE SUPPORTS THE NECESSARY NUMBER OF TRACKS}
+
+@node Adding new formats,, geometry list, Device numbers
+@section Adding new formats
+@pindex setfdprm (Adding formats)
+@cindex Redefining formats
+@cindex Adding formats
+
+You can redefine the default formats using the setfdprm program
+(@ref{setfdprm}) @footnote{In that case, the @code{MAKEFLOPPIES} program
+(@ref{makefloppies}) no longer works to generate a correct name for
+these formats, and you have to make them manually.}.  The following
+example illustrates how to add a new 19 sector format, and make a device
+entry for it.  First, we pick an entry for it, which we want to reuse.
+I recommend to redefine an entry which is only rarely used.  For
+instance, if you have no 5 1/4 drive on your system, you can redefine
+any 5 1/4 entry without a loss.  In our example, we pick 10.
+
+First we make the device node:
+@example
+mknod /dev/fd0H1520 b 2 40
+         ^          ^ ^  ^
+         |          | |  Minor device number (format number * 4 +
+         |          | |                       drive + controller*128)
+         |          | Major device number (always 2!)           
+         |          Blockdevice
+    A name that you choose for the format. I
+    recommend to base the name on the capacity,
+    but you may choose any name you want.
+@end example
+
+Then we redefine the geometry of the new device:
+@example
+setfdprm /dev/fd0H1520 1520 19 2 80 0 0x1b 0 0xcf 0x6c
+@end example
+
+@strong{NB:} This redefines the geometry for any device node with the
+same format number, not just the new node.
+
+The new geometry is only valid until the next reboot (or removal of the
+floppy module).  In order to make it permanent, you have to execute the
+@code{setfdprm} command from your @file{/etc/rc} file or whenever you
+insert the floppy module.
+
+
