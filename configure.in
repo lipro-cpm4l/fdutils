@@ -1,0 +1,32 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(src/floppycontrol.c)
+
+AC_CONFIG_HEADER(config.h)
+AC_PROG_MAKE_SET
+
+dnl Checks for compiler
+AC_PROG_CC
+AC_PROG_GCC_TRADITIONAL
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+AC_PATH_PROG(INSTALL_INFO, install-info, "")
+
+dnl Check for Systems
+AC_CANONICAL_SYSTEM
+
+AC_C_CONST
+AC_C_INLINE
+
+AC_CHECK_HEADERS(linux/ext_fs.h linux/xia_fs.h sys/sysmacros.h)
+
+dnl Make fdmount accessible by the floppy group only
+AC_ARG_ENABLE(fdmount-floppy-only,
+[  --enable-fdmount-floppy-only       Make fdmount accessible to the "floppy" group only],
+[if test x$enableval = xyes; then
+  AC_DEFINE([FLOPPY_ONLY],[],[Define this if you fdmount to be usable only by the 'floppy' group])
+fi],AC_DEFINE([FLOPPY_ONLY],[],[Define this if you fdmount to be usable only by the 'floppy' group]))
+
+
+
+AC_OUTPUT(Makefile src/Makefile doc/Makefile)

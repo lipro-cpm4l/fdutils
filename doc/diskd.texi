@@ -1,0 +1,55 @@
+@node diskd, diskseekd, Commands, Commands
+@section diskd
+@pindex diskd
+
+The diskd command has the following syntax:
+
+@example
+@code{diskd} [@code{-d} @var{drive}] [@code{-i} @var{interval}] [@code{-e} @var{command}]
+@end example
+
+Diskd waits for a disk to be inserted into a given @var{drive}, and then
+either executes the @var{command} or exits. This program can be used to
+automatically mount a disk as soon as it is inserted.
+
+@subsection Warning
+
+This program works by switching the motor on for a very short
+interval, and then seeking to track -1. This might damage hardware in
+the long run. Amigas, which also use these techniques, are known for
+having problems with their disk drives no longer spinning up properly
+after a few month of usage.
+
+@subsection Options
+
+@table @code
+@item -d @var{drive}
+Selects the drive to observe for disk insertion. By default, drive 0
+(@code{/dev/fd0}) is observed.
+@item -i @var{interval}
+Selects the polling interval. The interval is given in tenths of
+seconds. Default is 10 (one second).
+@item -e @var{command}
+Gives the command to be executed when a disk is inserted. If no
+command is given the program simply exits. Typically, the command
+mounts the disk. It can be a shell scripts which probes for several
+filesystems and disk geometries until it succeeds.
+@end table
+
+@subsection Bugs
+
+
+@itemize @bullet
+
+@item
+Automatic unmounting cannot yet be handled. It is indeed not enough to
+scan for disk removal, because when the disk is removed, it is already
+too late: There might be some buffers needing flushing.  However, the
+@code{fdmountd} program allows automatic unmounting by using the
+@code{SYNC} mount options, which switches off write buffering
+(@pxref{fdmount}).
+
+@item
+The drive motor is running all the time, and on some computers, the
+drive led flickers at each time the drive is polled.  
+@end itemize

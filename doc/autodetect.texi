@@ -1,0 +1,94 @@
+@node Autodetection, Boottime configuration, Extended formats, Top
+@chapter How autodetection works
+@cindex autodetection
+@cindex format
+@cindex recognize a disk
+
+The principle of autodetection is rather simple. When a floppy disk is
+first accessed, and its geometry is not yet known, the floppy driver
+tries out a list of up to 8 geometries (format descriptions) until one
+is found that matches (i.e. that makes it possible to read the first
+sector or track).  This list of geometries is called the
+@emph{autodetection list}.  There is one autodetection list per drive
+type (as indicated in the cmos).
+
+The autodetection list doesn't contain the geometry descriptions
+themselves, but rather references to entries in the @emph{geometry list}
+(@pxref{geometry list}).  Each list may contain up to 8 such references.
+Each reference can be tagged with a @code{t} flag.  If this tag is set,
+the floppy driver tries to read the whole track when trying out that
+description; if it is not set, it only tries to read the boot sector.
+
+Reading the whole track is useful to distinguish among geometries which
+differ only in the amount of sectors per track.  In order to do this,
+put the geometry with the most sectors first in the list, and set its
+@code{t} tag.  Use the @code{t} tag only in this case, as it makes
+autodetection slower.
+
+Autodetection cannot distinguish between geometries that only differ in
+the number of heads or in the number of tracks.
+
+Autodetection is meant to supply only a first approximation of the
+actual format of the disk.  It supplies enough information to enable a
+program such as @code{mtools} to read the boot sector, which contains
+the exact information.  @code{Mtools} then uses the information
+contained in the boot sector to set the exact geometry.
+
+The autodetection list is set using the following command:
+@example
+floppycontrol --autodetect @var{list}
+@end example
+
+@section Example
+
+The following example restores the default autodetection sequence for a
+3 1/2 ED drive:
+
+@example
+floppycontrol --autodetect 7,8,4,25,28,22,31,21
+@end example
+
+The following example changes this sequence, so as to add the 1680KB
+format (number 11).  As only 8 formats are allowed in the autodetection
+list, we have to dump one entry (we chose the last, which is numbered
+21).  The 1680KB format is identical with the default 1440KB format
+except for the number of sectors.  Thus we must read the whole track in
+order to distinguish it from the 18 sector format (@code{t} flag).
+Furthermore, the the 1680KB sector format should be detected first, as
+an 21 sector disk would also matches the standard format with its 18
+sectors.
+
+@example
+floppycontrol --autodetect 11t,7,8,4,25,28,22,31
+@end example
+
+The following example attempts to autodetect CBM 1581 disks along with
+the more usual formats.  CBM 1581 disks are not among the predefined
+formats.  Thus we first have to pick one of the predefined formats and
+change it so it fits our needs.  We may for example pick one of the
+rarely used 5 1/4 formats, such as h880, which bears number 20).  We
+first make a device node bearing the requested number (so that we have a
+filename to pass to setfdprm), then we chmod it so it becomes accessible
+to mortal users, finally we configure the geometry of the new node, and
+enter it into the autodetection list.  We place it at the 4th position,
+just behind the usual ED, HD and DD formats, and before the more exotic
+extended formats.  Indeed, formats which are nearer to the head of the
+list are autodetected faster, and hence more commonly used formats
+should be put nearer to the beginning @footnote{except of course if
+several formats only differ in the number of sectors per track, in which
+case the formats with the most sectors should come first}.
+
+@example
+mknod /dev/fd0cbm1581 b 2 80
+chmod 666 /dev/fd0cbm1581
+setfdprm /dev/fd0cbm1581 DD DS sect=10 cyl=80 ssize=512 fmt_gap=35 gap=12 swapsides
+floppycontrol --autodetect 7,8,4,20,25,28,22,31
+@end example
+
+
+Some formats use more than 80 tracks. It is not possible for the kernel
+to autodetect the number of tracks in a reasonable time, so you have to
+use a sufficiently recent version of mtools to set the number of tracks
+according to the boot sector of the disk. Mtools 3.0 and up are ok. This
+doesn't obviously work with disks containing something else than a
+MS-DOS filesystem.

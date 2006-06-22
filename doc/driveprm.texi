@@ -1,0 +1,127 @@
+@node Drive descriptions, Extended formats, Media description, Top
+@chapter Drive descriptions
+
+Unlike earlyer version, fdutils-5.0 separates drive descriptions and
+media description.  For more details on this separation,
+@pxref{Introduction (Mediaprm)}.  Drive descriptions are used to describe the
+hardware characteristics of a drive, such as their maximal density,
+their rotation speed, their form factor, etc.
+
+@menu
+* Syntax of a drive description      :: What to put into a drive description
+* Drive definition file              :: Where drive definitions are stored
+@end menu
+
+@node Syntax of a drive description, Drive definition file, Drive descriptions, Drive descriptions
+@section Syntax
+
+A drive description is a series of @emph{variable=value} and
+@emph{selector} clauses.
+
+@menu
+* Density               :: The maximal available density on the drive
+* Form factor           :: Whether this drive is a 3 1/2", 5 1/4" or 8" drive
+* Cmos code             :: Sums up both density and form factor
+* Other parameters      :: Rotation speed and tracks per inch
+@end menu
+
+@node Density, Form factor, Syntax of a drive description, Syntax of a drive description
+@subsection Density
+
+The density of a drive is the highest media density that it supports.
+Density is one of @code{sd}, @code{dd}, @code{qd}, @code{hd} or
+@code{ed}.  Usually, you do not need to specify this parameter, as it
+can be derived from the drives CMOS code.
+
+
+@node Form factor, Cmos code, Density, Syntax of a drive description
+@subsection Form factor
+
+The form factor of a drive describes the physical dimensions of the
+media it accepts.  It is one of @code{3.5}, @code{5.25} or @code{8}.
+Usually, you do not need to specify this parameter, as it can be derived
+from the drives CMOS code.
+
+@node Cmos code, Other parameters, Form factor, Syntax of a drive description
+@subsection Cmos code
+
+The PC Bios already knows on its own about the most common drive types.
+These are named by an integer from 1 to 6, according to the following
+table.
+@example
+0        no drive installed
+1        5.25 DD
+2        5.25 HD
+3        3.5 DD
+4        3.5 HD
+5        3.5 ED
+6        3.5 ED
+@end example
+
+As you see 3.5 ED drives have two possible codes.  Some BIOSes use 5,
+others use 6.  The reason for this is that initially 5 was intended for
+floppy tape drives, and only 6 was for 3.5 ED drives.  However, some
+BIOS manufacturers didn't know about this convention, and used 5 for the
+then "new" 3.5 ED drives.
+
+Usually, you do not need to specify this parameter, as it can be read
+from the physical CMOS of your PC.  This parameter may be useful if your
+BIOS does not store the drive's CMOS code at the expected place, or if
+you have more than two drives.
+
+@node Other parameters, , Cmos code, Syntax of a drive description
+@subsection Other parameters
+
+@table @code
+@item deviation=@var{deviation}
+Tells how much more/less raw capacity the drive has than the standard.
+Due to slightly different rotation speeds @footnote{drives do not always
+rotate at exactly 5 or 6 rotations per second, but some may be slightly
+faster or slightly slower than spec} and to slightly different data
+transfer rates, the raw capacity per track can vary slightly.  For
+normal formats, these small deviations from the prescribed raw capacity
+is not harmful, as these have plenty of safety margins built in.
+However, the new extra capacity formats are affected by this, as they
+try to squeeze every available raw byte out of the disk.
+
+Deviation is expressed in ppm.  Positive values mean a higher raw
+capacity than normal, and negative values mean a lower raw capacity than
+normal.  The deviation can be measured using the @code{floppymeter}
+program.
+
+@item rpm=@var{rotation_speed}
+
+Prescribed rotation speed of the drive, expressed in rotations per
+minute.  This is 360 for 5 1/4 HD drives, and 300 for all other commonly
+available drive types.  Usually, you do not need to specify this
+parameter, as it can be derived from the drive's CMOS code.  It is
+useful however for single density drives or other drives not commonly
+found on a PC.  Usually, you do not to specify this parameter, as it can
+be derived from the drive's form factor and maximal density.
+
+@item tpi=@var{cylinder_density}
+
+This parameter is only meaningful for 5 1/4 drives.  It expresses
+whether the drive is able to use 80 tracks (@code{tpi=96}) or only 40
+(@code{tpi=48}).  Usually, you do not to specify this parameter, as it
+can be derived from the drive's maximal density: quad density and high
+density drives are 96 tpi, whereas double density drives are 48 tpi.
+
+@end table
+
+
+@node Drive definition file, , Syntax of a drive description, Drive descriptions
+@section The drive definition file in @file{/usr/local/etc/fddriveprm}
+
+@file{/usr/local/etc/fddriveprm} @footnote{The actual location of this
+file depends on the value of the @code{sysconfdir} compile time
+configuration variable (@pxref{Compile-time configuration} for details)}
+contains a dictionary of commonly used media descriptions.  Each
+description is identified by a name, which can then be used by setfdprm
+or superformat to refer to it, instead of an explicit description.
+
+Each definition starts with @code{"drive}@emph{number}@code{":},
+followed by the actual description.  Definitions may be spread over
+several lines, for better readability.  The file may contain comments,
+which start with # and stop at the end of the line.
+

@@ -1,0 +1,25 @@
+Installation:
+=============
+
+ 1. First untar the package.
+
+ 2. Run ./configure
+
+ 3. Compile the utilities:
+     make
+
+ 4. Install:
+     make install
+
+ 5. Run the MAKEFLOPPIES script to create the device files:
+      cd /dev
+      MAKEFLOPPIES
+
+ 6. Enjoy!
+ I you have any questions, feel free to ask!
+
+ 7. You might also want to get a recent version of mtools (later than
+3.0)
+
+   A. Knaff
+  ( alain@knaff.lu )

@@ -1,0 +1,185 @@
+body { text-align: center; }
+
+.titelchen
+{
+  color: #660000;
+  font-weight: bold;
+}
+
+.datum
+{
+  color: #99cc33;
+  font-weight: bold;
+}
+
+.globaltitle
+{ 
+  font-weight: bold;
+  color: #660000;
+  font-size: 64px;
+  text-align: center;
+}
+
+#frame
+{
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: auto;
+	padding: 0px;
+	text-align: left;
+}
+
+#leftcolumn
+{ 
+  float: left;
+  clear: both;
+}
+
+
+#navbar
+{
+  background: #dddd99;
+  font-size: 12px;
+  margin-right: 30px;
+  padding: 5px 10px 1px 1px;
+}
+
+#penguin
+{
+  vertical-align: top;
+  padding: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+
+#contentright
+{
+  clear: right;
+  font-family: "Trebuchet MS", verdana, Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #003366;
+  padding: 0px 0px 0px 5px;
+  margin-left: 240px;
+}
+
+#logobar
+{
+	font-family: "Courier New",Courier,Monaco,monospace;
+	font-size: 12px;
+	color: #003366;
+	margin-right: 70px;
+}
+
+p,pre 
+{ 
+  text-align: left;
+}
+
+table
+{
+	font-family: "Trebuchet MS", verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #003366;
+}
+
+a
+{
+	font-family: "Courier New",Courier,Monaco,monospace;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+a:link
+{
+	color: #660033;
+	text-decoration: none;
+}
+
+a:visited
+{
+	color: #660033;
+	text-decoration: none;
+}
+
+a:hover
+{
+	color: #ffffff;
+	text-decoration: none;
+	background-color: #990000;
+}
+
+a.picture:hover { background-color: #ffffff; }
+
+a:active
+{
+	color: #0000EE;
+	text-decoration: none;
+	background-color: #FFFF99;
+}
+
+#contentright p { font-size: 12px; }
+
+#contentright h1
+{
+	font-size: 24px;
+	color: #660033;
+	padding: 0px;
+	margin-bottom: 20px;
+	text-align: right;
+}
+
+#contentright h2
+{
+	font-size: 18px;
+	color: #003300;
+	padding: 0px;
+	margin-bottom: 10px;
+}
+
+#contentright h3
+{
+	font-size: 14px;
+	color: #003300;
+	padding: 0px;
+	margin-bottom: 10px;
+}
+
+pre {
+  border-color: black;
+  border-width: thin;
+  border-style: solid;
+  display: table-cell;
+  text-align: left;
+  padding: 5px;
+  padding-bottom: 0px;
+  background: #fff8f0 
+}
+
+.blueboard { 
+  border-color: black;
+  border-width: thin;
+  border-style: solid;
+  display: table-cell;
+  text-align: center;
+  padding: 5px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  background: #c0e0ff
+}
+
+.whiteboard { 
+  border-color: black;
+  border-width: thin;
+  border-style: solid;
+  display: table-cell;
+  text-align: center;
+  padding: 5px;
+  padding-bottom: 0px;
+  background: #ffffff
+}
+
+.code { color: #ff4040;
+	font-weight: bold; }
+
+p {  text-align: justify; }

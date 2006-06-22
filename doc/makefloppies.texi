@@ -1,0 +1,58 @@
+@node makefloppies, setfdprm, getfdprm, Commands
+@section makefloppies
+
+@example
+@code{MAKEFLOPPIES} [@code{-tlvng}] [@var{drives}]
+@end example
+
+The @code{MAKEFLOPPIES} shell script creates the new floppy block device
+node.  It uses the floppycontrol program to translate the minor device
+numbers into meaningful names. It also uses these names to decide
+whether to create a given block device file or not, depending on the
+type of the physical drive (for instance, for a 3 1/2 drive, the formats
+corresponding to a 5 1/4 drive are not created).
+
+If you have more than two floppy drives, you need to tell the kernel
+the CMOS types of those additional drives using the
+@code{floppy=}@var{drive}@code{,}@var{type}@code{,cmos} lilo option.
+
+If the @var{drives } parameter is given, only the device nodes for the
+listed drives are made. By default, all only the two first drives are
+tried.
+
+@code{MAKEFLOPPIES} does not work if you redefine your default formats.
+
+@strong{Caution}:
+@code{MAKEFLOPPIES} removes already existing floppy device nodes.
+
+@subsection Options
+
+@table @code
+
+@item -t
+Use the old naming convention for 3 1/2 devices (e.g. @file{fd0H720}
+instead of @file{fd0u720}).
+
+@item -m
+Base the name for the created devices on the type of the media
+(e.g. @file{fd0h720} instead of @file{fd0u720}).
+
+@item -l
+Local. Creates device nodes in the local directory, not /dev
+
+@item -v
+Verbose
+
+@item -n
+Dry run. (just report what would be done, do not do anything)
+
+@item -g
+Group.  Allow read/write access to floppy devices only for group
+@samp{floppy}
+
+@end table
+
+@subsection Bugs
+The Makefloppies script does not work on redefined "default" formats, If
+you redefine default formats, you need to create the needed device nodes
+manually.
