@@ -1,0 +1,147 @@
+MAKEINFO    = makeinfo
+TEXI2DVI    = texi2dvi
+TEXI2HTML   = texi2html
+
+top_srcdir  = @top_srcdir@
+srcdir      = @srcdir@
+VPATH       = @srcdir@
+
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+infodir     = @infodir@
+mandir      = @mandir@
+infodir     = @infodir@
+sysconfdir  = @sysconfdir@
+
+mandir1     = $(mandir)/man1
+mandir4     = $(mandir)/man4
+mandir8     = $(mandir)/man8
+
+MANPAGES1   =  diskd.1 fdrawcmd.1 getfdprm.1 superformat.1 diskseekd.1 \
+               floppycontrol.1 makefloppies.1 xdfcopy.1 fdmount.1 \
+               floppymeter.1 setfdprm.1
+
+MANPAGES4   = fd.4
+MANPERM     = 644
+UID         = root
+GID         = root
+
+INSTALL     = @INSTALL@
+INSTALL_DATA= @INSTALL_DATA@
+INSTALL_INFO= @INSTALL_INFO@
+
+
+CC          = @CC@
+CPPFLAGS    = @CPPFLAGS@
+CFLAGS      = @CFLAGS@
+
+all: info dvi
+
+TEXISRC = \
+acronyms.texi       fdrawcmd.texi       ioctl.texi          superformat.texi \
+autodetect.texi     fdutils.texi        lilo.texi           tips.texi \
+commands.texi       floppycontrol.texi  location.texi       utilities.texi \
+diskd.texi          floppymeter.texi    makefloppies.texi   xdfcopy.texi \
+diskseekd.texi      formatlist.texi     moredata.texi \
+fdmount.texi        getfdprm.texi       setfdprm.texi
+
+
+html: Fdutils.html
+
+dvi: Fdutils.dvi
+
+info: fdutils.info
+
+%.info: $(TEXISRC)
+	$(MAKEINFO) -I @srcdir@ @srcdir@/fdutils.texi
+
+
+%.dvi: Fdutils.texi
+	$(TEXI2DVI) Fdutils.texi
+
+clean:
+	rm -f fdutils.aux fdutils.cp fdutils.cps fdutils.dvi fdutils.fn 
+	rm -f fdutils.log fdutils.pg fdutils.ps fdutils.toc fdutils.tp
+	rm -f fdutils.ky fdutils.vr fdutils.info fdutils.pgs
+	rm -f Fdutils.aux Fdutils.cp Fdutils.cps Fdutils.dvi Fdutils.fn
+	rm -f Fdutils.log Fdutils.pg Fdutils.pgs Fdutils.toc Fdutils.tp
+	rm -f Fdutils.ky Fdutils.vr Fdutils.pgs
+	rm -f fdutils.info*
+
+
+%.html: Fdutils.texi
+	$(TEXI2HTML) $<
+
+Fdutils.texi: $(TEXISRC) texi-linearize
+	./texi-linearize $(srcdir) fdutils.texi > $@
+
+
+# Don't cd, to avoid breaking install-sh references.
+install-info: info
+	$(top_srcdir)/mkinstalldirs $(infodir)
+	if test -f fdutils.info; then \
+	  for i in fdutils.info*; do \
+	    $(INSTALL_DATA) $$i $(infodir)/$$i; \
+	  done; \
+	else \
+	  for i in $(srcdir)/fdutils.info*; do \
+	    $(INSTALL_DATA) $$i $(infodir)/`echo $$i | sed 's|^$(srcdir)/||'`; \
+	  done; \
+	fi; \
+	if [ -n "$(INSTALL_INFO)" ] ; then \
+		if [ -f $(infodir)/dir.info ] ; then \
+			$(INSTALL_INFO) $(infodir)/fdutils.info $(infodir)/dir.info; \
+		fi; \
+		if [ -f $(infodir)/dir ] ; then \
+			$(INSTALL_INFO) $(infodir)/fdutils.info $(infodir)/dir; \
+		fi; \
+	fi
+
+
+
+install-man:
+	$(top_srcdir)/mkinstalldirs $(mandir1)
+	$(top_srcdir)/mkinstalldirs $(mandir4)
+	$(top_srcdir)/mkinstalldirs $(mandir8)
+	for i in $(MANPAGES1); do \
+		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
+			$(srcdir)/$$i $(mandir1)/$$i; \
+	done
+
+	for i in $(MANPAGES4); do \
+		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
+			$(srcdir)/$$i $(mandir4)/$$i; \
+	done
+
+#	for i in $(MANPAGES8); do \
+#		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
+#			$(srcdir)/$$i $(mandir8)/$$i; \
+#	done
+
+	( cd $(mandir1); \
+		ln -sf fdmount.1 $(mandir1)/fdumount.1; \
+		ln -sf fdmount.1 $(mandir1)/fdlist.1; \
+		ln -sf fdmount.1 $(mandir1)/fdmountd.1; \
+		ln -sf xdfcopy.1 $(mandir1)/xdfformat.1 \
+	)
+
+install-zman:
+	for i in $(MANPAGES1); do \
+		gzip < $(srcdir)/$$i >_; \
+		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
+			_ $(mandir1)/$$i.gz; \
+	done
+	for i in $(MANPAGES4); do \
+		gzip < $(srcdir)/$$i >_; \
+		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
+			_ $(mandir4)/$$i.gz; \
+	done
+	for i in $(MANPAGES8); do \
+		gzip < $(srcdir)/$$i >_; \
+		install -c -m $(MANPERM) -o $(UID) -g $(GID) \
+			_ $(mandir8)/$$i.gz; \
+	done
+	rm _
+
+install: install-man install-info

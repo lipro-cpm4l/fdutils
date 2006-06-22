@@ -1,0 +1,15 @@
+@node getfdprm, makefloppies, floppymeter, Commands
+@section getfdprm
+@pindex getfdprm
+@cindex reading back the geometry information
+@cindex geometry information (reading back)
+
+@example
+@code{getfdprm} [@var{drive}]
+@end example
+
+@code{getfdprm}
+prints the current geometry information for @var{drive} .
+This information can be set using
+@code{setfdprm}
+
