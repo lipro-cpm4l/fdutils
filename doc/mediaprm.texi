@@ -1,0 +1,206 @@
+@node Media description, Drive descriptions, Device numbers, Top
+@chapter Media description
+
+
+@menu
+* Introduction (Mediaprm) :: Benefits of the new representation
+* Syntax                   :: What a media description looks like
+* Media definition file    :: Refer to media by a symbolic name
+@end menu
+
+@node Introduction (Mediaprm), Syntax, Media description, Media description
+@section Introduction
+
+Fdutils-5.0 introduces a new uniform format description, which is
+supported both by setfdprm and superformat.  The new format description
+is easyer to handle, because it allows to set the different parameters
+of a format description in a symbolic and position independant way,
+using a series of @emph{variable=value} clauses.  Moreover, it
+automatically fills in sensible default values for unspecified
+parameters.  Thus you only need to describe those aspects of the format
+that are important to you, and let the system handle the others.
+
+Moreover, the new description separates those aspects that were specific
+to the drive (like for instance its rotation speed) from those that are
+specific to the media (spacial density, number of sectors, etc.).
+
+The same description can be used both by setfdprm and superformat:
+@example
+setfdprm /dev/fd0 hd sect=21 cyl=83
+superformat /dev/fd0 hd sect=21 cyl=83
+@end example
+
+The first line above configures a 21 sector/83 cylinder format for drive
+0, and the second line formats a disk using this same format.
+
+
+@node Syntax, Media definition file, Introduction (Mediaprm), Media description
+@section Syntax
+
+A media description is a series of @emph{variable=value} and
+@emph{selector} clauses. @emph{Value} is a number followed by an
+optional unit.  The unit is either @code{KB} (1024 bytes) or @code{b}
+(blocks of 512 bytes), or none (bytes).
+
+
+@menu
+* Selecting the density                               ::
+* Selecting the number of cylinders heads and sectors ::
+* Selecting non-standard sector sizes                 ::
+* Legacy formats                                      ::
+* Expert options                                      ::
+@end menu
+
+
+@node Selecting the density, Selecting the number of cylinders heads and sectors, Syntax, Syntax
+@subsection Selecting the density
+
+To select a density just insert its two letter code into the format
+description.  Selecting a density also selects its default number of
+sectors, heads and cylinders.  However, these latter parameters can be
+overridden.
+
+@table @code
+@item hd
+High density (1440KB for 3 1/2 and 1200KB for 5 1/4).  The most commonly
+used format today.
+
+@item dd
+Double density (720KB for 3 1/2 and 360KB for 5 1/4)
+
+@item ed
+Extra density (2880KB for 3 1/2)
+
+@item qd
+Quad density (720KB for 5 1/4).
+
+@item sd
+Single density (no nominal size).  Used mostly for CP/M.  Only for
+experienced users.
+@end table
+
+If no density is given, the maximal density supported by the drive is
+used.  However, in order to keep the drive description and the media
+description independent, I strongly suggest that you @strong{always}
+indicate the density anyways.
+
+@node Selecting the number of cylinders heads and sectors, Selecting non-standard sector sizes, Selecting the density, Syntax
+@subsection Selecting the number of cylinders, heads and sectors
+
+This subsection describes how to select custom formats with a
+non-standard number of heads, cylinders or sectors.  However, note that
+just describing the number of sectors, heads and cylinders is not
+enough: you also need to indicate which density your custom format is
+based on (cf. previous section).
+
+@table @code
+@item sect=@emph{nb_of_sectors}
+This describes the number of sectors.
+@item head=@emph{nb_of_heads}
+This describes the number of heads to be used.
+@item cyl=@emph{nb_of_cylinders}
+This described the number of cylinders to be used.
+@end table
+
+@node Selecting non-standard sector sizes, Legacy formats, Selecting the number of cylinders heads and sectors, Syntax
+@subsection Selecting non-standard sector sizes
+
+In order to achieve a higher capacity, you may want to use a bigger
+sector size.
+
+@table @code
+@item ssize=@emph{sector_size}
+Choses a bigger sector size.  The sector size is expressed in bytes.
+Only powers of two between 128 and 32768 are acceptable
+@item sect=@emph{nb_of_sectors}
+Describes the number of sectors.  For example @code{hd sect=11
+ssize=1024} describes a format where one track (1 side) is made up of 11
+sectors of 1024 bytes each (thus 11KB per track, and 22KB per cylinder).
+@item tracksize=@emph{size_of_one_track}
+Describes the size of one track.  For example, @code{hd tracksize=11KB
+ssize=1KB} describes a format where one track contains 11KB of data
+(tracksize) stored in sectors of 1KB each.
+
+This option exists mainly to describe MSS (mixed sector size) formats.
+For example, @code{hd tracksize=12KB mss} describes a format where one
+track which contains 12 KB of data.  The sectors size are chosen by the
+system in a way to take up the least raw space: 8KB + 4KB.
+
+@item mss
+
+This option says that the format is an MSS format.
+
+@item 2m
+
+This option says that the format is a so-called 2M format.  These
+formats are intended for easy readability on DOS boxes.  Their first
+track has the usual 18 sectors, whereas the other tracks have bigger
+sector, and in some cases mixed sector sizes.
+
+@end table
+
+@node Legacy formats, Expert options, Selecting non-standard sector sizes, Syntax
+@subsection Legacy formats
+
+The @code{swapsides} format allows to descibe disks whose sides are
+swapped, such as CBM1581 disks.
+
+@node Expert options,, Legacy formats, Syntax
+@subsection Expert options
+
+The following options are not needed in most common situations, as they
+are implied by the @emph{density} selector.  They may be needed to read
+some legacy (CP/M) formats.
+
+@table @code
+@item tpi=48
+For 5 1/4 disks only.  This says that the format uses double-spaced
+cylinders (implied by double density).
+@item tpi=96
+For 5 1/4 disks only.  This says that the format uses single-spaced
+cylinders (implied by quad and high density).
+@item fm=0
+Uses MFM encoding (implied by double, quad, high and extra density)
+@item fm=1
+Uses FM encoding (implied by single density)
+@item dtr=@emph{dtr-code}
+Sets the data transfer rate.  The following table lists the dtr codes
+for various transfer rates:
+@example
+dtr-code    rate for FM          rate for MFM
+=============================================
+0           250kb/s              500kb/s
+1           150kb/s              300kb/s
+2           125kb/s              250kb/s
+3           500kb/s              1000kb/s
+@end example
+@item perp=0
+Do not use "perpendicular mode" sector headers (this setting is implied
+by single, double, quad and high density).
+@item perp=1
+Use "perpendicular" sector headers (this setting is implied by
+extra-density)
+@item gap=@emph{value}
+Sets the size of the read/write gap.  I don't know the purpose of this
+parameter (which is passed @emph{as-is} to the floppy controller): any
+value seems to work with any format...
+@item fmt_gap=@emph{value}
+Sets the size of the formatting gap.  This is only used by the now
+obsolete @code{fdformat} program, and not by superformat.
+@end table
+
+
+@node Media definition file, ,Syntax, Media description
+@section The media description dictionary in /etc/fdmediaprm
+
+@file{/usr/local/etc/fdmediaprm} @footnote{The actual location of this
+file depends on the value of the @code{sysconfdir} compile time
+configuration variable (@pxref{Compile-time configuration} for details)}
+contains a dictionary of commonly used media descriptions.  Each
+description is identified by a name, which can then be used by setfdprm
+or superformat to refer to it, instead of an explicit description.
+
+Each definition starts with @code{"}@emph{name}@code{":}, followed by
+the actual description.  Definitions may be spread over several lines,
+for better readability.  The file may contain comments, which start with
+# and stop at the end of the line.

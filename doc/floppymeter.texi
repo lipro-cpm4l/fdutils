@@ -1,0 +1,102 @@
+@node floppymeter, getfdprm, floppycontrol, Commands
+@section floppymeter
+@pindex floppymeter
+@cindex rotation speed
+@cindex raw capacity
+
+@example
+@code{floppymeter} [@code{-f}] [@code{-w} @var{warmup-delay}] [@code{-W} @var{window}]
+[@code{-c} @var{cycles}] [@code{-h}] @var{drive}
+@end example
+
+The @code{floppymeter} program measures characteristic parameters of a
+floppy drive and floppy controller, such as the rotation speed of the
+drive, the data transfer rate of the controller, and the resulting raw
+capacity of a disk track.  To use this program, insert a disposable
+floppy in the drive, and type @code{floppymeter --}@var{density}, where
+density describes the density of the disk used for the test. (Should be
+one of @code{dd, hd} or @code{ed}). @strong{CAUTION: the data on the
+disk will be erased}.  This program should be used to verify whether the
+drive and controller are out of tolerance if you experience problems
+with some high capacity formats.  It only needs to be run once per
+drive: although a disk is needed to perform the measurements, the
+measured data only depend on the drive and the controller, and not on
+the disk.
+
+To measure the raw capacity of the disk track, the floppymeter program
+formats the first track of the drive in a special way that allows it to
+read the raw data (gaps and headers) of the disk. @strong{Thus, all data
+previously stored on that disk is lost}.
+
+The rotation speed is measured by timing the return time of a
+@code{readid} command.  In order to gain more precision, the command is
+issued many times in a row. During this phase, the number of rotations
+til the start of the test, the average time per rotation til the start,
+and a sliding average of the times of the last 30 rotations is printed,
+and updated continously.
+
+The data transfer rate is deduced from the two parameters above.
+
+At the end of the program, all parameters (raw capacity, duration of one
+rotation, and data transfer rate) are printed again, as well as their
+relative deviation to the standard value.  Finally, it suggests a
+capacity deviation description line, which can be directly pasted into
+the drive definition file (@xref{Drive descriptions}.).
+
+Usually, the data transfer rate should not deviate more than 150 ppm
+from the expected value, and the rotation speed of the drive should not
+deviate more than 3000 ppm from the expected value.  If these deviations
+are bigger, you may get problems with certain high capacity formats.
+
+If the raw capacity of the drive is too small, some high capacity
+formats may become unformattable on this drive/controller combo.
+
+If on the other hand, the raw capacity of the drive is too big, you may
+get problems when writing to a disk formatted by this drive on another
+drive with a smaller raw capacity. In order to avoid this, increase
+superformats gap parameter (@code{-G}).
+
+@table @code
+
+@item -h
+Prints a short help
+
+@item --dd
+Tells the program that we use a Double Density disk.
+
+@item --hd
+Tells the program that we use a High Density disk.
+
+@item --ed
+Tells the program that we use an Extra Density disk.
+
+@item -f
+Runs the measurement non interactively.  With this option, the program
+doesn't ask for confirmation, and doesn't display the continously
+updated values during the rotation speed measurement.
+
+@item -W @var{Window}
+This value describes how many rotations are used for the computation of
+the sliding average. Default is 30.
+
+@item -c @var{cycles}
+Describes the number of rotations clocked during the rotations speed
+determination test. Default is 1000.
+
+@end table
+
+@subsection Bugs
+
+This program is quite new, and may have bugs. Here are a few suggested
+tests to check its sanity:
+@itemize @bullet
+@item
+The deviation of the data transfer rate solely depends on the
+controller. It should not be different between two drives connected to
+the same controller. However, the drive rotation speed may be different
+for different drives.
+@item
+All data transfer rates (for double, high and extra density) are derived
+from a same master frequency. Thus the @emph{deviation} of the data
+transfer rate should be independant of the density used.
+@end itemize

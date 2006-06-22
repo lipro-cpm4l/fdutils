@@ -1,0 +1,144 @@
+@node Acronyms, Interesting formats, Compile-time configuration, Top
+@appendix Acronyms
+
+@table @emph
+
+@item SD (Single density)
+Single density disks use a data transfer rate of 125 kb/s and are no
+longer in use today, because of their low capacity.
+
+@item DD (Double density)
+Double density disks normally hold 360KB (5 1/4) or 720KB (3 1/2) of
+data per disk.
+
+Double density disks have only a hole on one side (for write
+protection).
+
+Double density uses a data transfer rate of 250 kb/s or 300 kb/s
+depending on the drive type: 5 1/4 high density drives use 300 kb/s when
+writing to a double density diskm 250 kb/s is used in all other
+circumstances. The reason why double density disks in high density
+drives need a higher data transfer rate is because these drives rotate
+faster (360 rpm instead of 300 rpm).
+
+@item HD (High density)
+High density disks normally hold 1200KB (5 1/4) or 1440KB (3 1/2) of
+data per disk.  High density 3 1/2 disks are marked as such by the
+presence of a second square hole, just opposed to the write protect
+hole.  3 1/2 high density disks are the most commonly used type of disks
+today.
+
+
+@item QD (Quad density)
+Quad density is a hybrid between double and high density.  It only
+exists for 5 1/4 disks, and holds 720KB of data.  It can be obtained by
+formatting DD disks in a HD drive.  QD uses double density for the
+density along the tracks (data transfer rate), and high density for the
+density perpendicular to the tracks (spacing between tracks, and thus
+number of tracks).  This came to existence because these two aspects are
+limited by two different factors: the density along the track is limited
+by the quality of the media, whereas the density perpendicular to the
+tracks is mainly limited by the drive mechanism (this density, expressed
+in bits per inch comes nowhere near the limits of the media, even with
+HD).  Thus quad density is an easy way to double the capacity of an
+ordinary double density disk, just by formatting it in a HD drive.
+
+@item ED (Extra density)
+Extra density refers to a disk density that can normally hold 2880KB of
+data per disk.  Extra density disks only exist as 3 1/2 disks.  ED disks
+are marked with a second squared hole opposed to the square hole, which
+is a little bit closer to the middle of the edge than that of HD disks.
+This format never really took off, because it only was released when
+storage media with a much higher capacity, such as CD-Roms, tapes and
+Zip disks became popular.
+
+ED uses a data transfer rate of 250 kb/s.
+
+@item DS (Double sided)
+Self explanatory.
+
+@item SS (Single sided)
+Self explanatory
+
+@item MSS (Mixed size sectors)
+Mixed sector size formats are formats which use sectors of several
+different sizes on a single track. @xref{Mixed size sectors}, for
+details.
+
+@item 2M (2 Megabytes)
+2M is a high capacity format developped by Ciriaco de Celis.  The basic
+principle is the same as MSS: mix sectors of several sizes on a same
+track, in order to minimize both slack space and header overhead.  2M is
+different from MSS in that it uses a normal 18 sector format on its
+first track. @xref{2M}, for details.
+
+@item rpm (Rotations per minute)
+All 3 1/2 drives and 5 1/4 DD drives run at 300 rotations per minute,
+whereas 5 1/4 HD drives run at 360 rotations per minute.
+
+@item rps (Rotations per second)
+See above.
+
+
+@item tpi (tracks per inch)
+Expresses how close cylinders are to each other.  Usually, 5 1/4 double
+density disks have 48 tpi, whereas 5 1/4 high density and quad density
+disks have 96 tpi.  3 1/2 disks use 135.5 tpi.
+
+@item XDF (eXtended Density Format)
+XDF is a disk format used for the OS/2 distribution disks.  Its
+operating systems are similar to 2M and MSS disk, but it is faster due
+to a more creative arrangement of sectors. @xref{XDF}, for details.
+
+@item XXDF (eXtended XDF)
+XXDF is an Linux enhancement for XDF. It can store 1992 KB of data on an
+ED disk instead of just 1840 available with the regular XDF
+format. @xref{XXDF}, for details.
+
+@item MFM (Multi Frequency Modulation)
+MFM is a low level encoding of disk data. It is used for DD, HD and ED
+disks, i.e. virtually all disks that are available today.  The PC
+hardware can only read MFM and FM disks.  The doc at:
+@example
+http://www.moria.de/~michael/floppy/floppy.ps
+@end example
+contains more detailed information about FM and MFM encoding.
+
+@item FM (Frequency modulation)
+FM is a low level encoding of disk data. It was used for SD disks, and
+is now considered to be obsolete.  The doc at:
+@example
+http://www.moria.de/~michael/floppy/floppy.ps
+@end example
+contains more detailed information about FM and MFM encoding.
+
+@item kb (kilobit)
+1000 bits
+
+@item kb/s (kilobit per second)
+We express the raw data throughput to and from the disk in this unit,
+which is also used in the documentation of the floppy disk controller.
+
+@item B
+Byte. A byte is 8 bits, and is the smallest individually addressable
+unit of data.
+
+@item KB (K-Byte)
+1024 bytes. Sometimes also noted K.
+
+@item KB/s (K-Byte)
+We express the usable data throughput to and from the disk in KB/s.
+Roughly, 1 KB/s = 8 kb/s. However, the usable data throughput is always
+lower than the raw throughput due to header overhead, interleaving and
+seek overhead.
+
+@item MB (Megabyte)
+Initially, 1 megabyte was 1024*1024 bytes (i.e. 1048576 bytes). However,
+when talking of floppy disk capacity, we understand it as 1000KB, that
+is 1000*1024 bytes, i.e. 1024000 bytes.
+
+@item MB/s (million bytes per second)
+We express (high) raw data throughput to and from the disk in kb/s,
+which is also used in the documentation of the floppy disk controller.
+
+@end table
