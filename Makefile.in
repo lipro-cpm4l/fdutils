@@ -1,0 +1,36 @@
+@SET_MAKE@
+
+all: compile comp-doc 
+install: install-prog install-doc
+clean: clean-prog clean-doc
+
+compile:
+	$(MAKE) -C src all
+
+install-prog: compile
+	$(MAKE) -C src install-bin install-conf
+
+comp-doc:
+	$(MAKE) -C doc all
+
+install-doc: doc
+	$(MAKE) -C doc install
+
+clean-doc:
+	$(MAKE) -C doc clean
+
+clean-prog:
+	$(MAKE) -C src clean
+
+info:
+	$(MAKE) -C doc info
+
+html:
+	$(MAKE) -C doc html
+
+dvi:
+	$(MAKE) -C doc dvi
+
+
+install-info:
+	$(MAKE) -C doc install-info

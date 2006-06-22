@@ -1,0 +1,45 @@
+@node Location, Basic usage, Top, Top
+@chapter Where to get fdutils and its documentation
+@cindex bugs
+@cindex ALPHA patches
+@cindex patches
+@cindex diffs
+@cindex mailing list
+
+Fdutils can be found at the following places (+ mirrors):
+@example
+ftp://www.tux.org/pub/knaff/fdutils/fdutils-5.5.tar.gz
+ftp://metalab.unc.edu/pub/Linux/utils/disk-management/fdutils-5.5.tar.gz
+ftp://tsx-11.mit.edu/pub/linux/sources/sbin/fdutils-5.5.tar.gz
+@end example
+
+The FAQ included in this package is also available separetely at:
+@example
+http://alain.knaff.linux.lu/floppy/FAQ.html
+http://www.tux.org/pub/knaff/floppy/FAQ.html
+@end example
+The FAQ at fdutils.linux.lu and www.tux.org is usually more up to date
+than versions found elsewhere.  Thus, if you don't find an answer in the
+copy of the FAQ you have, please check this one for more recent info.
+
+Before reporting a bug, make sure that it has not yet been fixed in the
+Alpha patches which can be found at:
+@example
+http://fdutils.linux.lu
+ftp://www.tux.org/pub/knaff/fdutils
+@end example
+
+These patches are named
+@code{fdutils-}@var{version}@code{-}@var{ddmm}@code{.taz}, where version
+stands for the base version, @var{dd} for the day and @var{mm} for the
+month. Due to a lack of space, I usually leave only the most recent
+patch.
+
+There is an fdutils mailing list at fdutils @@ www.tux.org .  Please
+send all bug reports to this list.  You may subscribe to the list by
+sending a message with 'subscribe fdutils @@ www.tux.org' in its
+body to majordomo @@ www.tux.org . (N.B. Please remove the spaces
+around the "@@" both times. I left them there in order to fool
+spambots.)  Announcements of new fdutils versions will also be sent to
+the list, in addition to the linux announce newsgroups.  The mailing
+list is archived at http://www.tux.org/hypermail/fdutils/latest

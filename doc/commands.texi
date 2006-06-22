@@ -1,0 +1,35 @@
+@node Commands,  Compile-time configuration, Floppy ioctls, Top
+@chapter Command list
+@cindex Command list
+@cindex List of available commands
+
+This section describes the available fdutils commands, and the command
+line parameters that each of them accepts.
+
+@menu
+* diskd::             detect a disk change and execute a command
+* diskseekd::         seeks the drive from time to time to shake of the
+                      dust
+* fdmount::           automatically mounts and unmounts floppy disks
+* fdrawcmd::          send raw commands to the floppy disk controller
+* floppycontrol::     configure the floppy driver
+* floppymeter::       measures characteristic parameters of a floppy drive
+* getfdprm::          print current geometry parameters
+* makefloppies::      makes the floppy device entries
+* superformat::       formats high capacity disks
+* setfdprm::          changes the current and permanent geometry
+                      parameters
+* xdfcopy::           copies and formats XDF disks
+@end menu
+
+@include diskd.texi
+@include diskseekd.texi
+@include fdmount.texi
+@include fdrawcmd.texi
+@include floppycontrol.texi
+@include floppymeter.texi
+@include getfdprm.texi
+@include makefloppies.texi
+@include setfdprm.texi
+@include superformat.texi
+@include xdfcopy.texi

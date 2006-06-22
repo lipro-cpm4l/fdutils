@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# extracts the manpage for a given command out of a texinfo doc
+
+date=`date +%d%b%y`
+package="fdutils-5.5"
+
+infile=/tmp/infile.$$
+
+extract()
+{
+command=$1
+outfile=`echo $command | tr '[A-Z]' '[a-z]'`.1
+texifile=`echo $command | tr '[A-Z]' '[a-z]'`.texi
+
+echo \'\\\" t >>$outfile
+echo .TH\ $command\ 1\ \"$date\" $package >$outfile
+echo .SH Name >>$outfile
+grep -i $command cmdname >>$outfile
+#echo ".SH Description" >>$outfile
+
+
+#	-e "1,/^@node $command/d" \
+#	-e "/^@node [^,]*, [^,]*, $command, Commands$/,/^@bye/d" \
+#	-e "/^@node [^,]*, [^,]*, Commands/,/^@bye/d" \
+
+cat man-warning.texi $texifile |
+	sed \
+		-e 's/^@section/@chapter/' \
+		-e 's/^@subs/@s/' \
+		-e 's/^@chapter.*$/@chapter Description/' \
+		-e 's/^@section/@chapter/' \
+		-e 's/^@subs/@s/' \
+		-e 's/^@c xMANoptions/@chapter Options/' \
+		-e "s/^@c MAN/@MAN/"  |
+	texi2roff -ma  |
+	sed -f strip-pp.sed >>$outfile
+echo ".SH See Also" >>$outfile
+echo "Fdutils' texinfo doc" >>$outfile
+}
+
+
+extract diskd
+extract diskseekd
+extract fdmount
+extract fdrawcmd
+extract floppycontrol
+extract floppymeter
+extract getfdprm
+extract makefloppies
+extract setfdprm
+extract superformat
+extract xdfcopy

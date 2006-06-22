@@ -1,0 +1,276 @@
+@node fdrawcmd, floppycontrol, fdmount, Commands
+@section fdrawcmd
+@pindex fdrawcmd
+@cindex raw command
+@cindex low level interaction with floppy driver
+@cindex direct interaction with floppy driver
+
+@example
+@code{fdrawcmd} [@code{drive=}@var{drive}] [@code{rate=}@var{rate}]
+[@code{length=}@var{length}] [@code{repeat=}@var{repeat}]
+[@code{cylinder=}@var{physical-cyl}] @var{command} [@var{paramters} @dots{}] [@var{mode}]
+@end example
+
+@code{fdrawcmd}
+is used to send raw commands to the floppy disk controller, after
+having selected a given drive. You must have write permission to the
+selected drive.
+
+When writing to a disk, data is read from stdin; when reading, data
+is printed to stdout.  Diagnostic messages, return values from the
+controller, and the value of the disk change line after the command are
+printed to stderr.
+
+@subsection Options
+
+All numbers may be given in octal (0211), decimal (137), or hexadecimal
+(0x89).
+
+@table @code
+
+@item drive=@var{drive}
+Selects the drive.  The default is drive 0 (@file{/dev/fd0}).
+
+@item rate=@var{rate}
+Selects the data transfer rate. Use 0 for high density disks, 1 for
+double density 5 1/4 disks (or 2 Mbps tapes, if the appropriate rate
+table is selected), and 2 for double density 3 1/2 disks.
+
+@item length=@var{length}
+Describes the length of the transferred data for commands reading from
+and writing to the disk.  The default is to continue until end of file.
+
+@item repeat=@var{count}
+Repeat the command @var{count} times.  This only works correctly for
+commands which don't do any data transfer.
+
+@item cylinder=@var{count}
+Seek to the given cylinder before executing the command
+
+@item @var{command}
+The name of the command to send.  @var{command} may be a spelled out
+name (like @code{read} or @code{write}), or a number representing the
+commands floppy disk controller opcode.  A named command has already a
+mode associated with it, whereas for a number the mode parameter should
+be described using the @code{mode} option.
+
+
+@item @var{parameters}
+The parameters for the command (optional, not all commands need
+parameters).
+
+@item @var{mode}
+Various flags or'ed together describing the properties of the command.
+
+@end table
+
+
+@subsection Commands
+
+The description of the various floppy commands given in this manpage is
+very sketchy. For more details get the 82078 spec sheet which can be
+found at:
+@example
+http://www-techdoc.intel.com/docs/periph/fd_contr/datasheets/
+@end example
+
+Look for the chapter @code{COMMAND SET/DESCRIPTIONS}.  Older FDCs only
+support a subset of the commands described therein, but the syntax for
+the commands that do exist is the same.
+
+@subsubsection Commands available on all FDCs
+
+@table @code
+
+@item read @var{drvsel cyl head sect szcod spt rw-gap szcod2}
+Reads @var{length} bytes of data from the disk.  @var{drvsel} is the
+drive selector. Bit 0 and 1 describe the drive, and bit 2 describes the
+head.  The remaining parameters give the cylinder, head (yes, again),
+sector, size of the sector (128 * 2 ^ @var{szcod}), sectors per track
+(@code{spt}, this is used to switch to the second head when the first
+side has been read), and size of the read-write gap. @var{szcod2} should
+be 0xff.  @code{read} returns @var{ST0 ST1 ST2} and @var{cyl head sect
+szcod} of the next sector to be read; see
+@file{/usr/include/linux/fdreg.h} .
+
+N.B. Certain newer floppy disk controllers are buggy, and do not
+correctly recognize the end of transfer when operating in virtual DMA
+mode.  For these, you need to set @code{spt} to the id of the last
+sector to be read (for example, if you intend to read sectors 2, 3, 4,
+set @code{spt} to 4, even if the disk has more sectors), and set the
+@code{no-mt} flag.
+
+@item write @var{drvsel cyl head sect szcod spt rw-gap szcod2}
+Analogous to
+@code{read}.
+
+@item sense @var{drvsel}
+Returns the third status byte (@var{ST3})
+
+@item recalibrate @var{drvsel}
+Recalibrates the drive and returns @var{ST0 ST1}.
+
+@item seek @var{drvsel cyl}
+Moves the head to @var{cyl} and returns @var{ST0 ST1}.
+
+@item specify @var{drvsel spec1 spec2}
+Specify various parameters to the drive.
+
+@item format @var{drvsel szcod sect-per-track fmt-gap fmt-fill}
+Formats the cylinder. The new sectors are filled with @var{fmt-fill}.
+The header information comes from the input, which is made up of
+@var{cyl head sect szcod} quadruples. The @var{szcod} parameter
+from the command line is used to describe the actual size of the
+sectors, and the @var{szcod} from the input is used to write into the
+header. However, the first write to these sectors will use the header
+information, and might overwrite the following sectors if the
+@var{szcod} parameter from the command line was too small.
+
+@item readid @var{drvsel}
+reads the first sector header that comes and returns 
+@var{ST0 ST1 ST2 }
+and 
+@var{cyl head sect szcod }
+of the encountered header.
+@end table
+
+@subsubsection Commands available on 82072 and later
+
+@table @code
+@item dumpregs
+Prints the contents of the FDCs registers, if supported.
+@end table
+
+@subsubsection Commands available on 82072A and later
+
+@table @code
+@item configure @var{conf1 conf2 conf3}
+Configures FIFO operation.
+@end table
+
+@subsubsection Commands available on 82077 and later
+
+@table @code
+@item version
+Echoes 0x90 if the FDC is more recent than 82072A, and 0x80 otherwise
+
+@item perpendicular @var{rate}
+Sets the perpendicular mode.  Use 0 for normal, 2 for 500kb/s
+perpendicular, and 3 for 1 Mb/s perpendicular.
+
+@item seek-out @var{drvsel n}
+does a relative seek of
+@var{n}
+cylinders towards cylinder 0.
+
+@item seek-in  @var{drvsel n}
+does a relative seek of @var{n} cylinders away from cylinder 0.
+@end table
+
+
+@subsubsection Commands available on 82077AA and later
+
+@table @code
+@item lock
+Locks the FIFO configuration, so that it survives a FDC software reset.
+@item unlock
+Unlock the FIFO configuration
+@end table
+
+@subsubsection Commands available on 82078
+
+@table @code
+@item partid
+echoes a byte describing the type of the FDC in the 3 high bits, and
+the stepping in the three low bits.
+
+@item powerdown @var{powerconf}
+configures automatic power down of the FDC. The old configuration is echoed
+
+@item option @var{iso}
+enables/disables ISO formats. Odd values of
+@var{iso}
+enable these formats, whereas even values disable them. ISO formats
+don't have index headers, and thus allow to fit slightly more data on
+a disk.
+
+@item save
+prints out 16 internal registers of the FDC.
+
+@item restore @var{r1 r2 r3 ... r16}
+restores the 16 internal registers of the FDC.
+
+@item format_n_write @var{drvsel szcod sect-per-track fmt-gap fmt-fill}
+formats the cylinder and writes initial data to it. The input data is
+made up of a sequence of headers (4 bytes) and data:
+@var{header1 data1 header2 data2 ... headern datan}
+
+@item drivespec @var{dspec1 dspec2 ... specn terminator}
+chooses rate tables for various drives. Each dspec byte describes one
+drive. Bits 0 and 1 say which drive is described. Bits 2 and 3 describe
+the rate table. Only tables 0 and 2 are interesting. Both tables only
+differ in the meaning og rate 1. For table 0 (the default) rate 0 is 300
+kb/s (used for 5 1/4 DD disks), whereas for table 1 it is 2 Mbps (used
+for fast floppy tape drives). Bit 4 is the precompensation table select
+bit. It should be set to 0. Bit 5-7 should be zero as well. The
+@var{terminator} byte ends the @code{drivespec} command. It is either
+0xc0 or 0x80. If it is 0xc0, no result phase follows; if it is 0x80, the
+current data rate table configuration for the four drives is echoed.
+@end table
+
+@subsection Modes
+The mode option is only needed when you describe the command as a
+numerical value. Some mode names are also valid command names. They
+are considered as command name if the command name has not yet been
+given, and as mode name otherwise.
+
+ If you give a command name followed by explicit modes, both the
+implicit flags of the command name, and the explicit modes are or'ed
+together.
+
+ If on the other hand you give a command name preceded by explicit
+modes, only the explicit modes are or'ed together.
+
+@table @code
+@item read
+Read data from disk using DMA.
+
+@item write
+Write data to the disk.
+
+@item intr
+Wait for an interrupt.
+
+@item spin
+wait for the disk to spin up
+
+@item disk
+Aborts the operation if no disk is in the drive. This only works if you
+also chose a physical cylinder to seek to.
+
+@item no-motor
+Don't switch on the drive motor while issuing the command
+
+@item no-motor-after
+Switch off the motor immediately after the command returns.
+
+@item fm
+Uses the FM version of the @code{read}, @code{readid}, @code{write} and
+@code{format} commands.
+
+@item no-mt
+Do not use MT (multitrack) mode for the @code{read}, @code{readid} and
+@code{write} commands. This is needed on certain broken FDC's which
+don't recognize end of transfer when running in @code{nodma} mode. In
+order to use these safely, set @code{no-mt}, and chose the id of the
+last sector to be read as @code{sect-per-track}.
+
+@end table
+
+@code{fdrawcmd} opens the device node with the @code{NDELAY} flag. This
+means that the driver should not try to autodetect the disk type (it
+might not be formatted), and that it should not reset the FDC. If a
+reset was needed, the command simply fails. If that happens, execute
+@code{floppycontrol --resetnow 0} , and try again.
+
+
