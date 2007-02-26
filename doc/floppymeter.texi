@@ -33,7 +33,7 @@ The rotation speed is measured by timing the return time of a
 issued many times in a row. During this phase, the number of rotations
 til the start of the test, the average time per rotation til the start,
 and a sliding average of the times of the last 30 rotations is printed,
-and updated continously.
+and updated continuously.
 
 The data transfer rate is deduced from the two parameters above.
 
@@ -72,7 +72,7 @@ Tells the program that we use an Extra Density disk.
 
 @item -f
 Runs the measurement non interactively.  With this option, the program
-doesn't ask for confirmation, and doesn't display the continously
+doesn't ask for confirmation, and doesn't display the continuously
 updated values during the rotation speed measurement.
 
 @item -W @var{Window}

@@ -774,7 +774,7 @@
 # CMD FD2000 disk drive, a third party floppy disk drive for the
 # Commodore line of computers with double of the capacity:
 "CMDFD2M":
-  DS HD sect=10 cyl=81 ssize=1024 fmt_gap=100 gap=12 swapsides
+ DS HD sect=10 cyl=81 ssize=1024 fmt_gap=100 gap=12 swapsides
 
 # Color computer, sides 1 and 2
 "COCO1":
