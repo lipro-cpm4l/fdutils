@@ -8,7 +8,7 @@
 @example
 @code{fdrawcmd} [@code{drive=}@var{drive}] [@code{rate=}@var{rate}]
 [@code{length=}@var{length}] [@code{repeat=}@var{repeat}]
-[@code{cylinder=}@var{physical-cyl}] @var{command} [@var{paramters} @dots{}] [@var{mode}]
+[@code{cylinder=}@var{physical-cyl}] @var{command} [@var{parameters} @dots{}] [@var{mode}]
 @end example
 
 @code{fdrawcmd}
@@ -158,12 +158,12 @@ Echoes 0x90 if the FDC is more recent than 82072A, and 0x80 otherwise
 Sets the perpendicular mode.  Use 0 for normal, 2 for 500kb/s
 perpendicular, and 3 for 1 Mb/s perpendicular.
 
-@item seek-out @var{drvsel n}
+@item seek_out @var{drvsel n}
 does a relative seek of
 @var{n}
 cylinders towards cylinder 0.
 
-@item seek-in  @var{drvsel n}
+@item seek_in  @var{drvsel n}
 does a relative seek of @var{n} cylinders away from cylinder 0.
 @end table
 
