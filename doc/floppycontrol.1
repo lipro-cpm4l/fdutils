@@ -578,28 +578,28 @@ bigger than the thresholds described below, the corresponding actions
 are performed at the next retry. The counter is reset when the read or
 write finally terminates, whether successfully or not.
 .TP
-\&\fR\&\f(CW-a\ \fIoperation-abort-trshld\fR\&\f(CW\ \fR\ 
+\&\fR\&\f(CW-a\ \fIoperation-abort-threshold\fR\&\f(CW\ \fR\ 
 .TQ
-\&\fR\&\f(CW--abort\ \fI\ operation-abort-trshld\fR\&\f(CW\fR
+\&\fR\&\f(CW--abort\ \fI\ operation-abort-threshold\fR\&\f(CW\fR
 Tell the floppy driver to stop trying to read/write a sector after
-\&\fIoperation-abort-trshld\fR
+\&\fIoperation-abort-threshold\fR
 retries, and signal the I/O error to the user.
 .TP
-\&\fR\&\f(CW-t\ \fIread-track-trshld\fR\&\f(CW\ \fR\ 
+\&\fR\&\f(CW-t\ \fIread-track-threshold\fR\&\f(CW\ \fR\ 
 .TQ
-\&\fR\&\f(CW--readtrack\ \fI\ read-track-trshld\fR\&\f(CW\fR
+\&\fR\&\f(CW--readtrack\ \fI\ read-track-threshold\fR\&\f(CW\fR
 Tell the floppy driver to switch from track-reading mode to
 sector-at-a-time-mode after
-\&\fIread-track-trshld\fR
+\&\fIread-track-threshold\fR
 retries.
 .TP
-\&\fR\&\f(CW-r\ \fIrecalibrate-trshld\fR\&\f(CW\ \fR\ 
+\&\fR\&\f(CW-r\ \fIrecalibrate-threshold\fR\&\f(CW\ \fR\ 
 .TQ
-\&\fR\&\f(CW--recalibrate\ \fI\ recalibrate-trshld\fR\&\f(CW\fR
+\&\fR\&\f(CW--recalibrate\ \fI\ recalibrate-threshold\fR\&\f(CW\fR
 Tell the floppy driver to recalibrate the drive after
-\&\fIrecalibrate-trshld\fR retries.
+\&\fIrecalibrate-threshold\fR retries.
 .TP
-\&\fR\&\f(CW-R\ \fIreset-treshold\fR\&\f(CW\ \fR\ 
+\&\fR\&\f(CW-R\ \fIreset-threshold\fR\&\f(CW\ \fR\ 
 .TQ
 \&\fR\&\f(CW--reset\ \fI\ reset-threshold\fR\&\f(CW\fR
 Tell the floppy driver to reset the controller after
@@ -607,11 +607,11 @@ Tell the floppy driver to reset the controller after
 driver also recalibrates all drives connected to that controller.
 .IP
 .TP
-\&\fR\&\f(CW-e\ \fIerror-report-trshld\fR\&\f(CW\ \fR\ 
+\&\fR\&\f(CW-e\ \fIerror-report-threshold\fR\&\f(CW\ \fR\ 
 .TQ
-\&\fR\&\f(CW--reporting\ \fI\ error-report-trshld\fR\&\f(CW\fR
+\&\fR\&\f(CW--reporting\ \fI\ error-report-threshold\fR\&\f(CW\fR
 Tell the floppy driver to start printing error messages to the console
-after \fIerror-report-trshld\fR retries.
+after \fIerror-report-threshold\fR retries.
 .PP
 .SH Write\ error\ reporting
 .PP

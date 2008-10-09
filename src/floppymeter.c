@@ -154,8 +154,9 @@ int main(int argc, char **argv)
 
 	if(!(mask & NON_INTERACTIVE)) {
 		fprintf(stderr,
-			"Warning: all data contained on the floppy disk will be lost. Continue?\n");
+			"Warning: all data on the floppy disk will be lost. Continue (y/N)? ");
 		c=getchar();
+		fprintf(stderr, "\n");
 		if(c != 'y' && c != 'Y')
 			exit(1);
 	}
