@@ -24,7 +24,7 @@ When the disk is formatted, @code{superformat} automatically invokes
 @code{mformat} in order to put an MS-DOS filesystem on it. You may
 ignore this filesystem, if you don't need it.
 
-Supeformat allows to format 2m formats.  Be aware, however, that these
+Superformat allows to format 2m formats.  Be aware, however, that these
 @code{2m} formats were specifically designed to hold an MS-DOS
 filesystem, and that they take advantage of the fact that the MS-DOS
 filesystem uses redundant sectors on the first track (the FAT, which is
@@ -216,7 +216,7 @@ track 2 head 0: 4,5,6,1,2,3	(skew=3)
 track 2 head 1: 3,4,5,6,1,2	(skew=4)
 @end example
 
-N.B. For simplicitie's sake, this example expresses skews in units of
+N.B. For simplicity's sake, this example expresses skews in units of
 sectors. In reality, superformat expects the skews to be expressed in
 raw bytes.
 
