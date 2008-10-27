@@ -629,7 +629,7 @@ int do_mount(char *devname,char *_mountpoint,
     struct mntent ms;
     struct floppy_drive_struct drivstat;
     char options[80+MAX_OPT]; 
-    char super[2048];
+    unsigned char super[2048];
     char *mountpoint;
    
     strncpy(curdev,devname, sizeof(curdev));

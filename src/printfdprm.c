@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "printfdprm.h"
+#include "fdutils.h"
 
 
 void print_params(drivedesc_t *drivedesc,
@@ -101,9 +102,9 @@ void print_params(drivedesc_t *drivedesc,
 				print("tpi=48",0);
 			break;
 		default:
-			if(level >= LEV_ALL || ft->stretch)
-				print("stretch=%d", ft->stretch);
-			break;			
+			if(level >= LEV_ALL || (ft->stretch & 1))
+				print("stretch=%d", ft->stretch & 1);
+			break;
 	}
 
 	if(level >= LEV_ALL || ft->size != ft->sect * ft->head * ft->track)
@@ -139,13 +140,17 @@ void print_params(drivedesc_t *drivedesc,
 	if(ft->stretch & FD_SWAPSIDES)
 		print("swapsides",0);			
 
-	if(ft->stretch & FD_ZEROBASED)
-		print("zerobased",0);			
-
+	if(ft->stretch & FD_SECTBASEMASK) {
+		int firstSectorNumber = ((ft->stretch & FD_SECTBASEMASK)>>2)^1;
+		if(firstSectorNumber > 1)
+			print("first-sector-number=%d",firstSectorNumber);
+		else if(firstSectorNumber==0)
+			print("zero-based",0);
+	}
 
 	if(ft->rate & FD_2M)
 		print("2M",0);
-	
+
 	if(level < LEV_ALL &&
 	   ft->sect * 4 <  (2 << ssize) && ft->sect * 4 % (1 << ssize))
 		print("mss", 0);
@@ -159,7 +164,7 @@ void print_params(drivedesc_t *drivedesc,
 	}
 
 	/* useless stuff */
-	if(level >= LEV_MOST) {		
+	if(level >= LEV_MOST) {
 		print("gap=0x%02x", (unsigned char) ft->gap);
 		print("fmt_gap=0x%02x", (unsigned char) ft->fmt_gap);
 	}

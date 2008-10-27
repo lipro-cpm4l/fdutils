@@ -10,8 +10,8 @@
 #define SSIZE(j)   ( (128<<j) + GAPSIZE(j) + header_size)
 
 
-static inline int chunks_in_sect(struct params *fd, int i, 
-				 int gap, int chunksize)
+static inline unsigned int chunks_in_sect(struct params *fd, int i, 
+					  int gap, int chunksize)
 {
 	return (SSIZE(i)-1) / chunksize + 1;
 }
@@ -28,22 +28,22 @@ static inline int sizeOfSector(struct params *fd, int i)
 }
 
 
-static inline int firstSector(struct params *fd, int i)
+static inline unsigned int firstSector(struct params *fd, int i)
 {
 	if(i>=MAX_SIZECODE-1)
-		return 1;
+		return 0;
 	else
 		return fd->last_sect[i+1];
 }
 
-static inline int lastSector(struct params *fd, int i)
+static inline unsigned int lastSector(struct params *fd, int i)
 {
 	return fd->last_sect[i];
 }
 
-static inline int nrSectorsForSize(struct params *fd, int i)
+static inline unsigned int nrSectorsForSize(struct params *fd, int i)
 {
-	return  lastSector(fd, i) - firstSector(fd, i);
+	return lastSector(fd, i) - firstSector(fd, i);
 }
 
 
@@ -93,7 +93,7 @@ static void compute_sizes(struct params *fd,
 	int i;
 	int nr_sectors;
 
-	cur_sector = 1;
+	cur_sector = 0;
 	sizes=0;
 	for (i=MAX_SIZECODE-1; i>=0; --i) {
 		if(i > max_sizecode)
@@ -107,7 +107,7 @@ static void compute_sizes(struct params *fd,
 		if(nr_sectors)
 			sizes++;
 	}
-	fd->dsect = cur_sector-1; /* number of data sectors */
+	fd->dsect = cur_sector; /* number of data sectors */
 	if(sizes > 1)
 		fd->need_init = 1;
 
@@ -264,51 +264,54 @@ static void convert_chunksize(struct params *fd)
  */
 static void calc_sequence(struct params *fd, int tailsect)
 {
-	int sec_id, cur_sector, i;
+	int sec_id, cur_slot, i;
+	int *occupied = SafeNewArray(fd->dsect, int);
+	int last_slot = fd->dsect - 1;
 
-	fd->sequence = SafeNewArray(fd->dsect,struct fparm2);
-	cur_sector = fd->dsect-1;
+	fd->sequence = SafeNewArray(fd->dsect, struct fparm2);       
+	cur_slot = last_slot;
 
-	/* construct the sequence while working backwards.  cur_sector
+	/* construct the sequence while working backwards.  cur_slot
 	 * points to the place where the next sector will be placed.
 	 * We place it, then move circularily backwards placing more
 	 * and more sectors */
 	sec_id = tailsect;
 	fd->rotations = 0;
 	for(i=0; i < fd->dsect; 
-	    i++, cur_sector -= fd->actual_interleave, sec_id--) {
-		if (sec_id == 0)
-			sec_id = fd->dsect;
+	    i++, cur_slot -= fd->actual_interleave, sec_id--) {
+		if (sec_id < 0)
+			sec_id = last_slot;
 
-		if ( cur_sector < 0) {
-			cur_sector += fd->dsect;
-			if(sec_id != fd->dsect)
+		if ( cur_slot < 0) {
+			cur_slot += fd->dsect;
+			if(sec_id != last_slot)
 				fd->rotations++;
 		}
 			
 		/* slot occupied, look elsewhere */
-		while(fd->sequence[cur_sector].sect ){
-			cur_sector--;
-			if ( cur_sector < 0 ) {
-				cur_sector += fd->dsect;
-				if(sec_id != fd->dsect)
+		while(occupied[cur_slot]) {
+			cur_slot--;
+			if ( cur_slot < 0 ) {
+				cur_slot += fd->dsect;
+				if(sec_id != last_slot)
 					fd->rotations++;
 			}
 		}
 
 		/* place the sector */
-		fd->sequence[cur_sector].sect = sec_id;
-		fd->sequence[cur_sector].size = sizeOfSector(fd, sec_id);
+		fd->sequence[cur_slot].sect = sec_id;
+		fd->sequence[cur_slot].size = sizeOfSector(fd, sec_id);
+		occupied[cur_slot] = 1;
 	}
 
 	/* handle wrap-around between tailsect and tailsect+1 */
-	if(tailsect != fd->dsect) {
-		/* always add one rotation, because tailsect+1 cannot be
+	if(tailsect != last_slot) {
+		/* always add one rotation, because tailsect cannot be
 		 * at the last position, thus is necessarily earlyer */
 		fd->rotations++;
 		
 		if(fd->actual_interleave == 2 && 
-		   cur_sector + fd->actual_interleave == 1)
+		   cur_slot + fd->actual_interleave == 1)
 			/* if we use interleave, and the last sector was
 			 * placed at the first last position, add one
 			 * extra rotation for tailsect+1 following tailsect
@@ -333,11 +336,11 @@ static void calc_placement(struct params *fd, int gap)
 		max_offset = cur_sector;
 
 		/* offset of the starting sector */
-		if ( fd->sequence[i].sect == 1 )
+		if ( fd->sequence[i].sect == 0 )
 			fd->min = cur_sector * fd->chunksize;
 
 		/* offset of the end of the of the highest sector */
-		if (fd->sequence[i].sect == fd->dsect)
+		if (fd->sequence[i].sect == fd->dsect - 1)
 			track_end = cur_sector * fd->chunksize + 
 				header_size + index_size +
 				SSIZE(fd->sequence[i].size);
@@ -509,7 +512,7 @@ void compute_track0_sequence(struct params *fd)
 	fd->min = 0;
 
 	for(i=0; i<sectors; i++){
-		fd->sequence[i].sect = i+1;
+		fd->sequence[i].sect = i;
 		fd->sequence[i].size = 2;
 		fd->sequence[i].offset = i;
 	}

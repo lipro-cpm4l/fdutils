@@ -2,6 +2,7 @@
 #define __FDUTILS_H
 
 #include <assert.h>
+#include <linux/fd.h>
 /* This file contains common structures understood by several of the
  * fdutils
  */
@@ -32,6 +33,10 @@ void *safe_calloc(size_t nmemb, size_t size);
 
 #ifndef FD_ZEROBASED
 #define FD_ZEROBASED 4
+#endif
+
+#ifndef FD_SECTBASEMASK
+#define FD_SECTBASEMASK 0x3fc
 #endif
 
 #endif

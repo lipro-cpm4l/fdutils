@@ -83,7 +83,7 @@ struct params {
 	int length; /* length of the track */
 	int rotations; /* how many time do we have to go over 0 to read
 			* the track */
-	int zeroBased; /* 1 if sector numbering starts at zero */
+	int firstSectorNumber; /* Number of first sector (1, by default) */
 	int swapSides; /* if logical side 0 is on physical 1 and vice-versa */
 };
 
