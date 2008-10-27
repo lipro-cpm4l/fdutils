@@ -1,4 +1,4 @@
-.TH superformat 1 "03Mar05" fdutils-5.5
+.TH superformat 1 "27oct08" fdutils-5.5
 .SH Name
 superformat - format floppies
 '\" t
@@ -79,7 +79,7 @@ quoting conventions used in info.
 .in +0.3i
 \&\fR\&\f(CWsuperformat [\fR\&\f(CW-D \fIdos-drive\fR\&\f(CW] [\fR\&\f(CW-v \fIverbosity-level\fR\&\f(CW] [\fR\&\f(CW-b \fIbegin-track\fR\&\f(CW]
 [\fR\&\f(CW-e \fIend-track\fR\&\f(CW] [\fR\&\f(CW--superverify] [\fR\&\f(CW--dosverify]
-[\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later] [\fR\&\f(CW--zero-based]
+[\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later] [\fR\&\f(CW--first-sector-number \fIn\fR\&\f(CW] [\fR\&\f(CW--zero-based]
 [\fR\&\f(CW-G \fIformat-gap\fR\&\f(CW] [\fR\&\f(CW-F \fIfinal-gap\fR\&\f(CW] [\fR\&\f(CW-i \fIinterleave\fR\&\f(CW] [\fR\&\f(CW-c \fIchunksize\fR\&\f(CW]
 [\fR\&\f(CW-g \fIgap\fR\&\f(CW] [\fR\&\f(CW--absolute-skew \fIabsolute-skew\fR\&\f(CW] [\fR\&\f(CW--head-skew \fIhead-skew\fR\&\f(CW]
 [\fR\&\f(CW--track-skew \fItrack-skew\fR\&\f(CW] [\fR\&\f(CW--biggest-last] \fIdrive\fR\&\f(CW [\fImedia-description\fR\&\f(CW]
@@ -237,13 +237,12 @@ formatting gaps.
 For MSS formats, make sure that the biggest sector is last on the track.
 This makes the format more reliable on drives which are out of spec.
 .TP
+\&\fR\&\f(CW--first-sector-number\ \fIn\fR\&\f(CW\fR\ 
+Formats the disk with sector numbers starting at \fIn\fR, rather than
+1. Certain CP/M boxes or Music synthesizers use this format.
+.TP
 \&\fR\&\f(CW--zero-based\fR\ 
-Formats the disk with sector numbers starting at 0, rather than
-1. Certain CP/M boxes or Music synthesizers use this format. Those disks
-can currently not be read/written to by the standard Linux read/write
-API; you have to use fdrawcmd to access them.  As disk verifying is done
-by this API, verifying is automatically switched off when formatting
-zero-based.
+Shorthand for \fR\&\f(CW--first-sector-number 0\fR
 .PP
 .SH Sector\ skewing\ options
 .PP

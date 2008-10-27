@@ -379,7 +379,7 @@ int main( int argc, char **argv)
 	}
 
 	if (mask & SET_RESET)
-		eioctl(fd, FDRESET, (void *)reset_now, "reset");
+		eioctl(fd, FDRESET, (void *)(long)reset_now, "reset");
 
 	if (mask & (PRINTSTATE | POLLSTATE) ){
 		if ( mask & POLLSTATE )

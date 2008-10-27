@@ -296,7 +296,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 		fd += findex[cylinder][head];
 		skew = fd->min + lskews[cylinder][head] * fd->chunksize;
 		assert(skew >= fd->min);
-		assert(skew <= fd->max);		
+		assert(skew <= fd->max);
 	} else
 		skew = 0;
 
@@ -305,7 +305,8 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	for (i=0; i<fd->dsect; ++i){
 		offset = fd->sequence[i].offset + lskews[cylinder][head];
 		offset = offset % fd->nssect;
-		data[offset].sector = fd->sequence[i].sect - fd->zeroBased;
+		data[offset].sector = 
+			fd->sequence[i].sect + fd->firstSectorNumber;
 		data[offset].size = fd->sequence[i].size;
 		data[offset].cylinder = cylinder;
 		data[offset].head = head;
@@ -339,7 +340,7 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 	raw_cmd.cmd[3] = nssect;
 	raw_cmd.cmd[4] = fd->fmt_gap;
 	raw_cmd.cmd[5] = 0;
-	raw_cmd.flags = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_SPIN | 
+	raw_cmd.flags = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_SPIN |
 		FD_RAW_NEED_SEEK | FD_RAW_NEED_DISK;
 	raw_cmd.track = cylinder << stretch;
 	raw_cmd.rate = fd->rate & 0x43;
@@ -363,14 +364,16 @@ int format_track(struct params *fd, int cylinder, int head, int do_skew)
 static int rw_track(struct params *fd, int cylinder, int head, int mode)
 {
 	int i;
-	int cur_sector;
+	int cur_sector; /* current sector, logical (based on 0) */
 	int retries;
 	struct floppy_raw_cmd raw_cmd;
 
-	cur_sector = 1 - fd->zeroBased;
+	cur_sector = 0;
 
 	for (i=MAX_SIZECODE-1; i>=0; --i) {
-		if ( fd->last_sect[i] <= cur_sector + fd->zeroBased)
+		if ( cur_sector >= fd->last_sect[i] )
+			/* last sector for size reached, move on to next
+			 * sizecode */
 			continue;
 		retries=0;
 	retry:
@@ -383,32 +386,31 @@ static int rw_track(struct params *fd, int cylinder, int head, int mode)
 		    (fd->swapSides ? 4 : 0);
 		raw_cmd.cmd[2] = cylinder;
 		raw_cmd.cmd[3] = head;
-		raw_cmd.cmd[4] = cur_sector;
+		raw_cmd.cmd[4] = cur_sector + fd->firstSectorNumber;
 		raw_cmd.cmd[5] = i;
-		raw_cmd.cmd[6] = fd->last_sect[i] - 1 - fd->zeroBased;
+		raw_cmd.cmd[6] = fd->last_sect[i] + fd->firstSectorNumber - 1;
 		raw_cmd.cmd[7] = fd->gap;
 		if ( i )
 			raw_cmd.cmd[8] = 0xff;
 		else
 			raw_cmd.cmd[8] = 0xff;
-		raw_cmd.flags = (mode ? FD_RAW_WRITE : FD_RAW_READ) | 
+		raw_cmd.flags = (mode ? FD_RAW_WRITE : FD_RAW_READ) |
 			FD_RAW_INTR | FD_RAW_SPIN |
 			FD_RAW_NEED_SEEK | FD_RAW_NEED_DISK;
 		raw_cmd.track = cylinder << stretch;
 		raw_cmd.rate = fd->rate & 0x43;
 
-		raw_cmd.length = (fd->last_sect[i] - 
-				  fd->zeroBased - 
-				  cur_sector) * 128 << i;
+		raw_cmd.length = (fd->last_sect[i] - cur_sector) * 128 << i;
 		/* debugging */
 		if (verbosity == 9)
 			printf("%s %ld sectors of size %d starting at %d\n",
 			       mode ? "writing" : "reading",
 			       raw_cmd.length / 512, i, cur_sector);
-		if(send_cmd(fd->fd, & raw_cmd, 
+		if(send_cmd(fd->fd, & raw_cmd,
 			    mode ? "format" : "verify")){
 			if ( !retries && mode && (raw_cmd.reply[1] & ST1_ND) ){
-				cur_sector = raw_cmd.reply[5];
+				cur_sector = 
+					raw_cmd.reply[5] - fd->firstSectorNumber;
 				retries++;
 				goto retry;
 			}
@@ -516,6 +518,7 @@ int main(int argc, char **argv)
 
 	short retries;
 	short zeroBased=0;
+	short firstSectorNumber=1;
 	short swapSides=0;
 	int n,rsize;
 	char *verify_buffer = NULL;
@@ -673,6 +676,10 @@ int main(int argc, char **argv)
 	  	(void *) &zeroBased,
 	  	"Start numbering sectors from 0 instead of 1 (not readable by normal I/O)" },
 
+	{ '\0', "first-sector-number", 1, EO_TYPE_SHORT, 1, 0,
+	  	(void *) &firstSectorNumber,
+	  	"Number of first sector (by default, 1)" },
+
 	{ '\0', 0 }
 	};
 
@@ -691,6 +698,15 @@ int main(int argc, char **argv)
 			exit(1);
 		fprintf(stderr,"unhandled option %d\n", ch);
 		exit(1);
+	}
+
+	if(zeroBased) {
+		if(firstSectorNumber == 1)
+			firstSectorNumber = 0;
+		else if(firstSectorNumber > 1) {
+			fprintf(stderr, "Contradiction between zeroBased and firstSectorNumber");
+			exit(1);
+		}
 	}
 
 	/* sanity checking */
@@ -730,7 +746,7 @@ int main(int argc, char **argv)
 	while(1) {
 		fd[0].fd = open(fd[0].name, O_RDWR | O_NDELAY | O_EXCL);
 		
-		/* we open the disk wronly/rdwr in order to check write 
+		/* we open the disk wronly/rdwr in order to check write
 		 * protect */
 		if (fd[0].fd < 0) {
 			perror("open");
@@ -778,7 +794,7 @@ int main(int argc, char **argv)
 
 
 	if(have_geom) {
-		if(mask & (SET_SECTORS | SET_CYLINDERS | 
+		if(mask & (SET_SECTORS | SET_CYLINDERS |
 			   SET_HEADS | SET_SIZECODE | SET_2M | SET_RATE)) {
 			fprintf(stderr,
 				"Cannot mix old style and new style geometry spec\n");
@@ -805,13 +821,14 @@ int main(int argc, char **argv)
 				break;
 		}
 		stretch = geometry.stretch & 1;
-		if(geometry.stretch & FD_ZEROBASED) {
-			zeroBased = 1;
+		if(geometry.stretch & FD_SECTBASEMASK) {
+			firstSectorNumber =
+				((geometry.stretch & FD_SECTBASEMASK)>>2)^1;
 		}
 		if(geometry.stretch & FD_SWAPSIDES) {
 			swapSides = 1;
 		}
-		mask |= SET_SECTORS | SET_CYLINDERS | 
+		mask |= SET_SECTORS | SET_CYLINDERS |
 			SET_SIZECODE | SET_2M | SET_RATE;
 	} else {
 		/* density */
@@ -827,7 +844,7 @@ int main(int argc, char **argv)
 			density = DRIVE_DEFAULTS.density;
 			if ( mask & SET_RATE ){
 				for (i=0; i< density; ++i) {
-					if(fd[0].rate == 
+					if(fd[0].rate ==
 					   DRIVE_DEFAULTS.fmt[i].rate)
 						density=i;
 				}
@@ -863,7 +880,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	fd[0].zeroBased = zeroBased;
+	fd[0].firstSectorNumber = firstSectorNumber;
 	fd[0].swapSides = swapSides;
 		
 	if (cylinders > fd[0].drvprm.tracks) {
@@ -904,7 +921,7 @@ int main(int argc, char **argv)
 		header_size = 62;
 
 	if(! (mask & (SET_DEVIATION | SET_MARGIN)) &&
-	   (drivedesc.mask & (1 << FE__DEVIATION))) {	       
+	   (drivedesc.mask & (1 << FE__DEVIATION))) {	
 		deviation = drivedesc.type.deviation;
 		mask |= SET_DEVIATION;
 	}
@@ -937,14 +954,14 @@ int main(int argc, char **argv)
 				"add the following line to " DRIVEPRMFILE ":\n");
 			fprintf(stdout,
 				"drive%d: deviation=%d\n",
-				fd[0].drive, 
+				fd[0].drive,
 				(fd[0].raw_capacity-old_capacity)*1000000/
 				old_capacity);
 			fprintf(stderr,
 				"CAUTION: The line is drive and controller "
-				"specific, so it should be\n" 
+				"specific, so it should be\n"
 				"removed before installing a new "
-				"drive %d or floppy controller.\n\n", 
+				"drive %d or floppy controller.\n\n",
 				fd[0].drive);
 		}
 	}
@@ -971,7 +988,7 @@ int main(int argc, char **argv)
 	if (verbosity == 9) {
 		for (i=0; i<fd[0].dsect; ++i)
 			printf("s=%2d S=%2d o=%2d\n",
-				fd[0].sequence[i].sect,
+				fd[0].sequence[i].sect + firstSectorNumber,
 				fd[0].sequence[i].size,
 				fd[0].sequence[i].offset);
 
@@ -994,9 +1011,10 @@ int main(int argc, char **argv)
 		if (verbosity == 9){
 			for (i=0; i< fd0.dsect; i++)
 				printf("s=%2d S=%2d o=%2d\n",
-					fd0.sequence[i].sect,
-					fd0.sequence[i].size,
-					fd0.sequence[i].offset);
+				       fd0.sequence[i].sect +
+				       fd0.firstSectorNumber,
+				       fd0.sequence[i].size,
+				       fd0.sequence[i].offset);
 
 			printf("fd[0].sizecode=%d\n", fd0.sizecode);
 			printf("fd[0].fmt_gap=%d\n", fd0.fmt_gap);
@@ -1009,11 +1027,9 @@ int main(int argc, char **argv)
 	parameters.head = heads;
 	parameters.track = cylinders;
 	parameters.size = cylinders * heads * sectors;
-	parameters.stretch = stretch 
-#ifdef FD_ZEROBASED
-		| (zeroBased ? 4 : 0)
-#endif
-		| (swapSides ? 2 : 0);
+	parameters.stretch = stretch
+		| (swapSides ? 2 : 0)
+		| ((1^firstSectorNumber) << 2);
 	parameters.gap = fd[0].gap;
 	if ( !use_2m)
 		fd0.rate = fd[0].rate;
@@ -1099,7 +1115,8 @@ int main(int argc, char **argv)
 	ioctl(fd[0].fd, FDFLUSH );
 	close(fd[0].fd);
 
-	if (! (mask & SET_DOSDRIVE ) && fd[0].drive < 2 && !zeroBased)
+	if (! (mask & SET_DOSDRIVE ) && fd[0].drive < 2 &&
+	    firstSectorNumber == 1)
 		dosdrive = fd[0].drive+'a';
 
 	if (dosdrive) {
@@ -1123,14 +1140,14 @@ int main(int argc, char **argv)
 		setenv("MTOOLS_RATE_ANY", env_buffer,1);
 		if(system(command_buffer)){
 			fprintf(stderr,"\nwarning: mformat error\n");
-			/*exit(1);*/  
-			/* Do not fail, if mformat happens to not be 
+			/*exit(1);*/
+			/* Do not fail, if mformat happens to not be
 			 * installed. The user might have wanted to make
 			 * an ext2 disk for instance */
 			dosverify = 0;
 		}			
 	} else {
-		if(!zeroBased)
+		if(firstSectorNumber != 1)
 			fprintf(stderr,
 				"\nwarning: mformat not called because DOS drive unknown\n");
 		/*exit(1);*/
@@ -1163,7 +1180,7 @@ int main(int argc, char **argv)
 					n = read(fd[0].fd,verify_buffer,rsize);
 					if ( n < 0){
 						perror("read");
-						fprintf(stderr, 
+						fprintf(stderr,
 							"remaining %d\n", n);
 						exit(1);
 					}
