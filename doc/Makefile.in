@@ -1,5 +1,6 @@
 MAKEINFO    = makeinfo
 TEXI2DVI    = texi2dvi
+TEXI2PDF    = texi2pdf
 TEXI2HTML   = texi2html
 
 top_srcdir  = @top_srcdir@
@@ -37,7 +38,7 @@ CC          = @CC@
 CPPFLAGS    = @CPPFLAGS@
 CFLAGS      = @CFLAGS@
 
-all: info dvi html
+all: info dvi html pdf
 
 TEXISRC = \
 acronyms.texi       fdrawcmd.texi       ioctl.texi          superformat.texi \
@@ -49,6 +50,8 @@ fdmount.texi        getfdprm.texi       setfdprm.texi
 
 
 html: Fdutils.html
+
+pdf: Fdutils.pdf
 
 dvi: Fdutils.dvi
 
@@ -64,15 +67,18 @@ info: fdutils.info
 clean:
 	rm -f fdutils.aux fdutils.cp fdutils.cps fdutils.dvi fdutils.fn 
 	rm -f fdutils.log fdutils.pg fdutils.ps fdutils.toc fdutils.tp
-	rm -f fdutils.ky fdutils.vr fdutils.info fdutils.pgs
+	rm -f fdutils.ky fdutils.vr fdutils.info fdutils.pgs fdutils.pdf
 	rm -f Fdutils.aux Fdutils.cp Fdutils.cps Fdutils.dvi Fdutils.fn
 	rm -f Fdutils.log Fdutils.pg Fdutils.pgs Fdutils.toc Fdutils.tp
-	rm -f Fdutils.ky Fdutils.vr Fdutils.pgs
+	rm -f Fdutils.ky Fdutils.vr Fdutils.pgs Fdutils.pdf
 	rm -f fdutils.info*
 
 
 %.html: Fdutils.texi
 	$(TEXI2HTML) $<
+
+%.pdf: Fdutils.texi
+	$(TEXI2PDF) $<
 
 Fdutils.texi: $(TEXISRC) texi-linearize
 	./texi-linearize $(srcdir) fdutils.texi > $@
