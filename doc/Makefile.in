@@ -36,7 +36,7 @@ CC          = @CC@
 CPPFLAGS    = @CPPFLAGS@
 CFLAGS      = @CFLAGS@
 
-all: info dvi
+all: info dvi html
 
 TEXISRC = \
 acronyms.texi       fdrawcmd.texi       ioctl.texi          superformat.texi \
