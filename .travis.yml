@@ -10,5 +10,6 @@ before_install:
   - sudo apt-get install -y flex
   - sudo apt-get install -y texlive
   - sudo apt-get install -y texinfo
+  - sudo apt-get install -y texi2html
   - sudo apt-get install -y e2fslibs-dev
 script: ./configure --prefix=/usr && make all
