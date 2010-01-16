@@ -81,7 +81,7 @@ quoting conventions used in info.
 .in +0.3i
 \&\fR\&\f(CWfdrawcmd [\fR\&\f(CWdrive=\fIdrive\fR\&\f(CW] [\fR\&\f(CWrate=\fIrate\fR\&\f(CW]
 [\fR\&\f(CWlength=\fIlength\fR\&\f(CW] [\fR\&\f(CWrepeat=\fIrepeat\fR\&\f(CW]
-[\fR\&\f(CWcylinder=\fIphysical-cyl\fR\&\f(CW] \fIcommand\fR\&\f(CW [\fIparamters\fR\&\f(CW \&...] [\fImode\fR\&\f(CW]
+[\fR\&\f(CWcylinder=\fIphysical-cyl\fR\&\f(CW] \fIcommand\fR\&\f(CW [\fIparameters\fR\&\f(CW \&...] [\fImode\fR\&\f(CW]
 .fi
 .in -0.3i
 .ft R
@@ -233,12 +233,12 @@ Echoes 0x90 if the FDC is more recent than 82072A, and 0x80 otherwise
 Sets the perpendicular mode.  Use 0 for normal, 2 for 500kb/s
 perpendicular, and 3 for 1 Mb/s perpendicular.
 .TP
-\&\fR\&\f(CWseek-out\ \fIdrvsel\ n\fR\&\f(CW\fR\ 
+\&\fR\&\f(CWseek_out\ \fIdrvsel\ n\fR\&\f(CW\fR\ 
 does a relative seek of
 \&\fIn\fR
 cylinders towards cylinder 0.
 .TP
-\&\fR\&\f(CWseek-in\ \ \fIdrvsel\ n\fR\&\f(CW\fR\ 
+\&\fR\&\f(CWseek_in\ \ \fIdrvsel\ n\fR\&\f(CW\fR\ 
 does a relative seek of \fIn\fR cylinders away from cylinder 0.
 .PP
 .SS Commands\ available\ on\ 82077AA\ and\ later

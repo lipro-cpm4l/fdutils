@@ -10,6 +10,13 @@
 
 set -e
 set -u
+
+# check for devfs
+if [ -e /dev/.devfsd ]; then
+    echo "devfs found, skipping MAKEFLOPPIES..." >&2
+    exit 0
+fi
+
 MAJOR=2
 TMPDEVICE=/dev/tmpfloppy$$
 if [ ! -b /dev/fd0 ] ; then
@@ -47,7 +54,7 @@ getword ()
 {	if [ $# -lt 1 ]; then
 		return
 	fi
-	if [ "$1" -lt 1 -o "$1" -ge $# ]; then
+	if [ "$1" -lt 1 ] || [ "$1" -ge $# ]; then
 		return
 	fi
 	shift $1
@@ -101,7 +108,7 @@ cmosid ()
 # main()
 
 PERMISSION=666
-while [ $# -ge 1 -o -n "${REMAINDER}" ]; do
+while [ $# -ge 1 ] || [ -n "${REMAINDER}" ]; do
 	if [ -n "$REMAINDER" ]; then
 		## Continue processing options stuck together
 		ARG=$REMAINDER
@@ -203,23 +210,23 @@ for DRIVE in $DRIVES; do
 	fi
 
 	FORMATS=`getword "$CMOS" $CMOSFORMATS`
-	if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
+	if [ -n "$VERBOSE" ] || [ -n "$DRYRUN" ]; then
 		echo rm -f "$FILE"*
 	fi
 	if [ -z "$DRYRUN" ]; then
 		rm -f "$FILE"*
 	fi
-	if [ -z "$CMOS" -o -z "$CN" ]; then
+	if [ -z "$CMOS" ] || [ -z "$CN" ]; then
 		echo "Skipping invalid drive \"$FILE\"" >&2
 		continue
 	fi
 	echo "Creating \"$FILE\", ID=$DRIVE, Type=$CMOS ($CN)"
 	if [ -z "$DRYRUN" ]; then
 		mknod "$FILE" b "$MAJOR" "$BASENUMBER"
-		chown root.floppy "$FILE"
+		chown root:floppy "$FILE"
 		chmod ${PERMISSION} "$FILE"
 	fi
-	if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
+	if [ -n "$VERBOSE" ] || [ -n "$DRYRUN" ]; then
 		echo mknod "$FILE" b "$MAJOR" "$BASENUMBER"
 	fi
 
@@ -240,10 +247,10 @@ for DRIVE in $DRIVES; do
 			fi
 			if [ -z "$DRYRUN" ]; then
 				mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"
-				chown root.floppy "${FILE}${NAME}"
+				chown root:floppy "${FILE}${NAME}"
 				chmod ${PERMISSION} "${FILE}${NAME}"
 			fi
-			if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
+			if [ -n "$VERBOSE" ] || [ -n "$DRYRUN" ]; then
 				echo mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"
 			fi
 		fi
