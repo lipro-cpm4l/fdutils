@@ -504,34 +504,34 @@ bigger than the thresholds described below, the corresponding actions
 are performed at the next retry. The counter is reset when the read or
 write finally terminates, whether successfully or not.
 @table @code
-@item -a @var{operation-abort-trshld} 
-@itemx --abort @var{ operation-abort-trshld}
+@item -a @var{operation-abort-threshold} 
+@itemx --abort @var{ operation-abort-threshold}
 Tell the floppy driver to stop trying to read/write a sector after
-@var{operation-abort-trshld}
+@var{operation-abort-threshold}
 retries, and signal the I/O error to the user.
 
-@item -t @var{read-track-trshld} 
-@itemx --readtrack @var{ read-track-trshld}
+@item -t @var{read-track-threshold} 
+@itemx --readtrack @var{ read-track-threshold}
 Tell the floppy driver to switch from track-reading mode to
 sector-at-a-time-mode after
-@var{read-track-trshld}
+@var{read-track-threshold}
 retries.
-@item -r @var{recalibrate-trshld} 
-@itemx --recalibrate @var{ recalibrate-trshld}
+@item -r @var{recalibrate-threshold} 
+@itemx --recalibrate @var{ recalibrate-threshold}
 Tell the floppy driver to recalibrate the drive after
-@var{recalibrate-trshld} retries.
+@var{recalibrate-threshold} retries.
 
-@item -R @var{reset-treshold} 
+@item -R @var{reset-threshold} 
 @itemx --reset @var{ reset-threshold}
 Tell the floppy driver to reset the controller after
 @var{reset-threshold} retries. After a controller reset, the floppy
 driver also recalibrates all drives connected to that controller.
 
 
-@item -e @var{error-report-trshld} 
-@itemx --reporting @var{ error-report-trshld}
+@item -e @var{error-report-threshold} 
+@itemx --reporting @var{ error-report-threshold}
 Tell the floppy driver to start printing error messages to the console
-after @var{error-report-trshld} retries.
+after @var{error-report-threshold} retries.
 @end table
 
 

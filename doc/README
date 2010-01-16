@@ -303,7 +303,7 @@ restore the default behaviour.
  Included utilities:
  ===================
 
- 1. floppycontrol. This program sets the various error tresholds
+ 1. floppycontrol. This program sets the various error thresholds
 (error reporting, operation abortion, and read track), prints out
 drive drive types, and flushes buffers. There is a -h help option.
  This program provides examples on how to use the new ioctl's.
