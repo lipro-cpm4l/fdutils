@@ -10,13 +10,14 @@ top_srcdir=@top_srcdir@
 srcdir=@srcdir@
 VPATH=@srcdir@
 
+DESTDIR     =
 prefix      = @prefix@
 exec_prefix = @exec_prefix@
-bindir      = @bindir@
-infodir     = @infodir@
-mandir      = @mandir@
-infodir     = @infodir@
-sysconfdir  = @sysconfdir@
+bindir      = $(DESTDIR)@bindir@
+infodir     = $(DESTDIR)@infodir@
+mandir      = $(DESTDIR)@mandir@
+infodir     = $(DESTDIR)@infodir@
+sysconfdir  = $(DESTDIR)@sysconfdir@
 
 CC       = @CC@
 PID      = -DPIDFILE=\"@localstatedir@/run/diskseekd.pid\"
