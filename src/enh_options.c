@@ -529,6 +529,7 @@ int getopt_enh(int argc,
 	
 
 	/* setting of variables out of environment */
+/* Commented out on 1998-08-28 by AF, Re: Debian Bug#12166
 	for( option_index=0; option_index<length; option_index++){
 		if ( !my_xopts[option_index] ){
 			s=getenv(eo[option_index].longo);
@@ -540,6 +541,7 @@ int getopt_enh(int argc,
 			}
 		}
 	}
+*/
 	if ( ret ){
 		print_usage(argv[0], eo, userparams);
 		return '?';
