@@ -72,8 +72,8 @@ quoting conventions used in info.
 .nf
 .ft 3
 .in +0.3i
-\&\fR\&\f(CWfloppymeter [\fR\&\f(CW-f] [\fR\&\f(CW-w \fIwarmup-delay\fR\&\f(CW] [\fR\&\f(CW-W \fIwindow\fR\&\f(CW]
-[\fR\&\f(CW-c \fIcycles\fR\&\f(CW] [\fR\&\f(CW-h] \fIdrive\fR\&\f(CW
+\&\fR\&\f(CWfloppymeter [\fR\&\f(CW\-f] [\fR\&\f(CW\-w \fIwarmup\-delay\fR\&\f(CW] [\fR\&\f(CW\-W \fIwindow\fR\&\f(CW]
+[\fR\&\f(CW\-c \fIcycles\fR\&\f(CW] [\fR\&\f(CW\-h] \fIdrive\fR\&\f(CW
 .fi
 .in -0.3i
 .ft R
@@ -84,7 +84,7 @@ The \fR\&\f(CWfloppymeter\fR program measures characteristic parameters of a
 floppy drive and floppy controller, such as the rotation speed of the
 drive, the data transfer rate of the controller, and the resulting raw
 capacity of a disk track.  To use this program, insert a disposable
-floppy in the drive, and type \fR\&\f(CWfloppymeter --\fR\fIdensity\fR, where
+floppy in the drive, and type \fR\&\f(CWfloppymeter \-\-\fR\fIdensity\fR, where
 density describes the density of the disk used for the test. (Should be
 one of \fR\&\f(CWdd, hd\fR or \fR\&\f(CWed\fR). \fBCAUTION: the data on the
 disk will be erased\fR.  This program should be used to verify whether the
@@ -125,31 +125,31 @@ formats may become unformattable on this drive/controller combo.
 If on the other hand, the raw capacity of the drive is too big, you may
 get problems when writing to a disk formatted by this drive on another
 drive with a smaller raw capacity. In order to avoid this, increase
-superformats gap parameter (\fR\&\f(CW-G\fR).
+superformats gap parameter (\fR\&\f(CW\-G\fR).
 .IP
 .TP
-\&\fR\&\f(CW-h\fR\ 
+\&\fR\&\f(CW\-h\fR\ 
 Prints a short help
 .TP
-\&\fR\&\f(CW--dd\fR\ 
+\&\fR\&\f(CW\-\-dd\fR\ 
 Tells the program that we use a Double Density disk.
 .TP
-\&\fR\&\f(CW--hd\fR\ 
+\&\fR\&\f(CW\-\-hd\fR\ 
 Tells the program that we use a High Density disk.
 .TP
-\&\fR\&\f(CW--ed\fR\ 
+\&\fR\&\f(CW\-\-ed\fR\ 
 Tells the program that we use an Extra Density disk.
 .TP
-\&\fR\&\f(CW-f\fR\ 
+\&\fR\&\f(CW\-f\fR\ 
 Runs the measurement non interactively.  With this option, the program
 doesn't ask for confirmation, and doesn't display the continuously
 updated values during the rotation speed measurement.
 .TP
-\&\fR\&\f(CW-W\ \fIWindow\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-W\ \fIWindow\fR\&\f(CW\fR\ 
 This value describes how many rotations are used for the computation of
 the sliding average. Default is 30.
 .TP
-\&\fR\&\f(CW-c\ \fIcycles\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-c\ \fIcycles\fR\&\f(CW\fR\ 
 Describes the number of rotations clocked during the rotations speed
 determination test. Default is 1000.
 .PP
