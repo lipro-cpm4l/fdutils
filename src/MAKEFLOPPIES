@@ -216,7 +216,7 @@ for DRIVE in $DRIVES; do
 	echo "Creating \"$FILE\", ID=$DRIVE, Type=$CMOS ($CN)"
 	if [ -z "$DRYRUN" ]; then
 		mknod "$FILE" b "$MAJOR" "$BASENUMBER"
-		chown root.floppy "$FILE"
+		chown root:floppy "$FILE"
 		chmod ${PERMISSION} "$FILE"
 	fi
 	if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
@@ -240,7 +240,7 @@ for DRIVE in $DRIVES; do
 			fi
 			if [ -z "$DRYRUN" ]; then
 				mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"
-				chown root.floppy "${FILE}${NAME}"
+				chown root:floppy "${FILE}${NAME}"
 				chmod ${PERMISSION} "${FILE}${NAME}"
 			fi
 			if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
