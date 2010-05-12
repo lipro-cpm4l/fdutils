@@ -74,7 +74,7 @@ The diskd command has the following syntax:
 .nf
 .ft 3
 .in +0.3i
-\&\fR\&\f(CWdiskd [\fR\&\f(CW-d \fIdrive\fR\&\f(CW] [\fR\&\f(CW-i \fIinterval\fR\&\f(CW] [\fR\&\f(CW-e \fIcommand\fR\&\f(CW]
+\&\fR\&\f(CWdiskd [\fR\&\f(CW\-d \fIdrive\fR\&\f(CW] [\fR\&\f(CW\-i \fIinterval\fR\&\f(CW] [\fR\&\f(CW\-e \fIcommand\fR\&\f(CW]
 .fi
 .in -0.3i
 .ft R
@@ -88,22 +88,22 @@ automatically mount a disk as soon as it is inserted.
 .SH Warning
 .PP
 This program works by switching the motor on for a very short
-interval, and then seeking to track -1. This might damage hardware in
+interval, and then seeking to track \-1. This might damage hardware in
 the long run. Amigas, which also use these techniques, are known for
 having problems with their disk drives no longer spinning up properly
 after a few month of usage.
 .PP
 .SH Options
 .TP
-\&\fR\&\f(CW-d\ \fIdrive\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-d\ \fIdrive\fR\&\f(CW\fR\ 
 Selects the drive to observe for disk insertion. By default, drive 0
 (\fR\&\f(CW/dev/fd0\fR) is observed.
 .TP
-\&\fR\&\f(CW-i\ \fIinterval\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-i\ \fIinterval\fR\&\f(CW\fR\ 
 Selects the polling interval. The interval is given in tenths of
 seconds. Default is 10 (one second).
 .TP
-\&\fR\&\f(CW-e\ \fIcommand\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-e\ \fIcommand\fR\&\f(CW\fR\ 
 Gives the command to be executed when a disk is inserted. If no
 command is given the program simply exits. Typically, the command
 mounts the disk. It can be a shell scripts which probes for several

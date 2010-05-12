@@ -72,8 +72,8 @@ quoting conventions used in info.
 .nf
 .ft 3
 .in +0.3i
-\&\fR\&\f(CWxdfcopy [\fR\&\f(CW-\fIformat-id\fR\&\f(CW] [\fR\&\f(CW-d] [\fR\&\f(CW-n] [\fR\&\f(CW-h \fIhead-skew\fR\&\f(CW] [\fR\&\f(CW-t \fIcylinder-skew\fR\&\f(CW] [\fR\&\f(CW-T
-\&\fIend-cylinder\fR\&\f(CW] [\fIsource\fR\&\f(CW] \fItarget\fR\&\f(CW
+\&\fR\&\f(CWxdfcopy [\fR\&\f(CW\-\fIformat\-id\fR\&\f(CW] [\fR\&\f(CW\-d] [\fR\&\f(CW\-n] [\fR\&\f(CW\-h \fIhead\-skew\fR\&\f(CW] [\fR\&\f(CW\-t \fIcylinder\-skew\fR\&\f(CW] [\fR\&\f(CW\-T
+\&\fIend\-cylinder\fR\&\f(CW] [\fIsource\fR\&\f(CW] \fItarget\fR\&\f(CW
 .fi
 .in -0.3i
 .ft R
@@ -91,7 +91,7 @@ This program works best with kernels newer than 2.0.0.
 .PP
 If both source and target are given, xdfcopy copies the disk image from
 file to floppy disk or vice-versa. When copying to a floppy disk, the
-disk is first formatted, unless the \fR\&\f(CW-n\fR option is given.
+disk is first formatted, unless the \fR\&\f(CW\-n\fR option is given.
 .PP
 If no source is given, the target is only formatted. In this case, the
 target must be a floppy drive.
@@ -120,7 +120,7 @@ Formats a 3 1/2 extra density XXDF disk (3840 KB, 90 KB/s)
 .PP
 .SH Misc\ options
 .TP
-\&\fR\&\f(CW-D\ \fIdosdrive\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-D\ \fIdosdrive\fR\&\f(CW\fR\ 
 Describes the DOS drive letter for mformat. If this option is given, an
 MS-DOS filesystem is automatically installed on the disk after the
 low-level format is complete. In order for this to work, the drive has
@@ -152,27 +152,27 @@ A /dev/fd0 12 80 2 18
  
 \&\fR
 .TP
-\&\fR\&\f(CW-n\fR\ 
+\&\fR\&\f(CW\-n\fR\ 
 Don't format the disk before copying the disk image to the disk.
 .PP
 .SH Options\ for\ power\ users
 .IP
 .TP
-\&\fR\&\f(CW-t\ \fIcylinder\ skew\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-t\ \fIcylinder\ skew\fR\&\f(CW\fR\ 
 Uses a different track skew than the default (14). For more details on
-skews, see section  superformat. In this version of xdfcopy, the \fR\&\f(CW-t\fR
+skews, see section  superformat. In this version of xdfcopy, the \fR\&\f(CW\-t\fR
 parameter is ignored.
 .TP
-\&\fR\&\f(CW-h\ \fIhead\ skew\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-h\ \fIhead\ skew\fR\&\f(CW\fR\ 
 Uses a different head skew than the default (0) In this version, this
 parameter is ignored
 .TP
-\&\fR\&\f(CW-d\fR\ 
+\&\fR\&\f(CW\-d\fR\ 
 Debugging. For each read or write operation, the time it took to
 complete the operation is printed (in milliseconds). This can be used
 to optimize the skews.
 .TP
-\&\fR\&\f(CW-T\ \fIend-cylinders\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-T\ \fIend\-cylinders\fR\&\f(CW\fR\ 
 Tells how many cylinders to format.  With the XXDF formats, it is
 actually possible to format up to 83 cylinders, yielding a format of
 up to 1992KB on a 3 1/2 high density disk.

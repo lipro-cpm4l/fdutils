@@ -72,12 +72,12 @@ quoting conventions used in info.
 .nf
 .ft 3
 .in +0.3i
-\&\fR\&\f(CWsuperformat [\fR\&\f(CW-D \fIdos-drive\fR\&\f(CW] [\fR\&\f(CW-v \fIverbosity-level\fR\&\f(CW] [\fR\&\f(CW-b \fIbegin-track\fR\&\f(CW]
-[\fR\&\f(CW-e \fIend-track\fR\&\f(CW] [\fR\&\f(CW--superverify] [\fR\&\f(CW--dosverify]
-[\fR\&\f(CW--noverify] [\fR\&\f(CW--verify_later] [\fR\&\f(CW--zero-based]
-[\fR\&\f(CW-G \fIformat-gap\fR\&\f(CW] [\fR\&\f(CW-F \fIfinal-gap\fR\&\f(CW] [\fR\&\f(CW-i \fIinterleave\fR\&\f(CW] [\fR\&\f(CW-c \fIchunksize\fR\&\f(CW]
-[\fR\&\f(CW-g \fIgap\fR\&\f(CW] [\fR\&\f(CW--absolute-skew \fIabsolute-skew\fR\&\f(CW] [\fR\&\f(CW--head-skew \fIhead-skew\fR\&\f(CW]
-[\fR\&\f(CW--track-skew \fItrack-skew\fR\&\f(CW] [\fR\&\f(CW--biggest-last] \fIdrive\fR\&\f(CW [\fImedia-description\fR\&\f(CW]
+\&\fR\&\f(CWsuperformat [\fR\&\f(CW\-D \fIdos\-drive\fR\&\f(CW] [\fR\&\f(CW\-v \fIverbosity\-level\fR\&\f(CW] [\fR\&\f(CW\-b \fIbegin\-track\fR\&\f(CW]
+[\fR\&\f(CW\-e \fIend\-track\fR\&\f(CW] [\fR\&\f(CW\-\-superverify] [\fR\&\f(CW\-\-dosverify]
+[\fR\&\f(CW\-\-noverify] [\fR\&\f(CW\-\-verify_later] [\fR\&\f(CW\-\-zero\-based]
+[\fR\&\f(CW\-G \fIformat\-gap\fR\&\f(CW] [\fR\&\f(CW\-F \fIfinal\-gap\fR\&\f(CW] [\fR\&\f(CW\-i \fIinterleave\fR\&\f(CW] [\fR\&\f(CW\-c \fIchunksize\fR\&\f(CW]
+[\fR\&\f(CW\-g \fIgap\fR\&\f(CW] [\fR\&\f(CW\-\-absolute\-skew \fIabsolute\-skew\fR\&\f(CW] [\fR\&\f(CW\-\-head\-skew \fIhead\-skew\fR\&\f(CW]
+[\fR\&\f(CW\-\-track\-skew \fItrack\-skew\fR\&\f(CW] [\fR\&\f(CW\-\-biggest\-last] \fIdrive\fR\&\f(CW [\fImedia\-description\fR\&\f(CW]
 .fi
 .in -0.3i
 .ft R
@@ -119,51 +119,51 @@ drive numbers if you swap the drives in your computer.
 .SH Common\ Options
 Many options have a long and a short form.
 .TP
-\&\fR\&\f(CW-h\fR\ 
+\&\fR\&\f(CW\-h\fR\ 
 .TQ
-\&\fR\&\f(CW--help\fR
+\&\fR\&\f(CW\-\-help\fR
 Print the help.
 .TP
-\&\fR\&\f(CW-D\ \fIdrive\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-D\ \fIdrive\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--dosdrive\ \fIdos-drive\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-dosdrive\ \fIdos\-drive\fR\&\f(CW\fR
 Selects DOS drive letter for \fR\&\f(CWmformat\fR (for example \fR\&\f(CWa:\fR or
 \&\fR\&\f(CWb:\fR).  The colon may be omitted.  The default is derived from the
 minor device number.  If the drive letter cannot be guessed, and is not
 given on the command line, \fR\&\f(CWmformat\fR is skipped.
 .TP
-\&\fR\&\f(CW-v\ \fIverbosity-level\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-v\ \fIverbosity\-level\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--verbosity\ \fIverbosity-level\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-verbosity\ \fIverbosity\-level\fR\&\f(CW\fR
 Sets the verbosity level. 1 prints a dot for each formatted track. 2
-prints a changing sign for each formatted track (- for formatting the
+prints a changing sign for each formatted track (\- for formatting the
 first head, = for formatting the second head, x for verifying the
 first head, and + for verifying the second head). 3 prints a complete
 line listing head and track. 6 and 9 print debugging information.
 .TP
-\&\fR\&\f(CW--superverify\fR\ 
+\&\fR\&\f(CW\-\-superverify\fR\ 
 Verifies the disk by first reading the track, than writing a pattern of
 U's, and then reading it again.  This is useful as some errors only show
 up after the disk has once been written.  However, this is also slower.
 .TP
-\&\fR\&\f(CW-B\fR\ 
+\&\fR\&\f(CW\-B\fR\ 
 .TQ
-\&\fR\&\f(CW--dosverify\fR
+\&\fR\&\f(CW\-\-dosverify\fR
 Verifies the disk using the \fR\&\f(CWmbadblocks\fR program.
 \&\fR\&\f(CWmbadblocks\fR marks the bad sectors as bad in the FAT.  The
 advantage of this is that disks which are only partially bad can still
 be used for MS-DOS filesystems.
 .TP
-\&\fR\&\f(CW-V\fR\ 
+\&\fR\&\f(CW\-V\fR\ 
 .TQ
-\&\fR\&\f(CW--verify_later\fR
+\&\fR\&\f(CW\-\-verify_later\fR
 Verifies the whole disk at the end of the formatting process instead
 of at each track. Verifying the disk at each track has the advantage
 of detecting errors early on.
 .TP
-\&\fR\&\f(CW-f\fR\ 
+\&\fR\&\f(CW\-f\fR\ 
 .TQ
-\&\fR\&\f(CW--noverify\fR
+\&\fR\&\f(CW\-\-noverify\fR
 Skips the verification altogether.
 .PP
 .SH Advanced\ Options
@@ -173,65 +173,65 @@ users.  Most of them should only be needed in cases where the hardware
 or superformat itself has bugs.
 .IP
 .TP
-\&\fR\&\f(CW-b\ \fIbegin-track\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-b\ \fIbegin\-track\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--begin_track\ \ \fIbegin-track\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-begin_track\ \ \fIbegin\-track\fR\&\f(CW\fR
 Describes the track where to begin formatting.  This is useful if the
 previous formatting failed halfway through.  The default is 0.
 .TP
-\&\fR\&\f(CW-e\ \fIend-track\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-e\ \fIend\-track\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--end_track\ \fIend-track\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-end_track\ \fIend\-track\fR\&\f(CW\fR
 Describes where to stop formatting. \fIend_track\fR is the last track to
 be formatted plus one. This is mainly useful for testing purposes. By
 default, this is the same as the total number of tracks.  When the
 formatting stops, the final skew is displayed (to be used as absolute
 skew when you'll continue).
 .TP
-\&\fR\&\f(CW-S\ \fIsizecode\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-S\ \fIsizecode\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--sizecode\ \fIsizecode\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-sizecode\ \fIsizecode\fR\&\f(CW\fR
 Set the sector size to be used. The sector size is 128 * (2 ^
 \&\fIsizecode\fR).  Sector sizes below 512 bytes are not supported, thus
 sizecode must be at least 2. By default 512 is assumed, unless you ask
 for more sectors than would fit with 512 bytes.
 .TP
-\&\fR\&\f(CW--stretch\ \fIstretch\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-\-stretch\ \fIstretch\fR\&\f(CW\fR\ 
 Set the stretch factor. The stretch factor describes how many physical
 tracks to skip to get to the next logical track (2 ^ \fIstretch\fR).  On
 double density 5 1/4 disks, the tracks are further apart from each
 other.
 .TP
-\&\fR\&\f(CW-G\ \fIfmt-gap\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-G\ \fIfmt\-gap\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--format_gap\ \fIfmt-gap\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-format_gap\ \fIfmt\-gap\fR\&\f(CW\fR
 Set the formatting gap. The formatting gap tells how far the sectors
 are away from each other. By default, this is chosen so as to evenly
 distribute the sectors along the track.
 .TP
-\&\fR\&\f(CW-F\ \fIfinal-gap\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-F\ \fIfinal\-gap\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--final_gap\ \fIfinal-gap\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-final_gap\ \fIfinal\-gap\fR\&\f(CW\fR
 Set the formatting gap to be used after the last sector.
 .TP
-\&\fR\&\f(CW-i\ \fIinterleave\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-i\ \fIinterleave\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--interleave\ \fIinterleave\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-interleave\ \fIinterleave\fR\&\f(CW\fR
 Set the sector interleave factor.
 .TP
-\&\fR\&\f(CW-c\ \fIchunksize\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-c\ \fIchunksize\fR\&\f(CW\fR\ 
 .TQ
-\&\fR\&\f(CW--chunksize\ \fIchunksize\fR\&\f(CW\fR
+\&\fR\&\f(CW\-\-chunksize\ \fIchunksize\fR\&\f(CW\fR
 Set the size of the chunks. The chunks are small auxiliary sectors
 used during formatting. They are used to handle heterogeneous sector
 sizes (i.e. not all sectors have the same size) and negative
 formatting gaps.
 .TP
-\&\fR\&\f(CW--biggest-last\fR\ 
+\&\fR\&\f(CW\-\-biggest\-last\fR\ 
 For MSS formats, make sure that the biggest sector is last on the track.
 This makes the format more reliable on drives which are out of spec.
 .TP
-\&\fR\&\f(CW--zero-based\fR\ 
+\&\fR\&\f(CW\-\-zero\-based\fR\ 
 Formats the disk with sector numbers starting at 0, rather than
 1. Certain CP/M boxes or Music synthesizers use this format. Those disks
 can currently not be read/written to by the standard Linux read/write
@@ -251,17 +251,17 @@ track.  The skew value describes for each track how far sector number
 and track. The amount of this change depends on how fast the disk
 spins, and on how much time is needed to change the head or the track.
 .TP
-\&\fR\&\f(CW--absolute_skew\ \fIabsolute-skew\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-\-absolute_skew\ \fIabsolute\-skew\fR\&\f(CW\fR\ 
 .IP
 Set the absolute skew. This skew value is used for the first formatted
 track.  It is expressed in raw bytes.
 .TP
-\&\fR\&\f(CW--head_skew\ \fIhead-skew\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-\-head_skew\ \fIhead\-skew\fR\&\f(CW\fR\ 
 .IP
 Set the head skew. This is the skew added for passing from head 0 to
 head 1.  It is expressed in raw bytes.
 .TP
-\&\fR\&\f(CW--track_skew\ \fItrack-skew\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-\-track_skew\ \fItrack\-skew\fR\&\f(CW\fR\ 
 .IP
 Set the track skew. This is the skew added for seeking to the next
 track.  It is expressed in raw bytes.
