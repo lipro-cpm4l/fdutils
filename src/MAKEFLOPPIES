@@ -10,6 +10,13 @@
 
 set -e
 set -u
+
+# check for devfs
+if [ -e /dev/.devfsd ]; then
+    echo "devfs found, skipping MAKEFLOPPIES..." >&2
+    exit 0
+fi
+
 MAJOR=2
 TMPDEVICE=/dev/tmpfloppy$$
 if [ ! -b /dev/fd0 ] ; then
