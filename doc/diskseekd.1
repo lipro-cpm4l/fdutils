@@ -86,23 +86,23 @@ The syntax for \fR\&\f(CWdiskseekd\fR is as follows:
 .nf
 .ft 3
 .in +0.3i
-\&\fR\&\f(CWdiskseekd [\fR\&\f(CW-d \fIdrive\fR\&\f(CW] [\fR\&\f(CW-i \fIinterval\fR\&\f(CW] [\fR\&\f(CW-p \fIpidfile\fR\&\f(CW]
+\&\fR\&\f(CWdiskseekd [\fR\&\f(CW\-d \fIdrive\fR\&\f(CW] [\fR\&\f(CW\-i \fIinterval\fR\&\f(CW] [\fR\&\f(CW\-p \fIpidfile\fR\&\f(CW]
 .fi
 .in -0.3i
 .ft R
  
 \&\fR
 .TP
-\&\fR\&\f(CW-d\ \fIdrive\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-d\ \fIdrive\fR\&\f(CW\fR\ 
 Selects the drive to seek.  By default, drive 0 (\fR\&\f(CW\(if/dev/fd0\(is\fR) is sought.
 .TP
-\&\fR\&\f(CW-i\ \fIinterval\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-i\ \fIinterval\fR\&\f(CW\fR\ 
 Selects the cleaning interval, in seconds.  If the interval is 0, a
 single seek is done. This is useful when calling diskseek from a
 crontab.  The default is 1000 seconds (about 16 minutes) for
 \&\fR\&\f(CWdiskseekd\fR and 0 for \fR\&\f(CWdiskseek\fR.
 .TP
-\&\fR\&\f(CW-p\ \fIpidfile\fR\&\f(CW\fR\ 
+\&\fR\&\f(CW\-p\ \fIpidfile\fR\&\f(CW\fR\ 
 Stores the process id of the diskseekd daemon into \fIpidfile\fR instead
 of the default \fR\&\f(CW\(if/var/run/diskseekd.pid\(is\fR.
 .PP
