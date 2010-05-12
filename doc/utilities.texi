@@ -6,7 +6,7 @@ The following utilities are included in the fdutils package
 @table @code
 @item floppycontrol
 
-This program sets the various error tresholds (error reporting,
+This program sets the various error thresholds (error reporting,
 operation abortion, and read track), prints out drive drive types, and
 flushes buffers. There is a -h help option.
 This program provides examples on how to use the new ioctl's.
