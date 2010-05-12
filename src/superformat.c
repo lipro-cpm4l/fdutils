@@ -560,7 +560,7 @@ int main(int argc, char **argv)
 		(void *) &dosverify,
 		"verify disk using mbadblocks" },
 
-	{ 'V', "verify_later", 1, EO_TYPE_BYTE, 1, 0,
+	{ 'V', "verify_later", 0, EO_TYPE_BYTE, 1, 0,
 		(void *) &verify_later,
 		"verify floppy after all formatting is done" },
 
