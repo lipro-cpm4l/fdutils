@@ -21,9 +21,10 @@
 
 @ifinfo
 @format
-START-INFO-DIR-ENTRY
+@dircategory Utilities
+@direntry
 * Fdutils: (fdutils).        Fdutils: Linux' floppy utilities
-END-INFO-DIR-ENTRY
+@end direntry
 @end format
 @end ifinfo
 
