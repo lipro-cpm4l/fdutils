@@ -33,7 +33,6 @@ commands:
 .fi
 .in -0.3i
 .ft R
-.lp
  
 \&\fR
 .TP
@@ -47,7 +46,6 @@ To generate a HTML copy,  run:
 .fi
 .in -0.3i
 .ft R
-.lp
  
 \&\fRA pre-made HTML can be found at:
 \&\fR\&\f(CW\(ifhttp://www.tux.org/pub/knaff/fdutils\(is\fR
@@ -62,7 +60,6 @@ To generate an info copy (browsable using emacs' info mode), run:
 .fi
 .in -0.3i
 .ft R
-.lp
  
 \&\fR
 .PP
@@ -70,8 +67,6 @@ The texinfo doc looks most pretty when printed or as HTML.  Indeed, in
 the info version certain examples are difficult to read due to the
 quoting conventions used in info.
 .SH Description
-.iX "p floppycontrol"
-.iX "c configuration of floppy driver"
 .PP
  
 .nf
@@ -93,7 +88,6 @@ quoting conventions used in info.
 .fi
 .in -0.3i
 .ft R
-.lp
  
 \&\fR
 .PP
@@ -114,9 +108,6 @@ Selects the drive to configure. The default is drive 0
 (\fR\&\f(CW\(if/dev/fd0\(is\fR).
 .PP
 .SH One\ time\ actions
-.iX "c ejecting a disk"
-.iX "c flushing floppy cache"
-.iX "c resetting controller"
 .PP
 The following \fR\&\f(CWfloppycontrol\fR options don't set a configuration
 parameter, but perform a one-time action. They are available to anybody
@@ -161,9 +152,6 @@ Issues an end format ioctl. This might be needed after exiting a
 this.
 .PP
 .SH Printing\ current\ settings
-.iX "c printing current settings"
-.iX "c determining drive type"
-.iX "c detecting a disk change"
 .IP
 .TP
 \&\fR\&\f(CW-T\fR\ 
@@ -320,9 +308,6 @@ is the address of the first I/O port of the FDC.  Normally, this is
 .RE
 .PP
 .SH Drive\ type\ configuration\ and\ autodetection
-.iX "c CMOS type"
-.iX "c drive type"
-.iX "c swapping drives"
 .PP
 The following options handle the different available drive types, such
 as double density vs. high density vs. extra density drives, and 5 1/4
@@ -392,7 +377,6 @@ Example:
 .fi
 .in -0.3i
 .ft R
-.lp
  
 \&\fRmeans to try out the formats whose minor device numbers are 28 (1.44M),
 16 (720KB), 96 (1.76MB), and 100 (1.92MB), in this order. For the 1.76MB
@@ -424,10 +408,6 @@ native format). This drive name is read back from the kernel by the
 create.
 .PP
 .SH Configuration\ of\ the\ disk\ change\ line
-.iX "c disk change line"
-.iX "c Thinkpad"
-.iX "c disk change detection"
-.iX "c disk absent during operation (false alert)"
 .TP
 \&\fR\&\f(CW--broken_dcl\fR\ 
 Assumes that the disk change line of the drive is broken.  If this is
@@ -478,7 +458,6 @@ change line.
 Switches off silent disk change line clearing for this drive.
 .PP
 .SH Timing\ Parameters
-.iX "c strange noises during seek"
 .PP
 This section describes how to configure drive timings.  To set these
 parameters, you need superuser privileges. All times are in "jiffy"
