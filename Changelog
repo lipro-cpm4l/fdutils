@@ -1,0 +1,33 @@
+020203	Fix fdmount and superformat bugs
+020203	Create /dev/fd0 before testing for existence of /dev/fd0
+011002	Fix floppycontrol.c printf conditional on FD_DISK_CHANGED, so that
+	it works with gcc3 which apparently considers printf as a macro...
+000612	Explicitly include sysmacros.h, apparently this is needed in
+	certain environments
+000603	Released 5.4
+000527	Fixed a couple of buffer overrun exploits and other cleanup. Made
+	fdutils compilable with Linux 2.3/2.4 kernels. Documentation fixes
+970104	Fixed a few bugs listed in the Debian buglist posted to
+	linux.debian.bugs.dis
+	1.  Lessen dependancy of superformat on mtools by not failing if
+	mformat cannot be called: low-level verify will still be done, but
+	mbadblocks will be skipped
+	2.  Fixed a few instances where the return value of getopt was
+	misdeclared as a char instead of an integer
+	3.  Fixed device names in fd.4
+970411	Added error check to capacity measurement
+	Corrected documentation Makefile bug
+970629	Added vfat support to fdmount
+970609	Fixed bug where a skew was erroneously applied to a 2m track
+	Fixed typo in printfdprm
+970604	Added vfat option for fdmount
+970516	5.2 Released
+970516	Fixed sunsite location in doc.
+970430	Fixed typoes in doc about autodetection.
+970428	Fixed manpage installation
+970427	5.1 Released.  These repeated complaints about yylineno not
+	defined start getting annoying ;-)
+970426	More Makefile fixes.  Added note to doc about Alpha site
+970422	Various Makefile fixes
+970421	Lex yylineno fixes
+970419	5.0 Released

@@ -1,0 +1,11 @@
+Compiling superformat...
+	WARNING !!!!
+	============
+
+ 2m formats (HD formats whith more than 21 sectors, and ED formats
+with more than 42 sectors) are only suitable for msdos filesystems. USE
+FOR OTHER FILESYSTEMS MAY RESULT IN DATA LOSS. READ THE SUPERFORMAT
+MANPAGE AND THE README FILE CAREFULLY.
+ If you want to use a different filesystem on these disks, use the -1
+option.
+ Press enter to continue

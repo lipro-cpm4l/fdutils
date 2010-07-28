@@ -1,0 +1,54 @@
+@node setfdprm, superformat, makefloppies, Commands
+@section setfdprm
+@pindex setfdprm
+@cindex setting the geometry information
+@cindex geometry information (setting)
+
+@example
+@code{setfdprm} [@code{-p}] @var{device} @var{media-description}
+
+@code{setfdprm} [@code{-c} | @code{-y} | @code{-n}] @var{device}
+
+@end example
+
+@code{setfdprm} is a utility that can be used to load disk parameters
+into the auto-detecting floppy devices and "fixed parameter" floppy
+devices, to clear old parameter sets and to disable or enable diagnostic
+messages.  These parameters are derived from a media-description,
+@pxref{Media description} for more details.
+
+Without any options, @code{setfdprm} loads the @var{device} (for example
+@file{/dev/fd0} or @file{/dev/fd1}) with a new parameter set with the
+@var{name} entry found in @file{/etc/fdprm} (usually named 360/360,
+etc.).  For autodetecting floppy devices, these parameters stay in
+effect until the media is changed. For "fixed parameter" devices, they
+stay in effect until they are changed again.
+
+@code{Setfdprm} can also be used by the superuser to redefine the
+default formats.
+
+@subsection Options
+
+@table @code
+
+@item -p @var{device name}
+Permanently loads a new parameter set for the specified auto-configuring
+floppy device for the configuration with @var{name} in
+@file{/etc/fdprm}. Alternatively, the parameters can be given directly
+from the command line.
+
+@item -c @var{device}
+Clears the parameter set of the specified auto-configuring floppy device.
+
+@item -y @var{device}
+Enables format detection messages for the specified auto-configuring floppy
+device.
+
+@item -n @var{device}
+Disables format detection messages for the specified auto-configuring
+floppy device.
+
+@end table
+
+@subsection Bugs
+This documentation is grossly incomplete.
