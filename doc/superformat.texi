@@ -100,6 +100,11 @@ of detecting errors early on.
 @itemx --noverify
 Skips the verification altogether.
 
+@item --print-drive-deviation
+Do not format, but print the drive deviation. If file
+@file{/etc/driveprm} exists and provides a deviation for the drive,
+nothing is printed and the disk is not formatted.
+
 @end table
 
 @node Advanced options, Sector skewing options, Common options, superformat
