@@ -13,7 +13,7 @@ every 20 minutes (actually less if you are running Windows).  When
 rebooting, the BIOS seeks the drive, and by doing this, it shakes the
 dust out of the drive mechanism. @code{diskseekd} simulates this effect
 by seeking the drive periodically.  If it is called as @code{diskseek},
-the drive is seeked only once.
+the drive is sought only once.
 
 @subsection Options
 
@@ -24,7 +24,7 @@ The syntax for @code{diskseekd} is as follows:
 
 @table @code
 @item -d @var{drive}
-Selects the drive to seek.  By default, drive 0 (@file{/dev/fd0}) is seeked.
+Selects the drive to seek.  By default, drive 0 (@file{/dev/fd0}) is sought.
 
 @item -i @var{interval}
 Selects the cleaning interval, in seconds.  If the interval is 0, a

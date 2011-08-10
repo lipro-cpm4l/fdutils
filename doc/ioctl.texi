@@ -26,7 +26,7 @@ doesn't write dirty buffers to the disk. Use fsync first.
 displays the type of a drive (name parameter). This is
 used by @code{MAKEFLOPPIES}. For the naming convention, see the description
 of the @code{MAKEFLOPPIES} script. For formats which work in several drive
-types, @code{FDGETDRVTYP} return a name which is appropriate for the oldes
+types, @code{FDGETDRVTYP} return a name which is appropriate for the oldest
 drive type which supports this format.
 @item FDSETDRVPRM
 sets various drive parameters.

@@ -89,7 +89,7 @@ by the Free Software Foundation.
 
 @unnumbered General Introduction
 
-Fdutils is a collection of utililties for configuring and using the
+Fdutils is a collection of utilities for configuring and using the
 Linux floppy driver.  With fdutils, you can:
 
 @enumerate
