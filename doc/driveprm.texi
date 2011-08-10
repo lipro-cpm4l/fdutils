@@ -1,7 +1,7 @@
 @node Drive descriptions, Extended formats, Media description, Top
 @chapter Drive descriptions
 
-Unlike earlyer version, fdutils-5.0 separates drive descriptions and
+Unlike earlier version, fdutils-5.0 separates drive descriptions and
 media description.  For more details on this separation,
 @pxref{Introduction (Mediaprm)}.  Drive descriptions are used to describe the
 hardware characteristics of a drive, such as their maximal density,
@@ -45,7 +45,7 @@ from the drives CMOS code.
 @node Cmos code, Other parameters, Form factor, Syntax of a drive description
 @subsection Cmos code
 
-The PC Bios already knows on its own about the most common drive types.
+The PC BIOS already knows on its own about the most common drive types.
 These are named by an integer from 1 to 6, according to the following
 table.
 @example

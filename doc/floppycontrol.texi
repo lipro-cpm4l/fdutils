@@ -112,7 +112,7 @@ drive type) followed by the capacity of the format in bytes. The letter
 is E for 3.5 ED drives, H for 3.5 HD drives, D for 3.5 DD drives, h for
 5.25 HD drives and d for 5.25 DD drives. The drive type letter
 corresponds to the oldest drive type supporting the format of this
-device node (not necessarily the type of the drive refered by this
+device node (not necessarily the type of the drive referred by this
 node.)  For the generic format nodes (/dev/fd0 et al.)  the name of
 "native format" of the drive is printed, and for the default formats, if
 a generic format has been redefined, its name becomes @code{(null)}.
@@ -142,7 +142,7 @@ is the time when the first read request after the last spin up
 completed.
 
 @item probed_fmt
-is the the index of the autodetected format in the autodetection
+is the index of the autodetected format in the autodetection
 sequence for this drive.
 
 @item cylinder

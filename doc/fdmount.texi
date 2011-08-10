@@ -183,7 +183,7 @@ public access permissions set.
 
 @item error reading boot/super block
 fdmount failed to read the first 1K of the disk. The disk might be
-damaged, unformatted, or it may have a format wich is unsupported by the
+damaged, unformatted, or it may have a format which is unsupported by the
 FDC or the Linux kernel.
 
 @item unknown filesystem type

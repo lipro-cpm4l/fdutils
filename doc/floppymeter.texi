@@ -31,7 +31,7 @@ previously stored on that disk is lost}.
 The rotation speed is measured by timing the return time of a
 @code{readid} command.  In order to gain more precision, the command is
 issued many times in a row. During this phase, the number of rotations
-til the start of the test, the average time per rotation til the start,
+since the start of the test, the average time per rotation since the start,
 and a sliding average of the times of the last 30 rotations is printed,
 and updated continuously.
 
@@ -98,5 +98,5 @@ for different drives.
 @item
 All data transfer rates (for double, high and extra density) are derived
 from a same master frequency. Thus the @emph{deviation} of the data
-transfer rate should be independant of the density used.
+transfer rate should be independent of the density used.
 @end itemize
