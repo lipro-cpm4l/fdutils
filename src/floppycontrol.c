@@ -270,7 +270,7 @@ int main( int argc, char **argv)
 		
 	fd = -2;
 	while((ch=getopt_enh(argc, argv, optable, 
-			     0, &mask, "drive") ) != EOF ){
+			     0, &mask, "[drive]") ) != EOF ){
 		if ( ch== '?' ){
 			fprintf(stderr,"exiting\n");
 			exit(1);
@@ -289,8 +289,7 @@ int main( int argc, char **argv)
 			fd = open("/dev/fd0", 3 | O_NDELAY);
 		if ( fd < 0 ){
 			perror("can't open floppy drive");
-			print_usage(argv[0],optable,"");
-			exit(1);
+			print_usage_exit(argv[0],optable,"[drive]");
 		}
 	}
 	

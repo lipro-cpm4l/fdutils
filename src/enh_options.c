@@ -58,8 +58,14 @@ void print_usage(char *progname, struct enh_options *eo, char *userparams)
 		fprintf(stderr,"] ");
 	}
 	fprintf(stderr,"%s\n", userparams);
+}
+
+void print_usage_exit(char *progname, struct enh_options *eo, char *userparams)
+{
+	print_usage(progname, eo, userparams);
 	fprintf(stderr,"Type %s --help to get a more complete help\n",
 		progname);
+	exit(1);
 }
 
 static void parse_option_table(struct enh_options *eo)
@@ -491,6 +497,7 @@ int getopt_enh(int argc,
 
 		switch(ch){
 		case 'h':
+			print_usage(argv[0], eo, userparams);
 			print_help(eo);
 			exit(0);
 		case '?':
