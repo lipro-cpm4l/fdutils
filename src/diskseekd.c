@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 		interval = 0;
 
 	while((ch=getopt_enh(argc, argv, optable, 
-			     0, &mask, "drive") ) != EOF ){
+			     0, &mask, "") ) != EOF ){
 		if ( ch== '?' ){
 			fprintf(stderr,"exiting\n");
 			exit(1);
