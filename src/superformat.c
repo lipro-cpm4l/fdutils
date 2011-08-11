@@ -711,21 +711,18 @@ int main(int argc, char **argv)
 	/* sanity checking */
 	if (sizecode < 0 || sizecode >= MAX_SIZECODE) {
 		fprintf(stderr,"Bad sizecode %d\n", sizecode);
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	if ( gap < 0 ){
 		fprintf(stderr,"Fmt gap too small: %d\n", gap);
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	if (sectors <= 0 || cylinders <= 0 || heads <= 0) {
 		fprintf(stderr,"bad geometry s=%d h=%d t=%d\n",
 			sectors, heads, cylinders);
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	argc -= optind;
@@ -738,8 +735,7 @@ int main(int argc, char **argv)
 
 	if (! fd[0].name){
 		fprintf(stderr,"Which drive?\n");
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	while(1) {
@@ -888,8 +884,7 @@ int main(int argc, char **argv)
 		
 	if (cylinders > fd[0].drvprm.tracks) {
 		fprintf(stderr,"too many cylinder for this drive\n");
-		print_usage(progname,optable,"");
-		exit(1);
+		print_usage_exit(progname,optable,"");
 	}
 
 	if (! (mask & SET_ENDTRACK ) || end_cylinder > cylinders)

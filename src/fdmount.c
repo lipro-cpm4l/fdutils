@@ -1177,6 +1177,10 @@ int main(int argc, char **argv)
 	}
     }
 
+    if (opt_help) {
+	syntax();
+    }
+
     mountflags |= opt_noexec | opt_nosuid | opt_nodev;
 
     if (opt_vfat) {
@@ -1225,10 +1229,7 @@ int main(int argc, char **argv)
     }
 
     e=0;
-    if (opt_help) {
-	syntax();
-    }
-    else if (opt_list) {
+    if (opt_list) {
 	list_drives();
     }
     else if (opt_daemon) {
