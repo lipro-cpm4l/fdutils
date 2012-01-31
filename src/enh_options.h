@@ -53,6 +53,8 @@ void print_current_settings(struct enh_options *eo, int mask);
 
 void  print_help(struct enh_options *eo);
 
+void print_usage_exit(char *progname, struct enh_options *eo, char *userparams);
+
 void print_usage(char *progname, struct enh_options *eo, char *userparams);
 /* userparams represent the non-option parameters of the command. Printed
  * after the automatically generated list */
