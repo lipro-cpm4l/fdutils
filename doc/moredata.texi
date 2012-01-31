@@ -38,7 +38,7 @@ want to format XDF or XXDF disks in the second drive.
                           in a same track
 * Smart use of the dtr::  How to get more out of your disk by playing games
                           with the data transfer rate
-* 2M::                    Make autodetection easyer by using a readable
+* 2M::                    Make autodetection easier by using a readable
                           first track
 * XDF::                   Fast high capacity formats
 * XXDF::                  Fast formats with even higher capacity
@@ -70,7 +70,7 @@ sectors.  In total, 619 bytes per sector are thus needed.
 
 This shows that we can fit 12450 / 619 = 20 sectors per track.
 
-@strong{Usage:} These disks are bootable by Lilo, and can be read in
+@strong{Usage:} These disks are bootable by LILO, and can be read in
 MS-DOS using numerous shareware utilities such as @code{vgacopy}, or
 @code{fdformat} or many others.  Check your nearest Simtel mirror.
 
@@ -144,7 +144,7 @@ sectors on one track.
 
 @strong{Usage:} Once formatted, interleaved disks can be used in a
 similar way to disks which have simply more tracks.  They can be
-accessed using @code{vgacopy} in Dos, you can boot from them using Lilo,
+accessed using @code{vgacopy} in Dos, you can boot from them using LILO,
 and you may install any filesystem on them.
 
 
@@ -174,7 +174,7 @@ non-skewed disk by software, except for a different throughput.
 
 The principle of sector skewing is to start each track a little bit
 later than the previous one, i.e. the first logical sector of the second
-cylinder would for exemple lie near the sixth logical sector of the
+cylinder would for example lie near the sixth logical sector of the
 first cylinder.  This is done in order to account for the time needed to
 seek the drive head from the first cylinder to the second.  Without
 skewing, the first sector would already have passed the drive head after
@@ -208,7 +208,7 @@ these tracks.
 
 Although most drives support more than 80 tracks, I have heard rumors
 that some do not, and repeatedly trying to read beyond track 80 might be
-damaging to them.  In order to know wether your drive supports more than
+damaging to them.  In order to know whether your drive supports more than
 eighty tracks, first set the number of allowed tracks to 82.  (using
 @code{floppycontrol --cylinders 82 -d }@var{drive})
 
@@ -314,7 +314,7 @@ achieved.
 
 
 @strong{Usage:} There is no known MS-DOS utility which can read basic
-MSS disks.  Lilo is not yet able to boot from this kind of disks.
+MSS disks.  LILO is not yet able to boot from this kind of disks.
 
 @strong{Performance:} As any format with larger sectors, the performance
 for small reads and writes is worse due to the larger granularity.
@@ -352,7 +352,7 @@ transfer rates (300 kb/s for the faster spinning 5 1/4 disks, and only
 this section consists in using the faster data transfer rate intended
 for 5 1/4 disks on 3 1/2 disks, and thus boost the raw capacity per
 track of these disks.  This is possible because 300 kb/s is still low
-enough not to excede the specification of the disk surface of a double
+enough not to exceed the specification of the disk surface of a double
 density disk (which 500 kb/s would).
 
 
@@ -369,7 +369,7 @@ density     tot. cap.    throughput    media description
 
 We use the @code{QD} density selector to describe this particular DTR
 set-up, although the acronym @code{QD} is already taken to name 96tpi
-double density 5 1/4 disks.  However, as this dtr trickery is only
+double density 5 1/4 disks.  However, as this DTR trickery is only
 meaningful for 3 1/2, we hope that there will be no ambiguity.
 
 
@@ -446,7 +446,7 @@ access, in a similar way that interleaving does for disk with normal
 sized sectors and too small gaps.  XDF's sector arrangement allows it to
 read sectors alternatively from both sides, i.e. the first sector from
 side 0, the second from side 1, and the third from side 0 again.  This
-differs from the usualy formats, where first the entire side 0 is read,
+differs from the usually formats, where first the entire side 0 is read,
 and then the entire side 1.  This technique allows to read both sides of
 a disk in roughly three rotations. 
 
@@ -495,7 +495,7 @@ read the whole cylinder (the third rotation is due to the fact that we
 stop at a higher position than we started, and that we also need to
 allow some time for seeking to the next track).
 
-MSS or 2M formats of the same capacity nead at least 2 rotations per
+MSS or 2M formats of the same capacity need at least 2 rotations per
 side (i.e. 4 per track), yielding a lower throughput.
 
 @strong{Usage:} XDF disks are not bootable by LILO.  They can be
@@ -513,8 +513,8 @@ density     tot. cap.    throughput    formatting command
 3 1/2 ED    3840KB       102KB/s       xdfcopy -2 /dev/fd0
 @end example
 
-The options @code{-1}, @code{-2} and @code{-3} descibre one out of the
-five formats understoood by @code{xdfcopy} (3 XDF formats and 2 XDF
+The options @code{-1}, @code{-2} and @code{-3} describe one out of the
+five formats understood by @code{xdfcopy} (3 XDF formats and 2 XDF
 formats).
 
 @node XXDF,, XDF, Extended formats

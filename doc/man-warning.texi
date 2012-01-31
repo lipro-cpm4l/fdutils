@@ -2,7 +2,7 @@
 @unnumbered Note
 This manpage has been automatically generated from fdutils's texinfo
 documentation.  However, this process is only approximative, and some
-items, such as crossreferences, footnotes and indices are lost in this
+items, such as cross-references, footnotes and indices are lost in this
 translation process.  Indeed, these items have no appropriate
 representation in the manpage format.  Moreover, only the items specific
 to each command have been translated, and the general information about
@@ -18,11 +18,11 @@ commands:
 @end example
 
 @item
-To generate a html copy,  run:
+To generate a HTML copy,  run:
 @example
     ./configure; make html
 @end example
-A premade html can be found at:
+A pre-made HTML can be found at:
 @file{http://www.tux.org/pub/knaff/fdutils}
 
 @item
@@ -32,6 +32,6 @@ To generate an info copy (browsable using emacs' info mode), run:
 @end example
 @end itemize
 
-The texinfo doc looks most pretty when printed or as html.  Indeed, in
+The texinfo doc looks most pretty when printed or as HTML.  Indeed, in
 the info version certain examples are difficult to read due to the
 quoting conventions used in info.
