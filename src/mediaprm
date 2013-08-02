@@ -1,4 +1,4 @@
-# /etc/fdprm  -  floppy disk parameter table
+# /etc/mediaprm  -  floppy disk parameter table
 
 ########################################################################
 # Standard linux disk formats. Names are of the form
