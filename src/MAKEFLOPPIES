@@ -1,0 +1,254 @@
+#!/bin/sh
+#
+# MAKEFLOPPIES
+#
+# requires: expr
+# Note quirk of expr: if it prints "0", it always
+# returns "1" regardless of whether this makes sense!
+#
+# 1995.01.03	David Niemi	Created
+
+set -e
+set -u
+MAJOR=2
+TMPDEVICE=/dev/tmpfloppy$$
+if [ ! -b /dev/fd0 ] ; then
+    mknod /dev/fd0 b $MAJOR 0
+fi
+if floppycontrol 2>/dev/null; then
+	FLOPPYCONTROL=yes
+else
+	FLOPPYCONTROL=no
+fi
+
+MINORNAMES='d360 h1200 D360 D720 h360 h720 H1440 E2880
+	CompaQ h1440 H1680 h410 H820 h1476 H1722 h420
+	H830 h1494 H1743 h880 D1040 D1120 h1600 H1760
+	H1920 E3200 E3520 E3840 H1840 D800 H1600'
+
+CMOSNAMES='360K_PC 1.2M_AT 720K 1.44M 2.88M_AMI_BIOS 2.88M'
+
+## Used only with -t option
+CMOSLETTERS='d h D H E E'
+UCMOSLETTERS='d h u u u u'
+CMOSFORMATS='d h D DH DHE DHE'
+
+LOCAL=
+DRIVES=
+USAGE=
+TYPE_OVERRIDE=u
+REMAINDER=
+DRYRUN=
+VERBOSE=
+
+
+## getword nth parameter of all the subsequent parameters
+getword ()
+{	if [ $# -lt 1 ]; then
+		return
+	fi
+	if [ "$1" -lt 1 -o "$1" -ge $# ]; then
+		return
+	fi
+	shift $1
+	echo $1
+}
+
+basenumber()
+{
+	if [ $1 -ge 4 ] ; then
+		expr $1 + 124
+	else
+		echo $1
+	fi
+}
+
+minorname ()
+{	if [ "$FLOPPYCONTROL" = no ]; then
+		## No floppycontrol program, so use default values
+		getword "$1" $MINORNAMES
+	else
+		rm -f "$TMPDEVICE"
+		mknod "$TMPDEVICE" b "$MAJOR" "$1"
+		floppycontrol -T "$TMPDEVICE" 2>/dev/null || :
+		rm -f "$TMPDEVICE"
+	fi
+
+}
+
+cmosid ()
+{
+	if [ "$FLOPPYCONTROL" = yes ]; then
+		case `minorname $1` in
+		d360)		echo 1 ;;
+		h1200)		echo 2 ;;
+		D720)		echo 3 ;;
+		H1440)		echo 4 ;;
+		E2880)		echo 6 ;;
+		"(null)")	echo none ;;
+		"")		echo none ;;
+		*)		echo unknown ;;
+		esac
+	elif [ "$1" = 0 ]; then
+		echo 4		# 1.44MB default for drive 0
+	elif [ "$1" = 1 ]; then
+		echo 2		# 1.2MB AT default for drive 1
+	else
+		echo none	# Nothing for everybody else
+	fi
+}
+
+# main()
+
+PERMISSION=666
+while [ $# -ge 1 -o -n "${REMAINDER}" ]; do
+	if [ -n "$REMAINDER" ]; then
+		## Continue processing options stuck together
+		ARG=$REMAINDER
+	else
+		## Get a fresh argument
+		ARG=$1
+		shift
+		case "$ARG" in
+
+		## Remove dash in front of option(s)
+		-?*)
+			ARG=`expr "-$ARG" : '-*\(.*\)' || :`
+			;;
+		esac
+	fi
+
+	## Break compound options up
+	case "$ARG" in
+	??*)	REMAINDER=`expr "$ARG" : '.\(.*\)' || :`
+		ARG=`expr "$ARG" : '\(.\)' || :`
+		;;
+	*)	REMAINDER= ;;
+	esac
+
+	case $ARG in
+
+	## Process drive number(s)
+	[0-7])	DRIVES="$DRIVES $ARG" ;;
+
+	[nN])	DRYRUN=yes ;;
+
+	## Make devices in current directory, not /dev
+	[lL])	LOCAL=yes ;;
+
+	## Base device name on drive type
+	[tT])	TYPE_OVERRIDE=yes ;;
+	[dD])	TYPE_OVERRIDE=yes ;;
+
+	## Base device name on media type
+	[mM])	TYPE_OVERRIDE=no ;;
+
+	## New naming scheme
+	[uU])	TYPE_OVERRIDE=no ;;
+
+	[vV])	VERBOSE=yes ;;
+
+	## Allow access only for group floppy
+	[gG])	PERMISSION=660 ;;
+
+	*)	echo "$0: unrecognized argument \"$ARG\"." >&2
+		USAGE=yes
+		;;
+	esac
+done
+
+if [ -n "$USAGE" ]; then
+	echo "Usage: $0 [ <option> ... ] [ <drive #> ... ]" >&2
+	echo 'Options:
+	-l	Local (make files in local directory, not /dev)
+	-n	Dry run (just report what would be done, do not do anything)
+	-t	Name devices for drive type
+	-d	Name devices for drive type
+	-m	Name devices for media type
+	-u	Use the same letter (u) for all 3 1/2 devices
+	-g	Allow access only for group floppy
+	-v	Verbose
+' >&2
+	exit 1
+fi
+
+if [ -z "$DRIVES" ]; then
+	DRIVES="0 1 2 3 4 5 6 7"
+fi
+
+for DRIVE in $DRIVES; do
+	if [ -n "$LOCAL" ]; then
+		FILE=fd$DRIVE
+	else
+		FILE=/dev/fd$DRIVE
+	fi
+	BASENUMBER=`basenumber $DRIVE`
+	CMOS=`cmosid "$BASENUMBER"`
+	if [ $CMOS = none ] ; then
+		echo "Drive $DRIVE is not installed or not configured, skipping"
+		continue
+	fi
+
+	if [ $CMOS = unknown ] ; then
+		echo "Drive $DRIVE is of unknown type, skipping"
+		continue
+	fi	
+
+	CN=`getword "$CMOS" $CMOSNAMES`
+
+	if [ "$TYPE_OVERRIDE" = u ]; then
+		CL=`getword "$CMOS" $UCMOSLETTERS`
+	else
+		CL=`getword "$CMOS" $CMOSLETTERS`
+	fi
+
+	FORMATS=`getword "$CMOS" $CMOSFORMATS`
+	if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
+		echo rm -f "$FILE"*
+	fi
+	if [ -z "$DRYRUN" ]; then
+		rm -f "$FILE"*
+	fi
+	if [ -z "$CMOS" -o -z "$CN" ]; then
+		echo "Skipping invalid drive \"$FILE\"" >&2
+		continue
+	fi
+	echo "Creating \"$FILE\", ID=$DRIVE, Type=$CMOS ($CN)"
+	if [ -z "$DRYRUN" ]; then
+		mknod "$FILE" b "$MAJOR" "$BASENUMBER"
+		chown root.floppy "$FILE"
+		chmod ${PERMISSION} "$FILE"
+	fi
+	if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
+		echo mknod "$FILE" b "$MAJOR" "$BASENUMBER"
+	fi
+
+	## Todo: query about tracks and such (for now assume 80 only)
+
+	BASE=4
+	while [ $BASE -lt 128 ] ; do
+		MINOR=`expr "$BASE" + "$BASENUMBER" || :`
+		NAME=`minorname "$BASE"`
+		if expr index "$FORMATS" "$NAME" >/dev/null ; then
+			if [ "$TYPE_OVERRIDE" != no ]; then
+				NAME=`echo $NAME | sed "s/^./$CL/g"`
+			fi
+		
+			if [ -z	"$NAME" ]; then
+				echo "Oops, skipping invalid format \"$FORMAT\"" >&2
+				continue
+			fi
+			if [ -z "$DRYRUN" ]; then
+				mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"
+				chown root.floppy "${FILE}${NAME}"
+				chmod ${PERMISSION} "${FILE}${NAME}"
+			fi
+			if [ -n "$VERBOSE" -o -n "$DRYRUN" ]; then
+				echo mknod "${FILE}${NAME}" b "$MAJOR" "$MINOR"
+			fi
+		fi
+		BASE=`expr $BASE + 4`
+	done
+done
+
+## END ##

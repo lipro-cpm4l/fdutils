@@ -1,0 +1,93 @@
+I am very grateful for the support provided by the following people:
+
+Heiko Schroeder (heiko@pool.informatik.rwth-aachen.de)
+	Wrote the fdpatches, which inspired the new floppy driver
+	since 1.1.41
+
+David Niemi (niemi@tux.org)
+	Provided many useful suggestions and general support.
+	Contributed to superformat.c and mtools.
+	Wrote fdc version detection code and the hlt/hut/srt code.
+	Tested ED code. Found many minor bugs.
+	Wrote the floppy_format file, and added a few default formats
+
+Bill Broadhurst (bbroad@netcom.com)
+	Tested and corrected ED code.
+
+Sam Chessman (sam.chessman@slma.com)
+
+Thorsten Meinecke (thm@aglaia.in-berlin.de)
+	Pointed me to 2m.
+	Reported a compatibility bug with dosemu.
+
+Ciriaco Garcia de Celis (ciri@gui.uva.es)
+	Wrote the 2m program.
+
+Frank Lofaro (ftlofaro@unlv.edu)
+	Provided information about an FDC which supports the version command,
+	but no other command.
+
+Francois Genolini (genolini@westminster.ac.uk)
+	Noticed that the mutual exclusion between mount and open is harmful
+	for Lilo.
+	Reported the ram disk loading bug.
+	Reported a device size bug.
+
+Andre Schroeter (A.Schroeter@dkfz-heidelberg.de)
+	Noticed that the mutual exclusion between mount and open is harmful
+	for Lilo.
+
+Wolfram (u7y22ab@sunmail.lrz-muenchen.de)
+Rick (pclink@qus102.qld.npb.telecom.com.au)
+	Reported the ram disk loading bug.
+
+Kai Makisara (makisara@vtinsu.ins.vtt.fi)
+Derek Atkins (warlord@MIT.EDU)
+Laurent Chemla (chemla@cnam.fr)
+	Found an incompatibility with PCI & Adaptec 1542CF, and
+	proposed fixes for the problem.
+
+Mitch Miers (root@intellibase.gte.com)
+	Found an incompatibility with PCI & Adaptec 1542CF,
+	proposed fixes for the problem, and did experiments to find
+	the explanation for the problem.
+	Helped debugging the 1.1.52 alpha patches
+
+Ulrich Dessauer (ud@nitmar.muc.de)
+	Proposed the ability to read 256 sectors (used by OS-9)
+	
+Bill Metzenthen <billm@jacobi.maths.monash.edu.au>
+	Found a fix for the bug which broke e2fsck.
+
+Uwe Bonnes (bon@LTE.E-TECHNIK.uni-erlangen.de)
+	Suggested modifications to mmount which allow more flexibility.
+	Helped debugging the 1.1.52 alpha patches
+
+Sven Verdoolaege <kpverd@cs.kuleuven.ac.be>
+	Suggested mtools support for disk serial numbers (and sent a patch).
+
+Dario Ballabio (Dario_Ballabio@milano.europe.dg.com)
+	Discovered that under heavy disk load fsync may return before
+	all buffers are flushed.
+	Helped debugging the 1.1.52 and later alpha patches
+
+Frank van Maarseveen (fvm@tasking.nl)
+	Helped debugging a hardware incompatibility with drives that are
+	"a bit slow detecting a floppy change".
+
+
+Karl Eichwalder (ke@pertron.central.de)
+	Proposed some changes to the Makefile.
+	Suggested mtools should check for mounted disks and non-msdos disks
+
+
+Martin Schulze (Martin.Schulze@Infodrom.North.DE)
+	Actually took diskseekd seriously and proposed an improvement :-)
+
+
+Rainer Zimmermann (zimmerm@Mathematik.Uni-Marburg.DE)
+	Contributed fdmount, a daemon which automatically handles
+	mounting and unmounting of disks.
+
+
+... and many more that I forgot to add ...
