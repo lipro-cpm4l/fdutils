@@ -1,6 +1,6 @@
 MAKEINFO    = makeinfo
 TEXI2DVI    = texi2dvi
-TEXI2HTML   = texi2html
+TEXI2HTML   = makeinfo --html --no-split --force -o $@
 
 top_srcdir  = @top_srcdir@
 srcdir      = @srcdir@
