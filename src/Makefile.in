@@ -93,7 +93,7 @@ superformat: superformat.o libfdutils.a
 	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
 
 floppymeter: floppymeter.o libfdutils.a
-	${CC} ${LDFLAFS} -o $@ $< $(LIBS)
+	${CC} ${LDFLAGS} -o $@ $< $(LIBS)
 
 fdrawcmd: fdrawcmd.o
 	${CC} $(LDFLAGS) -o $@ $< $(LIBS)
