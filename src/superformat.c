@@ -486,6 +486,21 @@ void old_parameters()
 
 #define DRIVE_DEFAULTS (drive_defaults[drivedesc.type.cmos])
 
+static int
+file_exists (const char *filename)
+{
+  struct stat  buf;
+  int  res;
+  res = stat (filename, &buf);
+  if (! res)  return 1;
+  if (res && errno != ENOENT) {
+    fprintf (stderr, "error: cannot stat %s (%s)\n",
+	     filename, strerror (errno));
+    exit (1);
+  }
+  return 0;
+}
+
 int main(int argc, char **argv)
 {
 	int nseqs; /* number of sequences used */
@@ -494,7 +509,7 @@ int main(int argc, char **argv)
 	struct params fd[MAX_SECTORS], fd0;
 	int ch,i;
 	short density = DENS_UNKNOWN;
-	char drivename[10];
+	char drivename[15];
 
 	int have_geom = 0;
 	int margin=50;
@@ -545,7 +560,7 @@ int main(int argc, char **argv)
 		(void *) &dosverify,
 		"verify disk using mbadblocks" },
 
-	{ 'V', "verify_later", 1, EO_TYPE_BYTE, 1, 0,
+	{ 'V', "verify_later", 0, EO_TYPE_BYTE, 1, 0,
 		(void *) &verify_later,
 		"verify floppy after all formatting is done" },
 
@@ -696,21 +711,18 @@ int main(int argc, char **argv)
 	/* sanity checking */
 	if (sizecode < 0 || sizecode >= MAX_SIZECODE) {
 		fprintf(stderr,"Bad sizecode %d\n", sizecode);
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	if ( gap < 0 ){
 		fprintf(stderr,"Fmt gap too small: %d\n", gap);
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	if (sectors <= 0 || cylinders <= 0 || heads <= 0) {
 		fprintf(stderr,"bad geometry s=%d h=%d t=%d\n",
 			sectors, heads, cylinders);
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	argc -= optind;
@@ -723,8 +735,7 @@ int main(int argc, char **argv)
 
 	if (! fd[0].name){
 		fprintf(stderr,"Which drive?\n");
-		print_usage(progname,optable, "");
-		exit(1);
+		print_usage_exit(progname,optable, "");
 	}
 
 	while(1) {
@@ -756,7 +767,12 @@ int main(int argc, char **argv)
 				ioctl(fd[0].fd, FDGETPRM, &geometry);
 			have_geom = 1;
 			close(fd[0].fd);
-			snprintf(drivename,9,"/dev/fd%d", fd[0].drive);
+
+			if (file_exists ("/dev/.devfsd")) {
+			  snprintf(drivename,14,"/dev/floppy/%d", fd[0].drive);
+			} else {
+			  snprintf(drivename,9,"/dev/fd%d", fd[0].drive);
+			}
 			fd[0].name = drivename;
 			continue;
 		}
@@ -868,8 +884,7 @@ int main(int argc, char **argv)
 		
 	if (cylinders > fd[0].drvprm.tracks) {
 		fprintf(stderr,"too many cylinder for this drive\n");
-		print_usage(progname,optable,"");
-		exit(1);
+		print_usage_exit(progname,optable,"");
 	}
 
 	if (! (mask & SET_ENDTRACK ) || end_cylinder > cylinders)

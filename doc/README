@@ -24,7 +24,7 @@ tracks.
  4. Access to various internal driver structures, and drive
 configuration using the floppycontrol program.
 
-Floppy ioctls: 
+Floppy ioctls:
 ==============
 
  All these ioctl's may be issued using the floppycontrol program. (See also
@@ -43,7 +43,7 @@ doesn't write dirty buffers to the disk. Use fsync first.
  6. FDGETDRVTYP displays the type of a drive (name parameter). This is
 used by MAKEFLOPPIES. For the naming convention, see the description
 of the MAKEFLOPPIES script. For formats which work in several drive
-types, FDGETDRVTYP return a name which is appropriate for the oldes
+types, FDGETDRVTYP return a name which is appropriate for the oldest
 drive type which supports this format.
  7. FDSETDRVPRM sets various drive parameters.
  8. FDGETDRVPRM reads these parameters back.
@@ -73,14 +73,14 @@ their use is discouraged.
 
  Some formats use more than 80 tracks. It is not possible for the
 kernel to autodetect the number of tracks in a reasonable time, so you
-have to use a sufficiently recent version of mtools o set the number
+have to use a sufficiently recent version of mtools or set the number
 of tracks according to the boot sector of the disk. Mtools 2.5 and up
-are ok. This doesn't obviously work with disks containing something
+are OK. This doesn't obviously work with disks containing something
 else than a MSDOS filesystem.
 
  The minor device number for the floppy devices is calculated as
 follows:
-    minor_device = format_nr * 4 + 128 * fdc_nr + unit_nr 
+    minor_device = format_nr * 4 + 128 * fdc_nr + unit_nr
  (fdc_nr identifies the floppy disk controller, and unit_nr identifies
 which drive on the floppy disk controller to be used)
 
@@ -129,7 +129,7 @@ number, then the capacity of the format (360kb - 3200kb), and then the
 type of the drive in which this format is used.
 
  The formats 0..8 are the standard PC formats, 9 is apparently needed
-for certain weird CompaQ computers. The remaining formats are extended
+for certain weird Compaq computers. The remaining formats are extended
 capacity formats. Some of them have been taken from Heiko Schroeder's
 fdpatches (after correcting some minor bugs). Others have been added
 by David Niemi and me (Alain Knaff). Formats 30 and 31 are
@@ -151,13 +151,13 @@ your default formats using setfdprm)
 
 Example:
    Make a device entry for a 1.74MB floppy in drive 0:
-   The format number is 19, drive 0, floppy disk controller 0 so 
-   the minor device number is 128*0+4*19+0=76. The command line to make 
+   The format number is 19, drive 0, floppy disk controller 0 so
+   the minor device number is 128*0+4*19+0=76. The command line to make
    the new device entry is:
           mknod /dev/fd0H1743 b 2 76
                    ^          ^ ^ ^
                    |          | | Minor device number
-                   |          | Major device number (always 2!)           
+                   |          | Major device number (always 2!)
                    |          Blockdevice
                    A name that you choose for the format. I
 		   recommend the names I used in floppy.c, but
@@ -195,7 +195,7 @@ suggest you put them into your /etc/rc files if you use many Commodore
 
  Although most drives support more than 80 tracks some may not, and
 repeatedly trying to read beyond track 80 might be damaging to them.
-In order to know wether your drive supports more than eighty tracks,
+In order to know whether your drive supports more than eighty tracks,
 first set the number of allowed tracks to 82.
 (using floppycontrol --tracks 82 -d <drive>)
  Then format a disks with a 82 track format (for example
@@ -218,14 +218,14 @@ MAKEFLOPPIES.
  N.B. I have yet to see a 3.5" drive which doesn't support 82 tracks.
 If you have such a beast, please mail me.
 
- Configuring the floppy driver via lilo:
+ Configuring the floppy driver via LILO:
  =======================================
 
  The floppy driver is configured using the 'floppy=' option in
-lilo. This option can be typed at the boot prompt, or entered in the
-lilo configuration file.
+LILO. This option can be typed at the boot prompt, or entered in the
+LILO configuration file.
  Example: If your kernel is called linux-72, type the following line
-at the lilo boot prompt (if you have a thinkpad):
+at the LILO boot prompt (if you have a Thinkpad):
  linux-72 floppy=thinkpad
 You may also enter the following line in /etc/lilo.conf, in the description
 of linux-72:
@@ -235,7 +235,7 @@ of linux-72:
  linux-72 floppy=daring floppy=two_fdc
  append = "floppy=daring floppy=two_fdc"
 
- If you give options both in the lilo config file and on the boot
+ If you give options both in the LILO configuration file and on the boot
 prompt, the option strings of both places are concatenated, the boot
 prompt options coming last. That's why there are also options to
 restore the default behaviour.
@@ -269,9 +269,9 @@ restore the default behaviour.
 	Tells the floppy driver that you don't have a Thinkpad.
 
  floppy=<drive>,<type>,cmos
-	Sets the cmos type of <drive> to <type>. Additionnaly, this drive is
+	Sets the CMOS type of <drive> to <type>. Additionally, this drive is
 	allowed in the bitmask. This is useful if you have more than two
-	floppy drives (only two can be described in the physical cmos), or if
+	floppy drives (only two can be described in the physical CMOS), or if
 	your BIOS uses non-standard CMOS types. The CMOS types are:
 		0 - unknown or not installed
 		1 - 5 1/4 DD
@@ -285,10 +285,10 @@ restore the default behaviour.
 	AMI ignored this, and used 5 for ED drives. That's why the floppy
 	driver handles both)
 	Setting the CMOS to 0 for the first two drives (default) makes the
-	floppy driver read the physical cmos for those drives.
+	floppy driver read the physical CMOS for those drives.
 
  floppy=unexpected_interrupts
-	Print a warning message when an unexpected interrupt is received 
+	Print a warning message when an unexpected interrupt is received
 	(default behaviour)
 
  floppy=no_unexpected_interrupts
@@ -303,11 +303,11 @@ restore the default behaviour.
  Included utilities:
  ===================
 
- 1. floppycontrol. This program sets the various error tresholds
+ 1. floppycontrol. This program sets the various error thresholds
 (error reporting, operation abortion, and read track), prints out
 drive drive types, and flushes buffers. There is a -h help option.
  This program provides examples on how to use the new ioctl's.
- 
+
  To compile this program just type make in the util directory.
 
  See also the included manpage. (in the utils directory)
@@ -315,7 +315,7 @@ drive drive types, and flushes buffers. There is a -h help option.
  2. MAKEFLOPPIES. This shell script creates the new floppy block
 device files.  It uses the floppycontrol program to translate the
 minor device numbers into meaningful names. It also uses these names
-to decide wether to create a given block device file or not, depending
+to decide whether to create a given block device file or not, depending
 on the type of the physical drive (for instance, for a 3 1/2 drive,
 the formats corresponding to a 5 1/4 drive are not created).
  If you have more than two floppy drives, the kernel cannot find out
@@ -373,11 +373,11 @@ THIS MANPAGE CAREFULLY. IMPROPER USAGE MAY LEAD TO DATA LOSS.
 
 
  *formats with bigger sectors:
-	There is only one utility which can do this: 
+	There is only one utility which can do this:
 	2m20 (by Ciriaco Garcia)
-	You can get this program from 
+	You can get this program from
 	nic.switch.ch:/mirror/msdos/diskutil/2m20.zip
-	(for other adresses, see archie)	
+	(for other addresses, see archie)
 
 	This program uses a normal format for the first track and first head
 	(18 sectors), and enhanced formats for the other tracks (up to
@@ -392,7 +392,7 @@ THIS MANPAGE CAREFULLY. IMPROPER USAGE MAY LEAD TO DATA LOSS.
  ==========
 
  There are man pages for mtools (in mtools/) and the utilities (in
-utils/) included. There's also a FAQ list. It is regularily updated on
+utils/) included. There's also a FAQ list. It is regularly updated on
 http://fdutils.linux.lu/FAQ.html .  You can find alpha versions of
 fdutils on http://fdutils.linux.lu/ . (They are named fduddmm.taz,
 where dd stands for the day and mm for the month. I'll only leave
