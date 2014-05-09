@@ -66,7 +66,7 @@ different sizes on a single track. @xref{Mixed size sectors}, for
 details.
 
 @item 2M (2 Megabytes)
-2M is a high capacity format developped by Ciriaco de Celis.  The basic
+2M is a high capacity format developed by Ciriaco de Celis.  The basic
 principle is the same as MSS: mix sectors of several sizes on a same
 track, in order to minimize both slack space and header overhead.  2M is
 different from MSS in that it uses a normal 18 sector format on its

@@ -13,7 +13,7 @@ ftp://metalab.unc.edu/pub/Linux/utils/disk-management/fdutils-5.5.tar.gz
 ftp://tsx-11.mit.edu/pub/linux/sources/sbin/fdutils-5.5.tar.gz
 @end example
 
-The FAQ included in this package is also available separetely at:
+The FAQ included in this package is also available separately at:
 @example
 http://alain.knaff.linux.lu/floppy/FAQ.html
 http://www.tux.org/pub/knaff/floppy/FAQ.html
