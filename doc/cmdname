@@ -9,4 +9,4 @@ getfdprm - print the current format information
 MAKEFLOPPIES - Creates the default floppy device nodes.
 setfdprm - sets user-provided floppy disk parameters
 superformat - format floppies
-xdfcopy - Program to copy and format Xdf disks in Linux
+xdfcopy - copy and format XDF disks in Linux
