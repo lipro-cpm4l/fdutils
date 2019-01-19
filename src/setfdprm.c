@@ -41,8 +41,6 @@ int main(int argc,char **argv)
 	int mask;
 
 	name = argv[0];
-	if (argc < 3) 
-		print_usage(name, optable, userparams);
 	cmd = FDSETPRM;
 	mcmd = 0;
 	while((c=getopt_enh(argc, argv, optable, 0, &mask, userparams)) != EOF){
@@ -53,6 +51,8 @@ int main(int argc,char **argv)
 		printf("unhandled option %d\n", c);
 		exit(1);
 	}
+	if (argc < 3)
+		print_usage_exit(name, optable, userparams);
 
 	argv += optind;
 	argc -= optind;

@@ -1,3 +1,4 @@
+#include <config.h>
 #include <sys/types.h>
 #ifdef HAVE_SYS_SYSMACROS_H
 # include <sys/sysmacros.h>
@@ -77,7 +78,7 @@ int main(int argc, char **argv)
 		interval = 0;
 
 	while((ch=getopt_enh(argc, argv, optable, 
-			     0, &mask, "drive") ) != EOF ){
+			     0, &mask, "") ) != EOF ){
 		if ( ch== '?' ){
 			fprintf(stderr,"exiting\n");
 			exit(1);

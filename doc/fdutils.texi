@@ -21,9 +21,10 @@
 
 @ifinfo
 @format
-START-INFO-DIR-ENTRY
+@dircategory Utilities
+@direntry
 * Fdutils: (fdutils).        Fdutils: Linux' floppy utilities
-END-INFO-DIR-ENTRY
+@end direntry
 @end format
 @end ifinfo
 
@@ -89,7 +90,7 @@ by the Free Software Foundation.
 
 @unnumbered General Introduction
 
-Fdutils is a collection of utililties for configuring and using the
+Fdutils is a collection of utilities for configuring and using the
 Linux floppy driver.  With fdutils, you can:
 
 @enumerate
