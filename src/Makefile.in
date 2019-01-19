@@ -23,7 +23,7 @@ CC       = @CC@
 PID      = -DPIDFILE=\"@localstatedir@/run/diskseekd.pid\"
 DEFINES  = $(DEFINES) $(PID) -DSYSCONFDIR=\"@sysconfdir@\"
 DEFS     = @DEFS@ -DSYSCONFDIR=\"@sysconfdir@\"
-CPPFLAGS = -I. -I@srcdir@ @CPPFLAGS@ $(DEFS)
+CPPFLAGS = -I. -I@srcdir@ -I@top_srcdir@ @CPPFLAGS@ $(DEFS)
 CFLAGS   = -Wall @CFLAGS@
 
 LDFLAGS     = @LDFLAGS@

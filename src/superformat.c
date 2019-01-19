@@ -32,6 +32,7 @@ Todo:
 	cylinders as happen to work (as in 2m).  Currently, if too many cylinders
 	are attempted it won't fail until the very end
  */
+#include <config.h>
 #include <sys/types.h>
 #ifdef HAVE_SYS_SYSMACROS_H
 # include <sys/sysmacros.h>
