@@ -54,7 +54,7 @@ list, we have to dump one entry (we chose the last, which is numbered
 21).  The 1680KB format is identical with the default 1440KB format
 except for the number of sectors.  Thus we must read the whole track in
 order to distinguish it from the 18 sector format (@code{t} flag).
-Furthermore, the the 1680KB sector format should be detected first, as
+Furthermore, the 1680KB sector format should be detected first, as
 an 21 sector disk would also matches the standard format with its 18
 sectors.
 
@@ -89,6 +89,6 @@ floppycontrol --autodetect 7,8,4,20,25,28,22,31
 Some formats use more than 80 tracks. It is not possible for the kernel
 to autodetect the number of tracks in a reasonable time, so you have to
 use a sufficiently recent version of mtools to set the number of tracks
-according to the boot sector of the disk. Mtools 3.0 and up are ok. This
+according to the boot sector of the disk. Mtools 3.0 and up are OK. This
 doesn't obviously work with disks containing something else than a
 MS-DOS filesystem.

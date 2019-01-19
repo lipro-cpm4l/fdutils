@@ -8,7 +8,7 @@
 @example
 @code{fdrawcmd} [@code{drive=}@var{drive}] [@code{rate=}@var{rate}]
 [@code{length=}@var{length}] [@code{repeat=}@var{repeat}]
-[@code{cylinder=}@var{physical-cyl}] @var{command} [@var{paramters} @dots{}] [@var{mode}]
+[@code{cylinder=}@var{physical-cyl}] @var{command} [@var{parameters} @dots{}] [@var{mode}]
 @end example
 
 @code{fdrawcmd}
@@ -158,12 +158,12 @@ Echoes 0x90 if the FDC is more recent than 82072A, and 0x80 otherwise
 Sets the perpendicular mode.  Use 0 for normal, 2 for 500kb/s
 perpendicular, and 3 for 1 Mb/s perpendicular.
 
-@item seek-out @var{drvsel n}
+@item seek_out @var{drvsel n}
 does a relative seek of
 @var{n}
 cylinders towards cylinder 0.
 
-@item seek-in  @var{drvsel n}
+@item seek_in  @var{drvsel n}
 does a relative seek of @var{n} cylinders away from cylinder 0.
 @end table
 
@@ -191,7 +191,7 @@ configures automatic power down of the FDC. The old configuration is echoed
 enables/disables ISO formats. Odd values of
 @var{iso}
 enable these formats, whereas even values disable them. ISO formats
-don't have index headers, and thus allow to fit slightly more data on
+don't have index headers, and thus allow one to fit slightly more data on
 a disk.
 
 @item save
@@ -209,7 +209,7 @@ made up of a sequence of headers (4 bytes) and data:
 chooses rate tables for various drives. Each dspec byte describes one
 drive. Bits 0 and 1 say which drive is described. Bits 2 and 3 describe
 the rate table. Only tables 0 and 2 are interesting. Both tables only
-differ in the meaning og rate 1. For table 0 (the default) rate 0 is 300
+differ in the meaning of rate 1. For table 0 (the default) rate 0 is 300
 kb/s (used for 5 1/4 DD disks), whereas for table 1 it is 2 Mbps (used
 for fast floppy tape drives). Bit 4 is the precompensation table select
 bit. It should be set to 0. Bit 5-7 should be zero as well. The

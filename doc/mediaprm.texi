@@ -13,8 +13,8 @@
 
 Fdutils-5.0 introduces a new uniform format description, which is
 supported both by setfdprm and superformat.  The new format description
-is easyer to handle, because it allows to set the different parameters
-of a format description in a symbolic and position independant way,
+is easier to handle, because it allows one to set the different parameters
+of a format description in a symbolic and position independent way,
 using a series of @emph{variable=value} clauses.  Moreover, it
 automatically fills in sensible default values for unspecified
 parameters.  Thus you only need to describe those aspects of the format
@@ -142,7 +142,7 @@ sector, and in some cases mixed sector sizes.
 @node Legacy formats, Expert options, Selecting non-standard sector sizes, Syntax
 @subsection Legacy formats
 
-The @code{swapsides} format allows to descibe disks whose sides are
+The @code{swapsides} format allows one to describe disks whose sides are
 swapped, such as CBM1581 disks.
 
 @node Expert options,, Legacy formats, Syntax

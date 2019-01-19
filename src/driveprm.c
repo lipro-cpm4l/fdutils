@@ -1,3 +1,4 @@
+#include <config.h>
 #include <sys/types.h>
 #ifdef HAVE_SYS_SYSMACROS_H
 # include <sys/sysmacros.h>
