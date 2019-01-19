@@ -19,7 +19,7 @@ See also the included manpage. (in the utils directory)
 This shell script creates the new floppy block
 device files.  It uses the floppycontrol program to translate the
 minor device numbers into meaningful names. It also uses these names
-to decide wether to create a given block device file or not, depending
+to decide whether to create a given block device file or not, depending
 on the type of the physical drive (for instance, for a 3 1/2 drive,
 the formats corresponding to a 5 1/4 drive are not created).
 If you have more than two floppy drives, the kernel cannot find out

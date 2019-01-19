@@ -1,12 +1,12 @@
 @node Boottime configuration, Floppy ioctls, Autodetection, Top
-@chapter Configuring the floppy driver via lilo or insmod
+@chapter Configuring the floppy driver via LILO or insmod
 
 The floppy driver is configured using the @code{floppy=} options in
-lilo. These options can be typed at the boot prompt, or entered in the
-lilo configuration file.
+LILO. These options can be typed at the boot prompt, or entered in the
+LILO configuration file.
 
 Example: If your kernel is called @code{linux-2.0}, type the following
-line at the lilo boot prompt (if you have a thinkpad):
+line at the LILO boot prompt (if you have a Thinkpad):
 @example
 linux-2.0 floppy=thinkpad
 @end example
@@ -22,7 +22,7 @@ linux-2.0 floppy=daring floppy=two_fdc
 append = "floppy=daring floppy=two_fdc"
 @end example
 
-If you give options both in the lilo config file and on the boot
+If you give options both in the LILO configuration file and on the boot
 prompt, the option strings of both places are concatenated, the boot
 prompt options coming last. That's why there are also options to
 restore the default behaviour.
@@ -90,12 +90,12 @@ Tells the floppy driver that you don't have a Thinkpad.
 @item floppy=omnibook
 @itemx floppy=nodma
 
-Tells the floppy driver not to use Dma for data transfers.  This is
+Tells the floppy driver not to use DMA for data transfers.  This is
 needed for instance on some HP Omnibooks, which don't have a workable
 DMA channel for the floppy driver. This option is also useful if you
-frequently get "Unable to allocate DMA memory" messages.  Indeed, dma
+frequently get "Unable to allocate DMA memory" messages.  Indeed, DMA
 memory needs to be continuous in physical memory, and is thus harder to
-find, whereas non-dma buffers may be allocated in virtual memory.
+find, whereas non-DMA buffers may be allocated in virtual memory.
 However, I advise against this if you have an FDC without a FIFO (8272A
 or 82072). 82072A and later are OK. You also need at least a 486 to use
 nodma.  If you use nodma mode, I suggest you also set the FIFO threshold
@@ -121,23 +121,23 @@ triggers more interrupts (i.e. it imposes more load on the rest of the
 system). If this is lower, the interrupt latency should be lower too
 (faster processor). The benefit of a lower threshold is less interrupts.
 
-To tune the fifo threshold, switch on over/underrun messages using
+To tune the FIFO threshold, switch on over/underrun messages using
 @code{floppycontrol --messages}. Then access a floppy disk. If you get a
-huge amount of @code{Over/Underrun - retrying} messages, then the fifo
+huge amount of @code{Over/Underrun - retrying} messages, then the FIFO
 threshold is too low. Try with a higher value, until you only get an
-occasional Over/Underrun.  It is a good idea to compile the floppy
-driver as a module when doing this tuning. Indeed, it allows to try
-different fifo values without rebooting the machine for each test. Note
+occasional over/underrun.  It is a good idea to compile the floppy
+driver as a module when doing this tuning. Indeed, it allows one to try
+different FIFO values without rebooting the machine for each test. Note
 that you need to do @code{floppycontrol --messages} every time you
 re-insert the module.
 
-Usually, tuning the fifo threshold should not be needed, as the default
+Usually, tuning the FIFO threshold should not be needed, as the default
 (0xa) is reasonable.
 
 @item floppy=@var{drive},@var{type},cmos
-Sets the cmos type of @var{drive} to @var{type}. Additionnaly, this
+Sets the CMOS type of @var{drive} to @var{type}. Additionally, this
 drive is allowed in the bitmask. This is useful if you have more than
-two floppy drives (only two can be described in the physical cmos), or
+two floppy drives (only two can be described in the physical CMOS), or
 if your BIOS uses non-standard CMOS types. The CMOS types are:
 @table @code
 @item 0
@@ -160,7 +160,7 @@ Note that there are two valid types for ED drives. This is because 5 was
 initially chosen to represent floppy tapes, and 6 for ED drives.  AMI
 ignored this, and used 5 for ED drives. That's why the floppy driver
 handles both) Setting the CMOS to 0 for the first two drives (default)
-makes the floppy driver read the physical cmos for those drives.
+makes the floppy driver read the physical CMOS for those drives.
 
 @item floppy=unexpected_interrupts
 Print a warning message when an unexpected interrupt is received 
@@ -178,7 +178,7 @@ Don't use the disk change line, but assume that the disk was changed
 whenever the device node is reopened. Needed on some boxes where the
 disk change line is broken or unsupported.  This should be regarded as a
 stopgap measure, indeed it makes floppy operation less efficient due to
-unneeded cache flushings, and slightly more unreliable. Please verify
+unneeded cache flushing, and slightly more unreliable. Please verify
 your cable, connection and jumper settings if you have any DCL problems.
 However, some older drives, and also some Laptops are known not to have
 a DCL.

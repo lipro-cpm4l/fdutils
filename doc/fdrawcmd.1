@@ -15,7 +15,7 @@ fdrawcmd - send raw commands to the floppy disk controller
 .SH Note
 This manpage has been automatically generated from fdutils's texinfo
 documentation.  However, this process is only approximative, and some
-items, such as crossreferences, footnotes and indices are lost in this
+items, such as cross-references, footnotes and indices are lost in this
 translation process.  Indeed, these items have no appropriate
 representation in the manpage format.  Moreover, only the items specific
 to each command have been translated, and the general information about
@@ -38,7 +38,7 @@ commands:
 \&\fR
 .TP
 * \ \ 
-To generate a html copy,  run:
+To generate a HTML copy,  run:
  
 .nf
 .ft 3
@@ -49,7 +49,7 @@ To generate a html copy,  run:
 .ft R
 .lp
  
-\&\fRA premade html can be found at:
+\&\fRA pre-made HTML can be found at:
 \&\fR\&\f(CW\(ifhttp://www.tux.org/pub/knaff/fdutils\(is\fR
 .TP
 * \ \ 
@@ -66,7 +66,7 @@ To generate an info copy (browsable using emacs' info mode), run:
  
 \&\fR
 .PP
-The texinfo doc looks most pretty when printed or as html.  Indeed, in
+The texinfo doc looks most pretty when printed or as HTML.  Indeed, in
 the info version certain examples are difficult to read due to the
 quoting conventions used in info.
 .SH Description
@@ -262,7 +262,7 @@ configures automatic power down of the FDC. The old configuration is echoed
 enables/disables ISO formats. Odd values of
 \&\fIiso\fR
 enable these formats, whereas even values disable them. ISO formats
-don't have index headers, and thus allow to fit slightly more data on
+don't have index headers, and thus allow one to fit slightly more data on
 a disk.
 .TP
 \&\fR\&\f(CWsave\fR\ 
@@ -280,7 +280,7 @@ made up of a sequence of headers (4 bytes) and data:
 chooses rate tables for various drives. Each dspec byte describes one
 drive. Bits 0 and 1 say which drive is described. Bits 2 and 3 describe
 the rate table. Only tables 0 and 2 are interesting. Both tables only
-differ in the meaning og rate 1. For table 0 (the default) rate 0 is 300
+differ in the meaning of rate 1. For table 0 (the default) rate 0 is 300
 kb/s (used for 5 1/4 DD disks), whereas for table 1 it is 2 Mbps (used
 for fast floppy tape drives). Bit 4 is the precompensation table select
 bit. It should be set to 0. Bit 5-7 should be zero as well. The

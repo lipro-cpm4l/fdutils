@@ -24,7 +24,7 @@ When the disk is formatted, @code{superformat} automatically invokes
 @code{mformat} in order to put an MS-DOS filesystem on it. You may
 ignore this filesystem, if you don't need it.
 
-Superformat allows to format 2m formats.  Be aware, however, that these
+Superformat allows one to format 2m formats.  Be aware, however, that these
 @code{2m} formats were specifically designed to hold an MS-DOS
 filesystem, and that they take advantage of the fact that the MS-DOS
 filesystem uses redundant sectors on the first track (the FAT, which is

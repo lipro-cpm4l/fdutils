@@ -53,6 +53,6 @@ Group.  Allow read/write access to floppy devices only for group
 @end table
 
 @subsection Bugs
-The Makefloppies script does not work on redefined "default" formats, If
+The MAKEFLOPPIES script does not work on redefined "default" formats, If
 you redefine default formats, you need to create the needed device nodes
 manually.
